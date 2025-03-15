@@ -27,7 +27,7 @@ async function seedUsers() {
         ativo: true,
         dataCriacao: new Date(),
         ultimoAcesso: null
-      });
+      }, { hooks: false }); // Desabilitar hooks para evitar hash duplo
       console.log('Usuário administrador criado com sucesso.');
     } else {
       console.log('Usuário administrador já existe.');
@@ -45,7 +45,7 @@ async function seedUsers() {
         ativo: true,
         dataCriacao: new Date(),
         ultimoAcesso: null
-      });
+      }, { hooks: false }); // Desabilitar hooks para evitar hash duplo
       
       // Criar registro na tabela de técnicos
       await Tecnico.create({
@@ -71,7 +71,7 @@ async function seedUsers() {
         ativo: true,
         dataCriacao: new Date(),
         ultimoAcesso: null
-      });
+      }, { hooks: false }); // Desabilitar hooks para evitar hash duplo
       console.log('Usuário atendente criado com sucesso.');
     } else {
       console.log('Usuário atendente já existe.');
