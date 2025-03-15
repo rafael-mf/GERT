@@ -1,0 +1,99 @@
+flowchart TD
+    %% Atores
+    admin(["Administrador"])
+    tecnico(["Técnico"])
+    atendente(["Atendente"])
+    cliente(["Cliente"])
+
+    %% Casos de Uso
+    autenticar["Autenticar no Sistema"]
+    
+    %% Chamados
+    gerenciarChamados["Gerenciar Chamados"]
+    criarChamado["Abrir Chamado"]
+    atualizarChamado["Atualizar Chamado"]
+    fecharChamado["Fechar Chamado"]
+    visualizarChamado["Visualizar Chamado"]
+    atribuirTecnico["Atribuir Técnico"]
+    
+    %% Estoque
+    gerenciarEstoque["Gerenciar Estoque"]
+    adicionarPeca["Adicionar Peça"]
+    removerPeca["Remover Peça"]
+    controlarEstoque["Controlar Estoque Mínimo"]
+    registrarEntrada["Registrar Entrada"]
+    utilizarPeca["Utilizar Peça em Chamado"]
+    
+    %% Clientes
+    gerenciarClientes["Gerenciar Clientes"]
+    cadastrarCliente["Cadastrar Cliente"]
+    editarCliente["Editar Cliente"]
+    
+    %% Dispositivos
+    gerenciarDispositivos["Gerenciar Dispositivos"]
+    cadastrarDispositivo["Cadastrar Dispositivo"]
+    
+    %% Dashboard
+    visualizarDashboard["Visualizar Dashboard"]
+    consultarRelatórios["Consultar Relatórios"]
+    
+    %% Técnicos
+    gerenciarTecnicos["Gerenciar Técnicos"]
+    
+    %% Serviços
+    gerenciarServicos["Gerenciar Serviços"]
+    
+    %% Relações
+    admin --> autenticar
+    tecnico --> autenticar
+    atendente --> autenticar
+    cliente --> autenticar
+    
+    admin --> gerenciarChamados
+    admin --> gerenciarEstoque
+    admin --> gerenciarClientes
+    admin --> gerenciarDispositivos
+    admin --> visualizarDashboard
+    admin --> consultarRelatórios
+    admin --> gerenciarTecnicos
+    admin --> gerenciarServicos
+    
+    tecnico --> gerenciarChamados
+    tecnico --> visualizarChamado
+    tecnico --> atualizarChamado
+    tecnico --> fecharChamado
+    tecnico --> utilizarPeca
+    
+    atendente --> criarChamado
+    atendente --> visualizarChamado
+    atendente --> atualizarChamado
+    atendente --> atribuirTecnico
+    atendente --> gerenciarClientes
+    atendente --> cadastrarCliente
+    atendente --> cadastrarDispositivo
+    
+    cliente --> visualizarChamado
+    
+    %% Relacionamentos de inclusão
+    gerenciarChamados --> criarChamado
+    gerenciarChamados --> atualizarChamado
+    gerenciarChamados --> fecharChamado
+    gerenciarChamados --> visualizarChamado
+    gerenciarChamados --> atribuirTecnico
+    
+    gerenciarEstoque --> adicionarPeca
+    gerenciarEstoque --> removerPeca
+    gerenciarEstoque --> controlarEstoque
+    gerenciarEstoque --> registrarEntrada
+    gerenciarEstoque --> utilizarPeca
+    
+    gerenciarClientes --> cadastrarCliente
+    gerenciarClientes --> editarCliente
+    
+    gerenciarDispositivos --> cadastrarDispositivo
+
+    %% Estilo
+    classDef actor fill:#f9f,stroke:#333,stroke-width:2px
+    class admin,tecnico,atendente,cliente actor
+    classDef usecase fill:#ccf,stroke:#333,stroke-width:1px
+    class autenticar,gerenciarChamados,criarChamado,atualizarChamado,fecharChamado,visualizarChamado,atribuirTecnico,gerenciarEstoque,adicionarPeca,removerPeca,controlarEstoque,registrarEntrada,utilizarPeca,gerenciarClientes,cadastrarCliente,editarCliente,gerenciarDispositivos,cadastrarDispositivo,visualizarDashboard,consultarRelatórios,gerenciarTecnicos,gerenciarServicos usecase

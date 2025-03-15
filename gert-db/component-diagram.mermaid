@@ -1,0 +1,93 @@
+flowchart TB
+    subgraph Client["Camada de Apresentação (Angular)"]
+        direction TB
+        UI["Interface do Usuário"]
+        subgraph Components["Componentes"]
+            DashboardComponent["Dashboard Component"]
+            ChamadosComponent["Chamados Component"]
+            ClientesComponent["Clientes Component"]
+            EstoqueComponent["Estoque Component"]
+            TecnicosComponent["Técnicos Component"]
+            RelatoriosComponent["Relatórios Component"]
+        end
+        AuthService["Serviço de Autenticação"]
+        ApiService["Serviço de API"]
+        SharedModule["Módulos Compartilhados"]
+    end
+    
+    subgraph API["Camada de API (Node.js + Express)"]
+        direction TB
+        APIRoutes["Rotas de API"]
+        subgraph Controllers["Controladores"]
+            AuthController["Auth Controller"]
+            ChamadosController["Chamados Controller"]
+            ClientesController["Clientes Controller"]
+            EstoqueController["Estoque Controller"] 
+            TecnicosController["Técnicos Controller"]
+            DashboardController["Dashboard Controller"]
+        end
+        Middleware["Middlewares"]
+        Validators["Validadores"]
+    end
+    
+    subgraph Services["Camada de Serviços"]
+        direction TB
+        AuthService_BE["Serviço de Autenticação"]
+        ChamadosService["Serviço de Chamados"]
+        ClientesService["Serviço de Clientes"]
+        EstoqueService["Serviço de Estoque"]
+        TecnicosService["Serviço de Técnicos"]
+        RelatoriosService["Serviço de Relatórios"]
+    end
+    
+    subgraph DataAccess["Camada de Acesso a Dados"]
+        direction TB
+        Models["Modelos"]
+        Repository["Repositórios"]
+        DTO["Data Transfer Objects"]
+        ORM["Object-Relational Mapping"]
+    end
+    
+    subgraph Database["Banco de Dados (MySQL)"]
+        direction TB
+        Tables["Tabelas"]
+        StoredProcedures["Procedimentos Armazenados"]
+        Triggers["Triggers"]
+    end
+    
+    %% Relações entre camadas
+    UI --> Components
+    Components --> AuthService
+    Components --> ApiService
+    Components --> SharedModule
+    
+    ApiService --> APIRoutes
+    APIRoutes --> Controllers
+    Controllers --> Middleware
+    Controllers --> Validators
+    
+    Controllers --> Services
+    
+    AuthService_BE --> DataAccess
+    ChamadosService --> DataAccess
+    ClientesService --> DataAccess
+    EstoqueService --> DataAccess
+    TecnicosService --> DataAccess
+    RelatoriosService --> DataAccess
+    
+    DataAccess --> Models
+    DataAccess --> Repository
+    DataAccess --> DTO
+    DataAccess --> ORM
+    
+    ORM --> Database
+    
+    %% Estilo
+    classDef layerStyle fill:#f9f9f9,stroke:#333,stroke-width:2px
+    class Client,API,Services,DataAccess,Database layerStyle
+    
+    classDef componentStyle fill:#ddf,stroke:#333,stroke-width:1px
+    class UI,Components,AuthService,ApiService,SharedModule,APIRoutes,Controllers,Middleware,Validators,AuthService_BE,ChamadosService,ClientesService,EstoqueService,TecnicosService,RelatoriosService,Models,Repository,DTO,ORM,Tables,StoredProcedures,Triggers componentStyle
+    
+    classDef subComponentStyle fill:#efe,stroke:#333,stroke-width:1px
+    class DashboardComponent,ChamadosComponent,ClientesComponent,EstoqueComponent,TecnicosComponent,RelatoriosComponent,AuthController,ChamadosController,ClientesController,EstoqueController,TecnicosController,DashboardController subComponentStyle

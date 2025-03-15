@@ -1,0 +1,87 @@
+sequenceDiagram
+    autonumber
+    
+    actor Cliente
+    actor Atendente
+    actor Técnico
+    participant Sistema
+    participant Estoque
+    
+    Cliente->>Atendente: Relatar problema
+    Atendente->>Sistema: Autenticar no sistema
+    Sistema-->>Atendente: Autenticação confirmada
+    
+    Atendente->>Sistema: Consultar cliente
+    alt Cliente já cadastrado
+        Sistema-->>Atendente: Exibir dados do cliente
+    else Cliente não cadastrado
+        Atendente->>Sistema: Cadastrar novo cliente
+        Sistema-->>Atendente: Cliente cadastrado
+    end
+    
+    Atendente->>Sistema: Consultar dispositivo
+    alt Dispositivo já cadastrado
+        Sistema-->>Atendente: Exibir dados do dispositivo
+    else Dispositivo não cadastrado
+        Atendente->>Sistema: Cadastrar novo dispositivo
+        Sistema-->>Atendente: Dispositivo cadastrado
+    end
+    
+    Atendente->>Sistema: Abrir novo chamado
+    Sistema-->>Atendente: Chamado criado com status "Aberto"
+    
+    Atendente->>Sistema: Atribuir prioridade ao chamado
+    Sistema-->>Atendente: Prioridade atribuída
+    
+    Atendente->>Sistema: Atribuir técnico ao chamado
+    Sistema-->>Técnico: Notificar sobre novo chamado
+    
+    Técnico->>Sistema: Autenticar no sistema
+    Sistema-->>Técnico: Autenticação confirmada
+    
+    Técnico->>Sistema: Visualizar detalhes do chamado
+    Sistema-->>Técnico: Exibir informações do chamado
+    
+    Técnico->>Sistema: Atualizar status para "Em Análise"
+    Sistema-->>Cliente: Notificar mudança de status
+    
+    Técnico->>Sistema: Registrar diagnóstico
+    Sistema-->>Técnico: Diagnóstico registrado
+    
+    Técnico->>Sistema: Consultar peças necessárias
+    Sistema->>Estoque: Verificar disponibilidade
+    
+    alt Peças disponíveis
+        Estoque-->>Sistema: Peças disponíveis
+        Técnico->>Sistema: Utilizar peças
+        Sistema->>Estoque: Atualizar estoque
+        Técnico->>Sistema: Adicionar serviços ao chamado
+        Sistema-->>Técnico: Serviços adicionados
+        
+        Técnico->>Sistema: Atualizar status para "Em Andamento"
+        Sistema-->>Cliente: Notificar mudança de status
+        
+        Técnico->>Sistema: Registrar solução
+        Sistema-->>Técnico: Solução registrada
+        
+        Técnico->>Sistema: Calcular valor total
+        Sistema-->>Técnico: Valor total calculado
+        
+        Técnico->>Sistema: Atualizar status para "Resolvido"
+        Sistema-->>Cliente: Notificar mudança de status
+        
+        Cliente->>Sistema: Confirmar resolução
+        Sistema-->>Técnico: Confirmação recebida
+        
+        Técnico->>Sistema: Fechar chamado
+        Sistema-->>Cliente: Notificar fechamento do chamado
+    else Peças indisponíveis
+        Estoque-->>Sistema: Peças indisponíveis
+        Técnico->>Sistema: Atualizar status para "Aguardando Peça"
+        Sistema-->>Cliente: Notificar mudança de status
+        
+        Sistema->>Estoque: Gerar pedido de compra
+        Estoque-->>Sistema: Pedido gerado
+        
+        Note over Sistema,Estoque: O fluxo continua quando as peças chegarem
+    end

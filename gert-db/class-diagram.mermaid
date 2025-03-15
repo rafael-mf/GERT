@@ -1,0 +1,224 @@
+classDiagram
+    %% Usuários
+    class Usuario {
+        +int id
+        +String nome
+        +String email
+        +String senha
+        +String cargo
+        +boolean ativo
+        +Date dataCriacao
+        +Date ultimoAcesso
+        +autenticar(email, senha)
+        +alterarSenha(senhaAtual, novaSenha)
+    }
+    
+    class Tecnico {
+        +int id
+        +int usuarioId
+        +String especialidade
+        +boolean disponivel
+        +atenderChamado(chamadoId)
+        +marcarIndisponivel()
+    }
+    
+    %% Clientes e Dispositivos
+    class Cliente {
+        +int id
+        +String nome
+        +String cpfCnpj
+        +String email
+        +String telefone
+        +String endereco
+        +String cidade
+        +String estado
+        +String cep
+        +String observacoes
+        +Date dataCadastro
+        +listarDispositivos()
+        +listarChamados()
+    }
+    
+    class Dispositivo {
+        +int id
+        +int clienteId
+        +int categoriaId
+        +String marca
+        +String modelo
+        +String numeroSerie
+        +String especificacoes
+        +Date dataCadastro
+    }
+    
+    class CategoriaDispositivo {
+        +int id
+        +String nome
+        +String descricao
+    }
+    
+    %% Chamados
+    class Chamado {
+        +int id
+        +int clienteId
+        +int dispositivoId
+        +int tecnicoId
+        +int prioridadeId
+        +int statusId
+        +String titulo
+        +String descricao
+        +String diagnostico
+        +String solucao
+        +double valorTotal
+        +Date dataAbertura
+        +Date dataPrevista
+        +Date dataFechamento
+        +adicionarServico(servicoId)
+        +adicionarPeca(pecaId, quantidade)
+        +alterarStatus(novoStatusId)
+        +atribuirTecnico(tecnicoId)
+        +calcularValorTotal()
+    }
+    
+    class StatusChamado {
+        +int id
+        +String nome
+        +String descricao
+        +String cor
+    }
+    
+    class Prioridade {
+        +int id
+        +String nome
+        +String descricao
+        +String cor
+    }
+    
+    class ChamadoServico {
+        +int id
+        +int chamadoId
+        +int servicoId
+        +double valor
+        +String observacoes
+    }
+    
+    class ChamadoPeca {
+        +int id
+        +int chamadoId
+        +int pecaId
+        +int quantidade
+        +double valorUnitario
+        +Date dataUtilizacao
+    }
+    
+    class ChamadoAtualizacao {
+        +int id
+        +int chamadoId
+        +int usuarioId
+        +int statusAnterior
+        +int statusNovo
+        +String comentario
+        +Date dataAtualizacao
+    }
+    
+    %% Estoque e Peças
+    class Peca {
+        +int id
+        +int categoriaId
+        +String codigo
+        +String nome
+        +String descricao
+        +String marca
+        +String modelo
+        +String compatibilidade
+        +double precoCusto
+        +double precoVenda
+        +int estoqueMinimo
+        +int estoqueAtual
+        +String localizacao
+        +boolean ativo
+        +Date dataCadastro
+        +Date ultimoInventario
+        +verificarEstoqueMinimo()
+        +ajustarPreco(novoPreco)
+    }
+    
+    class CategoriaPeca {
+        +int id
+        +String nome
+        +String descricao
+    }
+    
+    class EntradaEstoque {
+        +int id
+        +int pecaId
+        +int fornecedorId
+        +int usuarioId
+        +int quantidade
+        +double precoUnitario
+        +String numeroNota
+        +Date dataEntrada
+        +String observacoes
+    }
+    
+    class LogEstoque {
+        +int id
+        +int pecaId
+        +int usuarioId
+        +String tipoMovimento
+        +int quantidade
+        +int estoqueAnterior
+        +int estoqueAtual
+        +int referenciaId
+        +String referenciaTipo
+        +Date dataMovimento
+        +String observacoes
+    }
+    
+    %% Serviços
+    class Servico {
+        +int id
+        +String nome
+        +String descricao
+        +double valorBase
+        +int tempoEstimado
+        +boolean ativo
+    }
+    
+    %% Fornecedores
+    class Fornecedor {
+        +int id
+        +String nome
+        +String cnpj
+        +String contato
+        +String email
+        +String telefone
+        +String endereco
+        +String cidade
+        +String estado
+        +String cep
+        +String site
+        +String observacoes
+        +boolean ativo
+        +Date dataCadastro
+    }
+    
+    %% Relacionamentos
+    Usuario "1" -- "0..1" Tecnico : possui
+    Cliente "1" -- "*" Dispositivo : possui
+    Dispositivo "*" -- "1" CategoriaDispositivo : categorizado
+    Cliente "1" -- "*" Chamado : solicita
+    Dispositivo "1" -- "*" Chamado : referencia
+    Tecnico "1" -- "*" Chamado : atende
+    Chamado "*" -- "1" StatusChamado : possui
+    Chamado "*" -- "1" Prioridade : classificado
+    Chamado "1" -- "*" ChamadoServico : inclui
+    ChamadoServico "*" -- "1" Servico : referencia
+    Chamado "1" -- "*" ChamadoPeca : utiliza
+    ChamadoPeca "*" -- "1" Peca : referencia
+    Chamado "1" -- "*" ChamadoAtualizacao : possui
+    Peca "*" -- "1" CategoriaPeca : categorizado
+    Peca "1" -- "*" EntradaEstoque : registra
+    Peca "1" -- "*" LogEstoque : registra
+    EntradaEstoque "*" -- "1" Fornecedor : fornecido
+    EntradaEstoque "*" -- "1" Usuario : registrado
+    LogEstoque "*" -- "1" Usuario : registrado

@@ -1,0 +1,219 @@
+erDiagram
+    USUARIO {
+        int id PK
+        string nome
+        string email
+        string senha
+        string cargo
+        boolean ativo
+        datetime data_criacao
+        datetime ultimo_acesso
+    }
+    
+    TECNICO {
+        int id PK
+        int usuario_id FK
+        string especialidade
+        boolean disponivel
+    }
+    
+    CLIENTE {
+        int id PK
+        string nome
+        string cpf_cnpj UK
+        string email
+        string telefone
+        string endereco
+        string cidade
+        string estado
+        string cep
+        text observacoes
+        datetime data_cadastro
+    }
+    
+    CATEGORIAS_DISPOSITIVOS {
+        int id PK
+        string nome
+        text descricao
+    }
+    
+    DISPOSITIVO {
+        int id PK
+        int cliente_id FK
+        int categoria_id FK
+        string marca
+        string modelo
+        string numero_serie
+        text especificacoes
+        datetime data_cadastro
+    }
+    
+    STATUS_CHAMADOS {
+        int id PK
+        string nome
+        text descricao
+        string cor
+    }
+    
+    PRIORIDADES {
+        int id PK
+        string nome
+        text descricao
+        string cor
+    }
+    
+    CHAMADOS {
+        int id PK
+        int cliente_id FK
+        int dispositivo_id FK
+        int tecnico_id FK
+        int prioridade_id FK
+        int status_id FK
+        string titulo
+        text descricao
+        text diagnostico
+        text solucao
+        decimal valor_total
+        datetime data_abertura
+        datetime data_prevista
+        datetime data_fechamento
+    }
+    
+    CHAMADOS_ATUALIZACOES {
+        int id PK
+        int chamado_id FK
+        int usuario_id FK
+        int status_anterior FK
+        int status_novo FK
+        text comentario
+        datetime data_atualizacao
+    }
+    
+    SERVICOS {
+        int id PK
+        string nome
+        text descricao
+        decimal valor_base
+        int tempo_estimado
+        boolean ativo
+    }
+    
+    CHAMADOS_SERVICOS {
+        int id PK
+        int chamado_id FK
+        int servico_id FK
+        decimal valor
+        text observacoes
+    }
+    
+    CATEGORIAS_PECAS {
+        int id PK
+        string nome
+        text descricao
+    }
+    
+    PECAS {
+        int id PK
+        int categoria_id FK
+        string codigo UK
+        string nome
+        text descricao
+        string marca
+        string modelo
+        text compatibilidade
+        decimal preco_custo
+        decimal preco_venda
+        int estoque_minimo
+        int estoque_atual
+        string localizacao
+        boolean ativo
+        datetime data_cadastro
+        datetime ultimo_inventario
+    }
+    
+    CHAMADOS_PECAS {
+        int id PK
+        int chamado_id FK
+        int peca_id FK
+        int quantidade
+        decimal valor_unitario
+        datetime data_utilizacao
+    }
+    
+    FORNECEDORES {
+        int id PK
+        string nome
+        string cnpj UK
+        string contato
+        string email
+        string telefone
+        string endereco
+        string cidade
+        string estado
+        string cep
+        string site
+        text observacoes
+        boolean ativo
+        datetime data_cadastro
+    }
+    
+    ENTRADA_ESTOQUE {
+        int id PK
+        int peca_id FK
+        int fornecedor_id FK
+        int usuario_id FK
+        int quantidade
+        decimal preco_unitario
+        string numero_nota
+        datetime data_entrada
+        text observacoes
+    }
+    
+    LOG_ESTOQUE {
+        int id PK
+        int peca_id FK
+        int usuario_id FK
+        enum tipo_movimento
+        int quantidade
+        int estoque_anterior
+        int estoque_atual
+        int referencia_id
+        string referencia_tipo
+        datetime data_movimento
+        text observacoes
+    }
+    
+    %% Relacionamentos
+    USUARIO ||--o{ TECNICO : "possui"
+    USUARIO ||--o{ CHAMADOS_ATUALIZACOES : "registra"
+    USUARIO ||--o{ ENTRADA_ESTOQUE : "registra"
+    USUARIO ||--o{ LOG_ESTOQUE : "registra"
+    
+    TECNICO ||--o{ CHAMADOS : "atende"
+    
+    CLIENTE ||--o{ DISPOSITIVO : "possui"
+    CLIENTE ||--o{ CHAMADOS : "solicita"
+    
+    CATEGORIAS_DISPOSITIVOS ||--o{ DISPOSITIVO : "categoriza"
+    
+    DISPOSITIVO ||--o{ CHAMADOS : "referenciado em"
+    
+    STATUS_CHAMADOS ||--o{ CHAMADOS : "classifica"
+    STATUS_CHAMADOS ||--o{ CHAMADOS_ATUALIZACOES : "status anterior"
+    STATUS_CHAMADOS ||--o{ CHAMADOS_ATUALIZACOES : "status novo"
+    
+    PRIORIDADES ||--o{ CHAMADOS : "classifica"
+    
+    CHAMADOS ||--o{ CHAMADOS_ATUALIZACOES : "possui"
+    CHAMADOS ||--o{ CHAMADOS_SERVICOS : "inclui"
+    CHAMADOS ||--o{ CHAMADOS_PECAS : "utiliza"
+    
+    SERVICOS ||--o{ CHAMADOS_SERVICOS : "referenciado em"
+    
+    CATEGORIAS_PECAS ||--o{ PECAS : "categoriza"
+    
+    PECAS ||--o{ CHAMADOS_PECAS : "utilizada em"
+    PECAS ||--o{ ENTRADA_ESTOQUE : "registrada em"
+    PECAS ||--o{ LOG_ESTOQUE : "registrada em"
+    
+    FORNECEDORES ||--o{ ENTRADA_ESTOQUE : "fornece"
