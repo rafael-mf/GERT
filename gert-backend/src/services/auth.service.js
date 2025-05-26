@@ -4,19 +4,19 @@ const { Tecnico } = require('../models/tecnico.model');
 
 class AuthService {
   async login(email, senha) {
-
     const usuario = await Usuario.findOne({ where: { email } });
     if (!usuario) {
+      console.log('Usuário não encontrado no serviço.');
       throw new Error('Usuário não encontrado');
     }
-
-    if (!usuario.ativo) {
-      throw new Error('Usuário inativo');
-    }
+    console.log('Usuário encontrado:', usuario.nome, 'Ativo:', usuario.ativo);
+    console.log('Hash da senha no banco:', usuario.senha); // Para comparar com o hash gerado
 
     const senhaValida = await usuario.verificarSenha(senha);
+    console.log('Senha fornecida é válida?', senhaValida); // Deve ser true
 
     if (!senhaValida) {
+      console.log('Comparação de senha falhou no serviço.');
       throw new Error('Senha inválida');
     }
 

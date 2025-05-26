@@ -1,27 +1,113 @@
 <div class="container-fluid">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Detalhes do Chamado</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 *ngIf="chamado">Detalhes do Chamado #{{ chamado.id }}</h2>
+    <h2 *ngIf="!chamado && !loading">Chamado Não Encontrado</h2>
     <div>
-      <button class="btn btn-secondary me-2" routerLink="..">Voltar</button>
-      <button class="btn btn-primary">
-        <i class="fas fa-save me-2"></i>Salvar
+      <button class="btn btn-outline-secondary me-2" routerLink="/chamados">
+        <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
+      </button>
+      <button *ngIf="chamado" class="btn btn-primary" (click)="editChamado()">
+        <i class="fas fa-edit me-2"></i>Editar Chamado
       </button>
     </div>
   </div>
-  
-  <div class="card">
+
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!loading && chamado" class="card">
+    <div class="card-header">
+      <h5 class="mb-0">{{ chamado.titulo }}</h5>
+    </div>
     <div class="card-body">
-      <div class="placeholder-glow">
-        <p class="placeholder col-12"></p>
-        <p class="placeholder col-6"></p>
-        <p class="placeholder col-8"></p>
-        <p class="placeholder col-10"></p>
+      <div class="row">
+        <div class="col-md-8">
+          <h6>Informações Gerais</h6>
+          <table class="table table-sm table-borderless">
+            <tr>
+              <td style="width: 150px;"><strong>Cliente:</strong></td>
+              <td>{{ chamado.cliente?.nome }}</td>
+            </tr>
+            <tr>
+              <td><strong>Dispositivo:</strong></td>
+              <td>{{ chamado.dispositivo?.marca }} {{ chamado.dispositivo?.modelo }} (S/N: {{ chamado.dispositivo?.numeroSerie || 'N/A' }})</td>
+            </tr>
+             <tr>
+              <td><strong>Status:</strong></td>
+              <td><span class="badge" [style.background-color]="chamado.status?.cor || '#6c757d'">{{ chamado.status?.nome }}</span></td>
+            </tr>
+            <tr>
+              <td><strong>Prioridade:</strong></td>
+              <td><span class="badge" [style.background-color]="chamado.prioridade?.cor || '#6c757d'">{{ chamado.prioridade?.nome }}</span></td>
+            </tr>
+            <tr>
+              <td><strong>Técnico:</strong></td>
+              <td>{{ chamado.tecnico?.usuario?.nome || 'Não atribuído' }}</td>
+            </tr>
+            <tr>
+              <td><strong>Data Abertura:</strong></td>
+              <td>{{ chamado.dataAbertura | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+            <tr>
+              <td><strong>Data Prevista:</strong></td>
+              <td>{{ chamado.dataPrevista ? (chamado.dataPrevista | date:'dd/MM/yyyy') : 'Não definida' }}</td>
+            </tr>
+            <tr *ngIf="chamado.dataFechamento">
+              <td><strong>Data Fechamento:</strong></td>
+              <td>{{ chamado.dataFechamento | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          </table>
+
+          <h6 class="mt-4">Descrição do Problema</h6>
+          <p class="bg-light p-3 rounded">{{ chamado.descricao }}</p>
+
+          <div *ngIf="chamado.diagnostico">
+            <h6 class="mt-4">Diagnóstico Técnico</h6>
+            <p class="bg-light p-3 rounded">{{ chamado.diagnostico }}</p>
+          </div>
+
+          <div *ngIf="chamado.solucao">
+            <h6 class="mt-4">Solução Aplicada</h6>
+            <p class="bg-light p-3 rounded">{{ chamado.solucao }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <h6>Financeiro</h6>
+          <div class="card bg-light">
+            <div class="card-body">
+              <h4 class="text-success">Valor Total: {{ chamado.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</h4>
+            </div>
+          </div>
+
+          <h6 class="mt-4">Serviços Realizados</h6>
+          <ul *ngIf="chamado.servicos && chamado.servicos.length > 0" class="list-group">
+            <li *ngFor="let cs of chamado.servicos" class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                {{ cs.servico?.nome }}
+                <small *ngIf="cs.observacoes" class="d-block text-muted">{{cs.observacoes}}</small>
+              </div>
+              <span>
+                {{ cs.valor | currency:'BRL' }}
+                </span>
+            </li>
+          </ul>
+          <p *ngIf="!chamado.servicos || chamado.servicos.length === 0" class="text-muted">Nenhum serviço adicionado.</p>
+
+          </div>
       </div>
-      
-      <div class="alert alert-info mt-4">
+
+      <h6 class="mt-4">Histórico do Chamado</h6>
+      <div class="alert alert-info">
         <i class="fas fa-info-circle me-2"></i>
-        Este componente está em fase de implementação.
+        A seção de histórico de atualizações será implementada aqui.
       </div>
+
     </div>
   </div>
 </div>

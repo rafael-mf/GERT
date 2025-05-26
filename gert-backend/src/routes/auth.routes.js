@@ -21,4 +21,24 @@ router.get('/perfil', verifyToken, (req, res) => {
   });
 });
 
+// Em gert-backend/src/routes/auth.routes.js
+// ... (outras importações)
+const bcrypt = require('bcryptjs'); // Adicione esta linha
+
+// ... (outras rotas)
+
+// Rota de teste TEMPORÁRIA para gerar hash
+router.get('/test-hash/:passwordToHash', async (req, res) => {
+  try {
+    const password = req.params.passwordToHash;
+    const saltRounds = 10;
+    const hash = await bcrypt.hash(password, saltRounds);
+    res.json({ password, hash });
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao gerar hash", error: error.message });
+  }
+});
+
+module.exports = router;
+
 module.exports = router;

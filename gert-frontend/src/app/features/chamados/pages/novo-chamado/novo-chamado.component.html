@@ -1,27 +1,100 @@
 <div class="container-fluid">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Novo Chamado</h2>
-    <div>
-      <button class="btn btn-secondary me-2" routerLink="..">Voltar</button>
-      <button class="btn btn-primary">
-        <i class="fas fa-save me-2"></i>Salvar
-      </button>
-    </div>
+    <button class="btn btn-secondary" routerLink="/chamados">
+      <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
+    </button>
   </div>
-  
+
   <div class="card">
     <div class="card-body">
-      <div class="placeholder-glow">
-        <p class="placeholder col-12"></p>
-        <p class="placeholder col-6"></p>
-        <p class="placeholder col-8"></p>
-        <p class="placeholder col-10"></p>
-      </div>
-      
-      <div class="alert alert-info mt-4">
-        <i class="fas fa-info-circle me-2"></i>
-        Este componente está em fase de implementação.
-      </div>
+      <form [formGroup]="chamadoForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="clienteId" class="form-label">Cliente <span class="text-danger">*</span></label>
+            <select id="clienteId" formControlName="clienteId" class="form-select"
+                    [ngClass]="{ 'is-invalid': submitted && f['clienteId'].errors }">
+              <option value="" disabled>Selecione o Cliente</option>
+              <option *ngFor="let cliente of clientes" [value]="cliente.id">{{ cliente.nome }} ({{ cliente.cpfCnpj || 'N/A' }})</option>
+            </select>
+            <div *ngIf="submitted && f['clienteId'].errors" class="invalid-feedback">
+              <div *ngIf="f['clienteId'].errors['required']">Cliente é obrigatório.</div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="dispositivoId" class="form-label">Dispositivo <span class="text-danger">*</span></label>
+            <select id="dispositivoId" formControlName="dispositivoId" class="form-select"
+                    [ngClass]="{ 'is-invalid': submitted && f['dispositivoId'].errors }"
+                    [disabled]="!f['clienteId'].value || dispositivos.length === 0">
+              <option value="" disabled>Selecione o Dispositivo</option>
+              <option *ngFor="let dispositivo of dispositivos" [value]="dispositivo.id">
+                {{ dispositivo.marca }} {{ dispositivo.modelo }} (S/N: {{ dispositivo.numeroSerie || 'N/A' }})
+              </option>
+            </select>
+            <div *ngIf="submitted && f['dispositivoId'].errors" class="invalid-feedback">
+              <div *ngIf="f['dispositivoId'].errors['required']">Dispositivo é obrigatório.</div>
+            </div>
+            <small *ngIf="f['clienteId'].value && dispositivos.length === 0" class="form-text text-muted">
+              Nenhum dispositivo cadastrado para este cliente.
+            </small>
+          </div>
+
+          <div class="col-12 mb-3">
+            <label for="titulo" class="form-label">Título do Chamado <span class="text-danger">*</span></label>
+            <input type="text" id="titulo" formControlName="titulo" class="form-control"
+                   [ngClass]="{ 'is-invalid': submitted && f['titulo'].errors }">
+            <div *ngIf="submitted && f['titulo'].errors" class="invalid-feedback">
+              <div *ngIf="f['titulo'].errors['required']">Título é obrigatório.</div>
+            </div>
+          </div>
+
+          <div class="col-12 mb-3">
+            <label for="descricao" class="form-label">Descrição do Problema <span class="text-danger">*</span></label>
+            <textarea id="descricao" formControlName="descricao" class="form-control" rows="4"
+                      [ngClass]="{ 'is-invalid': submitted && f['descricao'].errors }"></textarea>
+            <div *ngIf="submitted && f['descricao'].errors" class="invalid-feedback">
+              <div *ngIf="f['descricao'].errors['required']">Descrição é obrigatória.</div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="prioridadeId" class="form-label">Prioridade <span class="text-danger">*</span></label>
+            <select id="prioridadeId" formControlName="prioridadeId" class="form-select"
+                    [ngClass]="{ 'is-invalid': submitted && f['prioridadeId'].errors }">
+              <option value="" disabled>Selecione a Prioridade</option>
+              <option *ngFor="let prioridade of prioridades" [value]="prioridade.id">{{ prioridade.nome }}</option>
+            </select>
+            <div *ngIf="submitted && f['prioridadeId'].errors" class="invalid-feedback">
+              <div *ngIf="f['prioridadeId'].errors['required']">Prioridade é obrigatória.</div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="tecnicoId" class="form-label">Técnico Responsável (Opcional)</label>
+            <select id="tecnicoId" formControlName="tecnicoId" class="form-select">
+              <option [ngValue]="null">Não atribuído</option>
+              <option *ngFor="let tecnico of tecnicos" [value]="tecnico.id">{{ tecnico.usuario?.nome }}</option>
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="dataPrevista" class="form-label">Data Prevista (Opcional)</label>
+            <input type="date" id="dataPrevista" formControlName="dataPrevista" class="form-control">
+          </div>
+
+        </div>
+
+        <div *ngIf="error" class="alert alert-danger mt-3">{{ error }}</div>
+
+        <div class="mt-4 d-flex justify-content-end">
+          <button type="button" class="btn btn-outline-secondary me-2" routerLink="/chamados">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            {{ loading ? 'Salvando...' : 'Criar Chamado' }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

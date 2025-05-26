@@ -58,8 +58,23 @@ const Usuario = sequelize.define('Usuario', {
 });
 
 // Método para verificar senha
-Usuario.prototype.verificarSenha = async function(senha) {
-  return await bcrypt.compare(senha, this.senha);
+// Em gert-backend/src/models/usuario.model.js
+// Em gert-backend/src/models/usuario.model.js
+Usuario.prototype.verificarSenha = async function (senhaRecebida) {
+  console.log('--- DENTRO DE verificarSenha ---');
+  console.log('Senha recebida (original):', senhaRecebida);
+  console.log('Comprimento da senha recebida:', senhaRecebida.length);
+  let charCodes = [];
+  for (let i = 0; i < senhaRecebida.length; i++) {
+    charCodes.push(senhaRecebida.charCodeAt(i));
+  }
+  console.log('Char codes da senha recebida:', charCodes.join(', ')); // Para "admin123" deve ser: 97, 100, 109, 105, 110, 49, 50, 51
+
+  console.log('Hash armazenado no this.senha:', this.senha);
+  const match = await bcrypt.compare(senhaRecebida, this.senha);
+  console.log('Resultado da comparação (bcrypt.compare):', match);
+  console.log('--- FIM DE verificarSenha ---');
+  return match;
 };
 
 module.exports = { Usuario };
