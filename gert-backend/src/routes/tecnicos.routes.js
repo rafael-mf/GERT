@@ -1,14 +1,17 @@
+// File: gert-backend/src/routes/tecnicos.routes.js
 const express = require('express');
-const { verifyToken } = require('../middlewares/auth.middleware');
+const tecnicoController = require('../controllers/tecnico.controller');
+const { verifyToken, isAdmin } = require('../middlewares/auth.middleware'); // Apenas Admin gerencia técnicos
 
 const router = express.Router();
 
-// Todas as rotas abaixo requerem autenticação
 router.use(verifyToken);
+router.use(isAdmin); // Apenas Administradores podem gerenciar técnicos
 
-// Rotas temporárias
-router.get('/', (req, res) => {
-  res.json({ message: 'API de tecnicos disponível' });
-});
+router.get('/', tecnicoController.getAllTecnicos);
+router.post('/', tecnicoController.createTecnico);
+router.get('/:id', tecnicoController.getTecnicoById);
+router.put('/:id', tecnicoController.updateTecnico);
+router.delete('/:id', tecnicoController.deleteTecnico);
 
 module.exports = router;

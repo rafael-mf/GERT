@@ -1,14 +1,90 @@
 <div class="container-fluid">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h2>Lista de Técnicos</h2>
-      <button class="btn btn-primary" routerLink="/tecnicos/novo">Novo Técnico</button>
-    </div>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Lista de Técnicos</h2>
+    <button class="btn btn-primary" routerLink="/tecnicos/novo">
+      <i class="fas fa-user-plus me-2"></i>Novo Técnico
+    </button>
+  </div>
+
+   <div class="card mb-4">
     <div class="card-body">
-      <p class="lead">Esta página será implementada em breve.</p>
-      <div class="text-center my-4">
-        <i class="fas fa-code fa-5x text-primary"></i>
+      <form (ngSubmit)="applyFilters()" class="row g-3 align-items-end">
+        <div class="col-md-6">
+          <label for="searchTerm" class="form-label">Buscar Técnico</label>
+          <input type="text" class="form-control form-control-sm" id="searchTerm" [(ngModel)]="searchTerm" name="searchTerm" placeholder="Nome, email, especialidade...">
+        </div>
+        <div class="col-md-3">
+          <label for="filtroDisponivel" class="form-label">Disponibilidade</label>
+          <select class="form-select form-select-sm" id="filtroDisponivel" [(ngModel)]="filtroDisponivel" name="filtroDisponivel">
+            <option value="">Todos</option>
+            <option value="true">Disponível</option>
+            <option value="false">Indisponível</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex">
+          <button type="submit" class="btn btn-primary btn-sm me-2">Buscar</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="clearFilters()">Limpar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div>
+  </div>
+  <div *ngIf="!loading && error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="!loading && !error && paginatedTecnicos.tecnicos.length === 0" class="alert alert-info">Nenhum técnico encontrado.</div>
+
+  <div *ngIf="!loading && !error && paginatedTecnicos.tecnicos.length > 0" class="card">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Especialidade</th>
+              <th>Status Usuário</th>
+              <th>Disponível</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tecnico of paginatedTecnicos.tecnicos">
+              <td>{{ tecnico.usuario?.nome }}</td>
+              <td>{{ tecnico.usuario?.email }}</td>
+              <td>{{ tecnico.especialidade || 'N/A' }}</td>
+              <td>
+                <span class="badge" [ngClass]="tecnico.usuario?.ativo ? 'bg-success' : 'bg-danger'">
+                  {{ tecnico.usuario?.ativo ? 'Ativo' : 'Inativo' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="tecnico.disponivel ? 'bg-success' : 'bg-secondary'">
+                  {{ tecnico.disponivel ? 'Sim' : 'Não' }}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-info me-1" (click)="viewTecnico(tecnico.id)" ngbTooltip="Ver Detalhes"><i class="fas fa-eye"></i></button>
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="editTecnico(tecnico.id)" ngbTooltip="Editar"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteTecnico(tecnico.id)" ngbTooltip="Excluir"><i class="fas fa-trash"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+    </div>
+     <div class="card-footer d-flex justify-content-between align-items-center" *ngIf="paginatedTecnicos.totalPages > 1">
+      <small>Página {{ paginatedTecnicos.currentPage }} de {{ paginatedTecnicos.totalPages }} (Total: {{ paginatedTecnicos.totalItems }} técnicos)</small>
+      <ngb-pagination
+        [collectionSize]="paginatedTecnicos.totalItems"
+        [(page)]="page"
+        [pageSize]="limit"
+        [maxSize]="5"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="onPageChange($event)">
+      </ngb-pagination>
     </div>
   </div>
 </div>
