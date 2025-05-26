@@ -1,0 +1,82 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo-container">
+        <i class="fas fa-tools logo-icon"></i>
+      </div>
+      <h2 class="login-title">GERT</h2>
+      <p class="login-subtitle">Gerenciamento de Chamados Técnicos</p>
+    </div>
+
+    <div class="login-form">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="mb-4">
+          <label for="email" class="form-label">Email</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+            <input
+              type="email"
+              formControlName="email"
+              class="form-control"
+              [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
+              placeholder="seu@email.com"
+              autocomplete="email"
+            />
+          </div>
+          <div *ngIf="submitted && f['email'].errors" class="invalid-feedback d-block">
+            <div *ngIf="f['email'].errors['required']">Email é obrigatório</div>
+            <div *ngIf="f['email'].errors['email']">Email deve ser um endereço válido</div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="senha" class="form-label">Senha</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="senha"
+              class="form-control"
+              [ngClass]="{ 'is-invalid': submitted && f['senha'].errors }"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="togglePasswordVisibility()"
+            >
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+          <div *ngIf="submitted && f['senha'].errors" class="invalid-feedback d-block">
+            <div *ngIf="f['senha'].errors['required']">Senha é obrigatória</div>
+          </div>
+        </div>
+
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="remember" formControlName="remember">
+          <label class="form-check-label" for="remember">Lembrar-me</label>
+        </div>
+
+        <div class="d-grid gap-2 mb-3">
+          <button type="submit" class="btn btn-primary btn-lg" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            Entrar
+          </button>
+        </div>
+
+        <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ error }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="error = ''"></button>
+        </div>
+      </form>
+
+      <div class="login-footer">
+        <p class="text-center text-muted small">
+          © 2025 GERT - Sistema de Gerenciamento de Chamados Técnicos <br>
+          <small>v1.0.0</small>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

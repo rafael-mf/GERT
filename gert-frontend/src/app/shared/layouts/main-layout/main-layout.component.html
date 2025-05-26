@@ -1,0 +1,100 @@
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <nav id="sidebar" [class.collapsed]="collapsed" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+      <div class="position-sticky pt-3">
+        <div class="d-flex justify-content-between align-items-center px-3 mb-4">
+          <h4 class="text-light">GERT</h4>
+          <button type="button" class="btn-close btn-close-white d-md-none" aria-label="Close" (click)="toggleSidebar()"></button>
+        </div>
+
+        <div class="px-3 mb-4 text-center">
+          <div class="user-avatar mb-2">
+            <i class="fas fa-user-circle fa-3x text-light"></i>
+          </div>
+          <div class="text-light">{{ authService.currentUserValue?.nome || 'Usuário' }}</div>
+          <small class="text-light opacity-75">{{ authService.currentUserValue?.cargo || 'Carregando...' }}</small>
+        </div>
+
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link text-white" routerLink="/dashboard" routerLinkActive="active">
+              <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" routerLink="/chamados" routerLinkActive="active">
+              <i class="fas fa-ticket-alt me-2"></i>Chamados
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" routerLink="/clientes" routerLinkActive="active">
+              <i class="fas fa-users me-2"></i>Clientes
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" routerLink="/estoque" routerLinkActive="active">
+              <i class="fas fa-boxes me-2"></i>Estoque
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" routerLink="/tecnicos" routerLinkActive="active">
+              <i class="fas fa-user-cog me-2"></i>Técnicos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" routerLink="/relatorios" routerLinkActive="active">
+              <i class="fas fa-chart-bar me-2"></i>Relatórios
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div class="d-flex align-items-center">
+          <button type="button" class="btn btn-sm btn-outline-primary me-2 d-md-none" (click)="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h2 class="h4 mb-0">{{ pageTitle }}</h2>
+        </div>
+
+        <div class="d-flex align-items-center">
+          <div class="position-relative me-3">
+            <button class="btn btn-sm btn-outline-secondary position-relative">
+              <i class="fas fa-bell"></i>
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                3
+              </span>
+            </button>
+          </div>
+
+          <div ngbDropdown>
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center" type="button" ngbDropdownToggle>
+              <i class="fas fa-user-circle me-1"></i>
+              <span class="d-none d-md-inline">{{ authService.currentUserValue?.nome || 'Usuário' }}</span>
+            </button>
+            <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end">
+              <button ngbDropdownItem routerLink="/perfil">
+                <i class="fas fa-user me-2"></i>Perfil
+              </button>
+              <button ngbDropdownItem routerLink="/configuracoes">
+                <i class="fas fa-cog me-2"></i>Configurações
+              </button>
+              <div class="dropdown-divider"></div>
+              <button ngbDropdownItem (click)="logout()">
+                <i class="fas fa-sign-out-alt me-2"></i>Sair
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-wrapper fade-in">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+</div>
