@@ -64,17 +64,20 @@ const Chamado = sequelize.define('Chamado', {
   },
   descricao: {
     type: DataTypes.TEXT,
-    allowNull: false
+    allowNull: false,
+    field: 'descricao_problema'
   },
   diagnostico: {
-    type: DataTypes.TEXT
+    type: DataTypes.TEXT,
+    field: 'observacoes_internas'
   },
   solucao: {
-    type: DataTypes.TEXT
+    type: DataTypes.TEXT,
+    field: 'descricao_solucao'
   },
   valorTotal: {
     type: DataTypes.DECIMAL(10, 2),
-    field: 'valor_total'
+    field: 'valor_final'
   },
   dataAbertura: {
     type: DataTypes.DATE,
@@ -83,11 +86,11 @@ const Chamado = sequelize.define('Chamado', {
   },
   dataPrevista: {
     type: DataTypes.DATE,
-    field: 'data_prevista'
+    field: 'data_inicio'
   },
   dataFechamento: {
     type: DataTypes.DATE,
-    field: 'data_fechamento'
+    field: 'data_conclusao'
   }
 }, {
   tableName: 'chamados',

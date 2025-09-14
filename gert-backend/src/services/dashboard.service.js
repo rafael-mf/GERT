@@ -24,13 +24,13 @@ class DashboardService {
     const faturamentoMensal = await Chamado.findAll({
         attributes: [
             // Usando os nomes de coluna reais do banco de dados (snake_case)
-            [sequelize.fn('YEAR', sequelize.col('data_fechamento')), 'ano'],
-            [sequelize.fn('MONTH', sequelize.col('data_fechamento')), 'mes'],
-            [sequelize.fn('SUM', sequelize.col('valor_total')), 'total']
+            [sequelize.fn('YEAR', sequelize.col('data_conclusao')), 'ano'],
+            [sequelize.fn('MONTH', sequelize.col('data_conclusao')), 'mes'],
+            [sequelize.fn('SUM', sequelize.col('valor_final')), 'total']
         ],
         where: {
             statusId: statusConcluido?.id || 0,
-            data_fechamento: { // Usando o nome da coluna aqui também por segurança
+            data_conclusao: { // Usando o nome da coluna aqui também por segurança
                 [Op.gte]: startDate ? new Date(startDate) : moment().subtract(6, 'months').toDate()
             }
         },

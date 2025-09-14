@@ -11,9 +11,25 @@ export const authGuard = (route: any, state: any) => {
 
   if (authService.isAuthenticated()) {
     // Verificar se há restrições de papel/cargo
-    if (route.data && route.data['roles'] && !route.data['roles'].includes(authService.currentUserValue?.cargo)) {
-      router.navigate(['/acesso-negado']);
-      return false;
+    if (route.data && route.data['roles']) {
+      const userCargo = authService.currentUserValue?.cargo;
+      const requiredRoles = route.data['roles'];
+      
+      // Mapear cargos do banco para os esperados pelo frontend
+      const cargoMapping: { [key: string]: string[] } = {
+        'admin': ['Administrador', 'admin'],
+        'Administrador': ['Administrador', 'admin'],
+        'tecnico': ['Técnico', 'tecnico'],
+        'Técnico': ['Técnico', 'tecnico']
+      };
+      
+      const allowedCargos = cargoMapping[userCargo || ''] || [userCargo];
+      const hasAccess = requiredRoles.some((role: string) => allowedCargos.includes(role));
+      
+      if (!hasAccess) {
+        router.navigate(['/acesso-negado']);
+        return false;
+      }
     }
     return true;
   }

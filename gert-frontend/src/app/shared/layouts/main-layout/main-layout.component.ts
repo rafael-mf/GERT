@@ -82,6 +82,6 @@ export class MainLayoutComponent implements OnInit {
   // }
 
   isAdmin(): boolean {
-    return this.authService.currentUserValue?.cargo === 'Administrador';
+    return this.authService.hasRole('Administrador');
   }
 }

@@ -73,7 +73,19 @@ export class AuthService {
   }
 
   hasRole(role: string): boolean {
-    return this.currentUserValue?.cargo === role;
+    const userCargo = this.currentUserValue?.cargo;
+    if (!userCargo) return false;
+    
+    // Mapear cargos do banco para os esperados pelo frontend
+    const cargoMapping: { [key: string]: string[] } = {
+      'admin': ['Administrador', 'admin'],
+      'Administrador': ['Administrador', 'admin'],
+      'tecnico': ['Técnico', 'tecnico'],
+      'Técnico': ['Técnico', 'tecnico']
+    };
+    
+    const allowedRoles = cargoMapping[userCargo] || [userCargo];
+    return allowedRoles.includes(role);
   }
 
   updateCurrentUser(user: Usuario): void {

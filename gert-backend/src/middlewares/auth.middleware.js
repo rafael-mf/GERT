@@ -34,7 +34,7 @@ const verifyToken = async (req, res, next) => {
 };
 
 const isAdmin = (req, res, next) => {
-  if (req.usuario && req.usuario.cargo === 'Administrador') {
+  if (req.usuario && (req.usuario.cargo === 'Administrador' || req.usuario.cargo === 'admin')) {
     return next();
   }
   
@@ -42,7 +42,7 @@ const isAdmin = (req, res, next) => {
 };
 
 const isTecnico = (req, res, next) => {
-  if (req.usuario && (req.usuario.cargo === 'Técnico' || req.usuario.cargo === 'Administrador')) {
+  if (req.usuario && (req.usuario.cargo === 'Técnico' || req.usuario.cargo === 'tecnico' || req.usuario.cargo === 'Administrador' || req.usuario.cargo === 'admin')) {
     return next();
   }
   
