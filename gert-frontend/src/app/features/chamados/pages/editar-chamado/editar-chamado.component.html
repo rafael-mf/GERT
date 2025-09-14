@@ -20,11 +20,11 @@
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="form-label">Cliente</label>
-            <input type="text" class="form-control" [value]="currentChamado?.cliente?.nome" readonly>
+            <input type="text" class="form-control" [value]="currentChamado.cliente?.nome" readonly>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label">Dispositivo</label>
-            <input type="text" class="form-control" [value]="currentChamado?.dispositivo?.marca + ' ' + currentChamado?.dispositivo?.modelo" readonly>
+            <input type="text" class="form-control" [value]="currentChamado.dispositivo?.marca + ' ' + currentChamado.dispositivo?.modelo" readonly>
           </div>
 
           <div class="col-12 mb-3">
@@ -99,10 +99,85 @@
 
         </div>
 
+        <!-- Seção de Serviços e Peças -->
+        <div class="row mt-4" *ngIf="currentChamado">
+          <div class="col-12">
+            <h5 class="mb-3">Serviços e Peças Utilizadas</h5>
+
+            <!-- Serviços -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">Serviços Realizados</h6>
+                <button class="btn btn-sm btn-outline-primary" (click)="openServicosModal()">
+                  <i class="fas fa-plus me-1"></i>Adicionar Serviço
+                </button>
+              </div>
+              <div *ngIf="currentChamado.servicos && currentChamado.servicos.length > 0" class="card">
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    <li *ngFor="let cs of currentChamado.servicos" class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>{{ cs.servico?.nome }}</strong>
+                        <br><small class="text-muted">{{ cs.observacoes || 'Sem observações' }}</small>
+                      </div>
+                      <div class="d-flex align-items-center">
+                        <span class="badge bg-primary me-2">R$ {{ cs.valor | number:'1.2-2' }}</span>
+                        <button class="btn btn-sm btn-outline-danger" (click)="removeServico(cs.id!)" *ngIf="cs.id">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div *ngIf="!currentChamado.servicos || currentChamado.servicos.length === 0" class="text-center py-3 text-muted">
+                <i class="fas fa-tools fa-2x mb-2"></i>
+                <p>Nenhum serviço adicionado ainda.</p>
+              </div>
+            </div>
+
+            <!-- Peças -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">Peças Utilizadas</h6>
+                <button class="btn btn-sm btn-outline-primary" (click)="openPecasModal()">
+                  <i class="fas fa-plus me-1"></i>Adicionar Peça
+                </button>
+              </div>
+              <div *ngIf="currentChamado.pecasUsadas && currentChamado.pecasUsadas.length > 0" class="card">
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    <li *ngFor="let peca of currentChamado.pecasUsadas" class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>{{ peca.nome }}</strong>
+                        <br><small class="text-muted">{{ peca.descricao || 'Sem descrição' }}</small>
+                        <br><small class="text-muted">SN: {{ peca.numeroSerie || 'N/A' }}</small>
+                      </div>
+                      <div class="d-flex align-items-center">
+                        <span class="badge bg-success me-2">R$ {{ peca.valor | number:'1.2-2' }}</span>
+                        <button class="btn btn-sm btn-outline-danger" (click)="removePeca(peca.id!)" *ngIf="peca.id">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div *ngIf="!currentChamado.pecasUsadas || currentChamado.pecasUsadas.length === 0" class="text-center py-3 text-muted">
+                <i class="fas fa-cogs fa-2x mb-2"></i>
+                <p>Nenhuma peça adicionada ainda.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div *ngIf="error" class="alert alert-danger mt-3">{{ error }}</div>
 
         <div class="mt-4 d-flex justify-content-end">
           <button type="button" class="btn btn-outline-secondary me-2" [routerLink]="['/chamados', chamadoId]">Cancelar</button>
+          <button *ngIf="podeFecharChamado()" type="button" class="btn btn-success me-2" (click)="fecharChamado()" [disabled]="loading">
+            <i class="fas fa-check me-2"></i>Fechar Chamado
+          </button>
           <button type="submit" class="btn btn-primary" [disabled]="loading">
             <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
             {{ loading ? 'Salvando...' : 'Salvar Alterações' }}
@@ -112,3 +187,92 @@
     </div>
   </div>
 </div>
+
+<!-- Modal de Serviços -->
+<div class="modal fade" [class.show]="showServicosModal" [style.display]="showServicosModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Adicionar Serviço ao Chamado</h5>
+        <button type="button" class="btn-close" (click)="closeServicosModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="servicoSelect" class="form-label">Serviço <span class="text-danger">*</span></label>
+            <select id="servicoSelect" class="form-select" [(ngModel)]="selectedServicoId" (change)="onServicoSelected()">
+              <option [ngValue]="null" disabled>Selecione um serviço</option>
+              <option *ngFor="let servico of servicosDisponiveis" [value]="servico.id">
+                {{ servico.nome }} - R$ {{ servico.valorBase | number:'1.2-2' }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="valorServico" class="form-label">Valor (R$)</label>
+            <input type="number" id="valorServico" class="form-control" [(ngModel)]="valorServico" step="0.01" min="0">
+          </div>
+          <div class="col-12 mb-3">
+            <label for="observacoesServico" class="form-label">Observações</label>
+            <textarea id="observacoesServico" class="form-control" [(ngModel)]="observacoesServico" rows="3"
+                      placeholder="Observações sobre o serviço realizado"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeServicosModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="addServico()" [disabled]="addingServico || !selectedServicoId">
+          <span *ngIf="addingServico" class="spinner-border spinner-border-sm me-2"></span>
+          {{ addingServico ? 'Adicionando...' : 'Adicionar Serviço' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Peças -->
+<div class="modal fade" [class.show]="showPecasModal" [style.display]="showPecasModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Adicionar Peça ao Chamado</h5>
+        <button type="button" class="btn-close" (click)="closePecasModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="nomePeca" class="form-label">Nome da Peça <span class="text-danger">*</span></label>
+            <input type="text" id="nomePeca" class="form-control" [(ngModel)]="nomePeca" placeholder="Ex: Placa Mãe">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="valorPeca" class="form-label">Valor (R$) <span class="text-danger">*</span></label>
+            <input type="number" id="valorPeca" class="form-control" [(ngModel)]="valorPeca" step="0.01" min="0">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="numeroSeriePeca" class="form-label">Número de Série</label>
+            <input type="text" id="numeroSeriePeca" class="form-control" [(ngModel)]="numeroSeriePeca" placeholder="Ex: SN123456">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="garantiaPeca" class="form-label">Garantia</label>
+            <input type="text" id="garantiaPeca" class="form-control" [(ngModel)]="garantiaPeca" placeholder="Ex: 1 ano">
+          </div>
+          <div class="col-12 mb-3">
+            <label for="descricaoPeca" class="form-label">Descrição</label>
+            <textarea id="descricaoPeca" class="form-control" [(ngModel)]="descricaoPeca" rows="3"
+                      placeholder="Descrição detalhada da peça"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closePecasModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="addPeca()" [disabled]="addingPeca || !nomePeca || !valorPeca">
+          <span *ngIf="addingPeca" class="spinner-border spinner-border-sm me-2"></span>
+          {{ addingPeca ? 'Adicionando...' : 'Adicionar Peça' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop para os modais -->
+<div *ngIf="showServicosModal" class="modal-backdrop fade show" (click)="closeServicosModal()"></div>
+<div *ngIf="showPecasModal" class="modal-backdrop fade show" (click)="closePecasModal()"></div>

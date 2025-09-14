@@ -1,219 +1,224 @@
 <div class="container-fluid">
   <div class="row mb-4">
     <div class="col-12">
-      <h2>Dashboard</h2>
-      <p class="text-muted">Visão geral do sistema</p>
-    </div>
-  </div>
-  
-  <!-- Cards informativos -->
-  <div class="row">
-    <div class="col-md-4 mb-4">
-      <div class="card bg-primary text-white h-100">
+      <h1 class="display-6 fw-bold text-primary">Dashboard</h1>
+      <p class="lead text-muted">Visão geral do sistema em tempo real</p>
+      
+      <!-- Filtros de Período -->
+      <div class="card mt-3">
         <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="card-title">Chamados Abertos</h5>
-              <h2 class="display-4">{{ chamadosAbertos }}</h2>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+              <label for="periodSelect" class="form-label">
+                <i class="fas fa-calendar-alt me-2"></i>Período
+              </label>
+              <select class="form-select" id="periodSelect" [(ngModel)]="selectedPeriod" 
+                      (change)="onPeriodChange()" name="selectedPeriod">
+                <option *ngFor="let option of periodOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
             </div>
-            <i class="fas fa-ticket-alt fa-3x"></i>
-          </div>
-        </div>
-        <div class="card-footer d-flex align-items-center justify-content-between">
-          <a href="#" class="text-white text-decoration-none">Ver detalhes</a>
-          <i class="fas fa-angle-right"></i>
-        </div>
-      </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-      <div class="card bg-success text-white h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="card-title">Chamados Concluídos</h5>
-              <h2 class="display-4">{{ chamadosConcluidos }}</h2>
+
+            <!-- Campos personalizados (aparecem apenas quando "Período personalizado" está selecionado) -->
+            <div *ngIf="selectedPeriod === 'custom'" class="col-md-6">
+              <div class="row g-2">
+                <div class="col-6">
+                  <label for="customStartDate" class="form-label">Data Inicial</label>
+                  <input type="date" class="form-control" id="customStartDate" 
+                         [(ngModel)]="customStartDate" name="customStartDate">
+                </div>
+                <div class="col-6">
+                  <label for="customEndDate" class="form-label">Data Final</label>
+                  <input type="date" class="form-control" id="customEndDate" 
+                         [(ngModel)]="customEndDate" name="customEndDate">
+                </div>
+              </div>
             </div>
-            <i class="fas fa-check-circle fa-3x"></i>
-          </div>
-        </div>
-        <div class="card-footer d-flex align-items-center justify-content-between">
-          <a href="#" class="text-white text-decoration-none">Ver detalhes</a>
-          <i class="fas fa-angle-right"></i>
-        </div>
-      </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-      <div class="card bg-warning text-white h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="card-title">Em Andamento</h5>
-              <h2 class="display-4">{{ chamadosEmAndamento }}</h2>
+
+            <div class="col-md-6" [class.col-md-12]="selectedPeriod !== 'custom'">
+              <div class="d-flex gap-2">
+                <button *ngIf="selectedPeriod === 'custom'" type="button" class="btn btn-primary" 
+                        (click)="applyCustomFilters()">
+                  <i class="fas fa-filter me-2"></i>Aplicar
+                </button>
+                <button type="button" class="btn btn-outline-secondary" (click)="resetToCurrentMonth()">
+                  <i class="fas fa-redo me-2"></i>Este Mês
+                </button>
+              </div>
             </div>
-            <i class="fas fa-cogs fa-3x"></i>
           </div>
-        </div>
-        <div class="card-footer d-flex align-items-center justify-content-between">
-          <a href="#" class="text-white text-decoration-none">Ver detalhes</a>
-          <i class="fas fa-angle-right"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="row">
-    <div class="col-md-4 mb-4">
-      <div class="card bg-info text-white h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="card-title">Total de Clientes</h5>
-              <h2 class="display-4">{{ totalClientes }}</h2>
-            </div>
-            <i class="fas fa-users fa-3x"></i>
-          </div>
-        </div>
-        <div class="card-footer d-flex align-items-center justify-content-between">
-          <a href="#" class="text-white text-decoration-none">Ver detalhes</a>
-          <i class="fas fa-angle-right"></i>
-        </div>
-      </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-      <div class="card bg-danger text-white h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="card-title">Faturamento Total</h5>
-              <h2 class="display-4">R$ {{ totalFaturamento | number }}</h2>
-            </div>
-            <i class="fas fa-dollar-sign fa-3x"></i>
-          </div>
-        </div>
-        <div class="card-footer d-flex align-items-center justify-content-between">
-          <a href="#" class="text-white text-decoration-none">Ver detalhes</a>
-          <i class="fas fa-angle-right"></i>
-        </div>
-      </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-      <div class="card bg-secondary text-white h-100">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="card-title">Peças em Estoque</h5>
-              <h2 class="display-4">{{ totalPecasEstoque }}</h2>
-            </div>
-            <i class="fas fa-boxes fa-3x"></i>
-          </div>
-        </div>
-        <div class="card-footer d-flex align-items-center justify-content-between">
-          <a href="#" class="text-white text-decoration-none">Ver detalhes</a>
-          <i class="fas fa-angle-right"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Gráficos -->
-  <div class="row">
-    <div class="col-md-6 mb-4">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title">Chamados por Status</h5>
-        </div>
-        <div class="card-body">
-          <div class="chart-container" style="position: relative; height:40vh;">
-            <!-- Aqui entraria o componente de gráfico -->
-            <p class="text-center text-muted">Gráfico de distribuição de chamados</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="col-md-6 mb-4">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title">Faturamento Mensal</h5>
-        </div>
-        <div class="card-body">
-          <div class="chart-container" style="position: relative; height:40vh;">
-            <!-- Aqui entraria o componente de gráfico -->
-            <p class="text-center text-muted">Gráfico de faturamento mensal</p>
+
+          <!-- Indicador do período selecionado -->
+          <div class="mt-3 p-2 bg-light rounded">
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Período ativo:</strong> 
+              <span *ngIf="selectedPeriod !== 'custom'">
+                {{ selectedPeriodLabel }}
+              </span>
+              <span *ngIf="selectedPeriod === 'custom' && customStartDate && customEndDate">
+                {{ customStartDate | date:'dd/MM/yyyy' }} até {{ customEndDate | date:'dd/MM/yyyy' }}
+              </span>
+              <span *ngIf="selectedPeriod === 'custom' && (!customStartDate || !customEndDate)">
+                Período personalizado (defina as datas)
+              </span>
+            </small>
           </div>
         </div>
       </div>
     </div>
   </div>
-  
-  <!-- Últimos chamados -->
-  <div class="row">
-    <div class="col-12 mb-4">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="card-title">Últimos Chamados</h5>
-          <a href="#" class="btn btn-sm btn-primary">Ver todos</a>
+
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!loading && stats">
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <div class="card bg-primary text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title">Chamados Abertos</h5>
+                <h2 class="display-4">{{ stats.chamadosAbertos }}</h2>
+              </div>
+              <i class="fas fa-ticket-alt fa-3x opacity-50"></i>
+            </div>
+          </div>
+          <a class="card-footer text-white text-decoration-none d-flex align-items-center justify-content-between" [routerLink]="['/chamados']">
+            <span>Ver detalhes</span>
+            <i class="fas fa-angle-right"></i>
+          </a>
         </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>#ID</th>
-                  <th>Cliente</th>
-                  <th>Dispositivo</th>
-                  <th>Status</th>
-                  <th>Técnico</th>
-                  <th>Data de Abertura</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1001</td>
-                  <td>João Silva</td>
-                  <td>iPhone 12</td>
-                  <td><span class="badge bg-warning">Em andamento</span></td>
-                  <td>Carlos Pereira</td>
-                  <td>10/03/2023</td>
-                  <td>
-                    <button class="btn btn-sm btn-info me-1"><i class="fas fa-eye"></i></button>
-                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>1002</td>
-                  <td>Maria Oliveira</td>
-                  <td>Notebook Dell XPS</td>
-                  <td><span class="badge bg-primary">Aberto</span></td>
-                  <td>Pendente</td>
-                  <td>12/03/2023</td>
-                  <td>
-                    <button class="btn btn-sm btn-info me-1"><i class="fas fa-eye"></i></button>
-                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>1003</td>
-                  <td>Pedro Santos</td>
-                  <td>Samsung Galaxy S21</td>
-                  <td><span class="badge bg-success">Concluído</span></td>
-                  <td>Fernanda Lima</td>
-                  <td>08/03/2023</td>
-                  <td>
-                    <button class="btn btn-sm btn-info me-1"><i class="fas fa-eye"></i></button>
-                    <button class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card bg-success text-white h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title">Chamados Concluídos</h5>
+                <h2 class="display-4">{{ stats.chamadosConcluidos }}</h2>
+              </div>
+              <i class="fas fa-check-circle fa-3x opacity-50"></i>
+            </div>
+          </div>
+           <a class="card-footer text-white text-decoration-none d-flex align-items-center justify-content-between" [routerLink]="['/chamados']">
+            <span>Ver detalhes</span>
+            <i class="fas fa-angle-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card bg-warning text-dark h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title">Em Andamento</h5>
+                <h2 class="display-4">{{ stats.chamadosEmAndamento }}</h2>
+              </div>
+              <i class="fas fa-cogs fa-3x opacity-50"></i>
+            </div>
+          </div>
+           <a class="card-footer text-dark text-decoration-none d-flex align-items-center justify-content-between" [routerLink]="['/chamados']">
+            <span>Ver detalhes</span>
+            <i class="fas fa-angle-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-7 mb-4">
+        <div class="card h-100">
+          <div class="card-header"><h5 class="card-title mb-0">Faturamento por Mês</h5></div>
+          <div class="card-body">
+            <div style="height: 250px;" class="d-flex align-items-center justify-content-center text-muted">
+              <ngx-charts-bar-vertical
+                  *ngIf="barChartData.length > 0; else noData"
+                  [results]="barChartData" [scheme]="colorScheme"
+                  [xAxis]="true" [yAxis]="true" [legend]="false"
+                  [showXAxisLabel]="true" [showYAxisLabel]="true"
+                  xAxisLabel="Mês" yAxisLabel="Faturamento"
+                  [yAxisTickFormatting]="formatCurrency">
+              </ngx-charts-bar-vertical>
+              <ng-template #noData>
+                <div>Sem dados para exibir</div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5 mb-4">
+        <div class="card h-100">
+          <div class="card-header"><h5 class="card-title mb-0">Chamados por Status</h5></div>
+          <div class="card-body d-flex justify-content-center align-items-center">
+            <div style="height: 250px; width: 100%;" class="d-flex align-items-center justify-content-center text-muted">
+              <ngx-charts-pie-chart
+                  *ngIf="pieChartData.length > 0; else noData"
+                  [results]="pieChartData" [scheme]="colorScheme"
+                  [labels]="true" [doughnut]="true" [arcWidth]="0.5">
+              </ngx-charts-pie-chart>
+              <ng-template #noData>
+                <div>Sem dados para exibir</div>
+              </ng-template>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="card-title mb-0">Últimos Chamados</h5>
+                  <a routerLink="/chamados" class="btn btn-sm btn-outline-primary">Ver todos</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                          <thead>
+                            <tr>
+                              <th>#ID</th>
+                              <th>Cliente</th>
+                              <th>Status</th>
+                              <th>Abertura</th>
+                              <th>Ações</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let chamado of stats.ultimosChamados">
+                              <td>{{ chamado.id }}</td>
+                              <td>{{ chamado.cliente?.nome }}</td>
+                              <td><span class="badge" [style.background-color]="chamado.status?.cor || '#6c757d'">{{ chamado.status?.nome }}</span></td>
+                              <td>{{ chamado.dataAbertura | date:'dd/MM/yyyy' }}</td>
+                              <td>
+                                <a [routerLink]="['/chamados', chamado.id]" class="btn btn-sm btn-outline-info" title="Ver Detalhes"><i class="fas fa-eye"></i></a>
+                              </td>
+                            </tr>
+                            <tr *ngIf="stats.ultimosChamados.length === 0">
+                              <td colspan="5" class="text-center p-4">Nenhum chamado recente.</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
   </div>
+
+  <ng-template #noData>
+    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+        Não há dados para exibir.
+    </div>
+  </ng-template>
 </div>

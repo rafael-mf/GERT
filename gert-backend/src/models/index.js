@@ -13,6 +13,9 @@ const { ChamadoServico } = require('./chamado-servico.model');
 const { CategoriaPeca } = require('./categoria-peca.model');
 const { Peca } = require('./peca.model');
 const { ChamadoPeca } = require('./chamado-peca.model');
+const { Fornecedor } = require('./fornecedor.model');
+const { PecaUsada } = require('./peca-usada.model');
+const { ChamadoAtualizacao } = require('./chamado-atualizacao.model');
 
 const models = {
   Usuario,
@@ -28,12 +31,21 @@ const models = {
   CategoriaPeca,
   Peca,
   ChamadoPeca,
+  Fornecedor,
+  PecaUsada,
+  ChamadoAtualizacao,
 };
 
 // Initialize associations if not already defined within models
 Object.values(models)
   .filter(model => typeof model.associate === 'function')
   .forEach(model => model.associate(models));
+
+// Definir associações entre modelos
+Cliente.hasMany(Dispositivo, { foreignKey: 'clienteId', as: 'dispositivos' });
+Cliente.hasMany(Chamado, { foreignKey: 'clienteId', as: 'chamados' });
+Dispositivo.belongsTo(Cliente, { foreignKey: 'clienteId', as: 'cliente' });
+Dispositivo.belongsTo(CategoriaDispositivo, { foreignKey: 'categoriaId', as: 'categoria' });
 
 module.exports = {
   sequelize,

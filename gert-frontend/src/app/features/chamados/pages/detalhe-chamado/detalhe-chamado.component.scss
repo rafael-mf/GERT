@@ -1,1 +1,50 @@
 // Estilos específicos para o componente detalhe-chamado
+
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e9ecef;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -22px;
+  top: 10px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #007bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+
+  i {
+    font-size: 8px;
+    color: #007bff;
+  }
+}
+
+.timeline-content {
+  margin-left: 10px;
+
+  .card {
+    border-left: 3px solid #007bff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+}

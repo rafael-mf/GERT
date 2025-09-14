@@ -8,15 +8,9 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    NgbDropdownModule
-  ],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NgbDropdownModule],
   templateUrl: './main-layout.component.html',
-  styleUrl: './main-layout.component.scss'
+  styleUrls: ['./main-layout.component.scss']
 })
 export class MainLayoutComponent implements OnInit {
   collapsed = false;
@@ -31,9 +25,9 @@ export class MainLayoutComponent implements OnInit {
     // Atualizar o título da página com base na rota atual
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      const currentUrl = this.router.url;
-      this.updatePageTitle(currentUrl);
+    ).subscribe((event) => {
+      const navigationEnd = event as NavigationEnd;
+      this.updatePageTitle(this.router.url);
     });
 
     // Verificar se está em uma tela pequena para colapsar o menu automaticamente
@@ -76,5 +70,18 @@ export class MainLayoutComponent implements OnInit {
     } else {
       this.collapsed = false;
     }
+  }
+
+  // Funções comentadas temporariamente até implementação completa no banco
+  // navigateToProfile(): void {
+  //   this.router.navigateByUrl('/perfil');
+  // }
+
+  // navigateToSettings(): void {
+  //   this.router.navigateByUrl('/configuracoes');
+  // }
+
+  isAdmin(): boolean {
+    return this.authService.currentUserValue?.cargo === 'Administrador';
   }
 }

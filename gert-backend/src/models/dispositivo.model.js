@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
-const { Cliente } = require('./cliente.model');
-const { CategoriaDispositivo } = require('./categoria-dispositivo.model');
 
 const Dispositivo = sequelize.define('Dispositivo', {
   id: {
@@ -14,7 +12,7 @@ const Dispositivo = sequelize.define('Dispositivo', {
     allowNull: false,
     field: 'cliente_id',
     references: {
-      model: Cliente,
+      model: 'clientes',
       key: 'id'
     }
   },
@@ -23,7 +21,7 @@ const Dispositivo = sequelize.define('Dispositivo', {
     allowNull: false,
     field: 'categoria_id',
     references: {
-      model: CategoriaDispositivo,
+      model: 'categorias_dispositivos',
       key: 'id'
     }
   },
@@ -53,7 +51,6 @@ const Dispositivo = sequelize.define('Dispositivo', {
 });
 
 // Associações
-Dispositivo.belongsTo(Cliente, { foreignKey: 'clienteId', as: 'cliente' });
-Dispositivo.belongsTo(CategoriaDispositivo, { foreignKey: 'categoriaId', as: 'categoria' });
+// Movidas para index.js para evitar dependências circulares
 
 module.exports = { Dispositivo };

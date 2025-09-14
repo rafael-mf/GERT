@@ -39,6 +39,58 @@ class AuthController {
       return res.status(401).json({ valido: false, message: resultado.erro });
     }
   }
+
+  async getProfile(req, res, next) {
+    try {
+      const userId = req.usuario.id;
+      const usuario = await authService.getProfile(userId);
+      return res.json({ usuario });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async updateProfile(req, res, next) {
+    try {
+      const userId = req.usuario.id;
+      const { nome, email, telefone } = req.body;
+
+      if (!nome || !email) {
+        return res.status(400).json({ message: 'Nome e email são obrigatórios' });
+      }
+
+      const usuario = await authService.updateProfile(userId, { nome, email, telefone });
+      return res.json({ message: 'Perfil atualizado com sucesso', usuario });
+    } catch (error) {
+      if (error.message === 'Email já está em uso') {
+        return res.status(409).json({ message: error.message });
+      }
+      return next(error);
+    }
+  }
+
+  async changePassword(req, res, next) {
+    try {
+      const userId = req.usuario.id;
+      const { senhaAtual, novaSenha } = req.body;
+
+      if (!senhaAtual || !novaSenha) {
+        return res.status(400).json({ message: 'Senha atual e nova senha são obrigatórias' });
+      }
+
+      if (novaSenha.length < 6) {
+        return res.status(400).json({ message: 'Nova senha deve ter pelo menos 6 caracteres' });
+      }
+
+      await authService.changePassword(userId, senhaAtual, novaSenha);
+      return res.json({ message: 'Senha alterada com sucesso' });
+    } catch (error) {
+      if (error.message === 'Senha atual incorreta') {
+        return res.status(400).json({ message: error.message });
+      }
+      return next(error);
+    }
+  }
 }
 
 module.exports = new AuthController();

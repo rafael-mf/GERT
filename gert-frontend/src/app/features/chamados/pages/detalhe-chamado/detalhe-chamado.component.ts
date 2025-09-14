@@ -1,17 +1,19 @@
-// File: gert-frontend/src/app/features/chamados/pages/detalhe-chamado/detalhe-chamado.component.ts
+// gert-frontend/src/app/features/chamados/pages/detalhe-chamado/detalhe-chamado.component.ts
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChamadoService } from '../../../../core/services/chamado.service';
+import { ChamadoAtualizacaoService, ChamadoAtualizacao } from '../../../../core/services/chamado-atualizacao.service';
 import { Chamado } from '../../../../shared/models/chamado.model';
+import { Servico } from '../../../../shared/models/servico.model';
 import { ToastrService } from 'ngx-toastr';
-import { NgbModal, NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
-// Import other necessary modules like FormsModule if you add forms here for updates/services
+import { FormsModule } from '@angular/forms';
+import { ModalService } from '../../../../shared/services/modal.service';
 
 @Component({
   selector: 'app-detalhe-chamado',
   standalone: true,
-  imports: [CommonModule, RouterLink, DatePipe, NgbModalModule], // Add FormsModule if needed
+  imports: [CommonModule, RouterLink, DatePipe, CurrencyPipe, FormsModule],
   templateUrl: './detalhe-chamado.component.html',
   styleUrls: ['./detalhe-chamado.component.scss']
 })
@@ -20,27 +22,39 @@ export class DetalheChamadoComponent implements OnInit {
   loading = true;
   error = '';
   chamadoId!: number;
+  atualizacoes: ChamadoAtualizacao[] = [];
+  loadingAtualizacoes = false;
 
-  // For adding services (example)
-  // selectedServicoId: number | null = null;
-  // servicoValor: number | null = null;
-  // servicoObservacoes: string = '';
-  // availableServicos: Servico[] = [];
+  // Modal de Serviços
+  showServicosModal = false;
+  servicosDisponiveis: Servico[] = [];
+  loadingServicos = false;
+  selectedServicoId: number | null = null;
+  valorServico: number | null = null;
+  observacoesServico = '';
+  addingServico = false;
 
+  // Modal de Peças
+  showPecasModal = false;
+  nomePeca = '';
+  valorPeca: number | null = null;
+  descricaoPeca = '';
+  numeroSeriePeca = '';
+  garantiaPeca = '';
+  addingPeca = false;
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private chamadoService = inject(ChamadoService);
+  private chamadoAtualizacaoService = inject(ChamadoAtualizacaoService);
   private toastr = inject(ToastrService);
-  // private modalService = inject(NgbModal);
-
+  private modalService = inject(ModalService);
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.chamadoId = +idParam;
       this.loadChamadoDetails();
-      // this.loadAvailableServicos();
     } else {
       this.error = 'ID do chamado não fornecido.';
       this.toastr.error(this.error);
@@ -54,6 +68,8 @@ export class DetalheChamadoComponent implements OnInit {
       next: (data) => {
         this.chamado = data;
         this.loading = false;
+        // Carregar histórico de atualizações
+        this.loadAtualizacoes();
       },
       error: (err) => {
         this.error = 'Erro ao carregar detalhes do chamado.';
@@ -61,62 +77,261 @@ export class DetalheChamadoComponent implements OnInit {
         console.error(err);
         this.loading = false;
         if (err.status === 404) {
-            this.router.navigate(['/chamados']); // Or a 404 page
+            this.router.navigate(['/chamados']);
         }
       }
     });
   }
 
-  // loadAvailableServicos(): void {
-  //   this.chamadoService.getServicos().subscribe(data => this.availableServicos = data);
-  // }
-
-  // openAddServicoModal(content: any) {
-  //   this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
-  // }
-
-  // addServico(): void {
-  //   if (!this.chamado || !this.selectedServicoId) {
-  //     this.toastr.warning('Selecione um serviço.');
-  //     return;
-  //   }
-  //   const servicoData = {
-  //     servicoId: this.selectedServicoId,
-  //     valor: this.servicoValor ?? undefined, // Envia undefined se null para usar valorBase
-  //     observacoes: this.servicoObservacoes
-  //   };
-  //   this.chamadoService.addServicoAoChamado(this.chamado.id!, servicoData).subscribe({
-  //     next: () => {
-  //       this.toastr.success('Serviço adicionado com sucesso!');
-  //       this.loadChamadoDetails(); // Recarrega os detalhes
-  //       this.modalService.dismissAll();
-  //       // Reset form
-  //       this.selectedServicoId = null;
-  //       this.servicoValor = null;
-  //       this.servicoObservacoes = '';
-  //     },
-  //     error: (err) => {
-  //       this.toastr.error('Erro ao adicionar serviço.');
-  //       console.error(err);
-  //     }
-  //   });
-  // }
-
-  // removeServico(chamadoServicoId?: number): void {
-  //   if (chamadoServicoId && this.chamado && confirm('Tem certeza que deseja remover este serviço do chamado?')) {
-  //     this.chamadoService.removeServicoDoChamado(this.chamado.id!, chamadoServicoId).subscribe({
-  //       next: () => {
-  //         this.toastr.success('Serviço removido com sucesso!');
-  //         this.loadChamadoDetails();
-  //       },
-  //       error: (err) => this.toastr.error('Erro ao remover serviço.')
-  //     });
-  //   }
-  // }
+  loadAtualizacoes(): void {
+    this.loadingAtualizacoes = true;
+    this.chamadoAtualizacaoService.getAtualizacoesByChamado(this.chamadoId).subscribe({
+      next: (data) => {
+        this.atualizacoes = data;
+        this.loadingAtualizacoes = false;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar histórico:', err);
+        this.loadingAtualizacoes = false;
+      }
+    });
+  }
 
   editChamado(): void {
     if (this.chamado?.id) {
       this.router.navigate(['/chamados', this.chamado.id, 'editar']);
     }
+  }
+
+  // === MÉTODOS PARA MODAL DE SERVIÇOS ===
+  openServicosModal(): void {
+    this.showServicosModal = true;
+    this.loadServicosDisponiveis();
+    this.resetServicoForm();
+  }
+
+  closeServicosModal(): void {
+    this.showServicosModal = false;
+    this.resetServicoForm();
+  }
+
+  private resetServicoForm(): void {
+    this.selectedServicoId = null;
+    this.valorServico = null;
+    this.observacoesServico = '';
+  }
+
+  loadServicosDisponiveis(): void {
+    this.loadingServicos = true;
+    this.chamadoService.getServicos().subscribe({
+      next: (servicos) => {
+        this.servicosDisponiveis = servicos;
+        this.loadingServicos = false;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar serviços:', err);
+        this.toastr.error('Erro ao carregar lista de serviços');
+        this.loadingServicos = false;
+      }
+    });
+  }
+
+  onServicoSelected(): void {
+    if (this.selectedServicoId) {
+      const servico = this.servicosDisponiveis.find(s => s.id === this.selectedServicoId);
+      if (servico && !this.valorServico) {
+        this.valorServico = servico.valorBase;
+      }
+    }
+  }
+
+  addServico(): void {
+    if (!this.selectedServicoId || !this.chamadoId) {
+      this.toastr.warning('Selecione um serviço');
+      return;
+    }
+
+    this.addingServico = true;
+    const servicoData = {
+      servicoId: this.selectedServicoId,
+      valor: this.valorServico || undefined,
+      observacoes: this.observacoesServico || undefined
+    };
+
+    this.chamadoService.addServicoAoChamado(this.chamadoId, servicoData).subscribe({
+      next: () => {
+        this.toastr.success('Serviço adicionado com sucesso!');
+        this.closeServicosModal();
+        this.loadChamadoDetails(); // Recarregar detalhes para atualizar a lista
+        this.addingServico = false;
+      },
+      error: (err) => {
+        console.error('Erro ao adicionar serviço:', err);
+        this.toastr.error('Erro ao adicionar serviço');
+        this.addingServico = false;
+      }
+    });
+  }
+
+  removeServico(chamadoServicoId: number): void {
+    this.modalService.confirmDelete('este serviço').then(confirmed => {
+      if (confirmed) {
+        this.chamadoService.removeServicoDoChamado(this.chamadoId, chamadoServicoId).subscribe({
+          next: () => {
+            this.toastr.success('Serviço removido com sucesso!');
+            this.loadChamadoDetails(); // Recarregar detalhes para atualizar a lista
+          },
+          error: (err: any) => {
+            console.error('Erro ao remover serviço:', err);
+            this.toastr.error('Erro ao remover serviço');
+          }
+        });
+      }
+    });
+  }
+
+  // === MÉTODOS PARA MODAL DE PEÇAS ===
+  openPecasModal(): void {
+    this.showPecasModal = true;
+    this.resetPecaForm();
+  }
+
+  closePecasModal(): void {
+    this.showPecasModal = false;
+    this.resetPecaForm();
+  }
+
+  private resetPecaForm(): void {
+    this.nomePeca = '';
+    this.valorPeca = null;
+    this.descricaoPeca = '';
+    this.numeroSeriePeca = '';
+    this.garantiaPeca = '';
+  }
+
+  addPeca(): void {
+    if (!this.nomePeca || !this.valorPeca) {
+      this.toastr.warning('Preencha pelo menos nome e valor da peça');
+      return;
+    }
+
+    this.addingPeca = true;
+    const pecaData = {
+      nome: this.nomePeca,
+      valor: this.valorPeca,
+      descricao: this.descricaoPeca || undefined,
+      numeroSerie: this.numeroSeriePeca || undefined,
+      garantia: this.garantiaPeca || undefined
+    };
+
+    this.chamadoService.addPecaUsada(this.chamadoId, pecaData).subscribe({
+      next: () => {
+        this.toastr.success('Peça adicionada com sucesso!');
+        this.closePecasModal();
+        this.loadChamadoDetails(); // Recarregar detalhes para atualizar a lista
+        this.addingPeca = false;
+      },
+      error: (err: any) => {
+        console.error('Erro ao adicionar peça:', err);
+        this.toastr.error('Erro ao adicionar peça');
+        this.addingPeca = false;
+      }
+    });
+  }
+
+  removePeca(pecaUsadaId: number): void {
+    this.modalService.confirmDelete('esta peça').then(confirmed => {
+      if (confirmed) {
+        this.chamadoService.removePecaUsada(pecaUsadaId).subscribe({
+          next: () => {
+            this.toastr.success('Peça removida com sucesso!');
+            this.loadChamadoDetails(); // Recarregar detalhes para atualizar a lista
+          },
+          error: (err: any) => {
+            console.error('Erro ao remover peça:', err);
+            this.toastr.error('Erro ao remover peça');
+          }
+        });
+      }
+    });
+  }
+
+  // === MÉTODOS PARA AÇÕES DO CHAMADO ===
+  fecharChamado(): void {
+    if (!this.chamado) return;
+
+    // Verificar se tem diagnóstico e solução preenchidos
+    if (!this.chamado.diagnostico?.trim() || !this.chamado.solucao?.trim()) {
+      this.toastr.warning('Diagnóstico e solução são obrigatórios para fechar o chamado');
+      return;
+    }
+
+    this.modalService.confirmCloseChamado().then(confirmed => {
+      if (confirmed) {
+        this.chamadoService.fecharChamado(this.chamadoId, {
+          diagnostico: this.chamado!.diagnostico!,
+          solucao: this.chamado!.solucao!,
+          valorTotal: this.chamado!.valorTotal
+        }).subscribe({
+          next: () => {
+            this.toastr.success('Chamado fechado com sucesso!');
+            this.loadChamadoDetails();
+          },
+          error: (err: any) => {
+            console.error('Erro ao fechar chamado:', err);
+            this.toastr.error(err.error?.message || 'Erro ao fechar chamado');
+          }
+        });
+      }
+    });
+  }
+
+  reabrirChamado(): void {
+    if (!this.chamado) return;
+
+    this.modalService.confirm({
+      title: 'Reabrir Chamado',
+      message: 'Tem certeza que deseja reabrir este chamado?',
+      confirmText: 'Reabrir',
+      cancelText: 'Cancelar',
+      confirmClass: 'warning'
+    }).then(confirmed => {
+      if (confirmed) {
+        const comentario = prompt('Motivo para reabrir o chamado (opcional):');
+
+        this.chamadoService.reabrirChamado(this.chamadoId, comentario || undefined).subscribe({
+          next: () => {
+            this.toastr.success('Chamado reaberto com sucesso!');
+            this.loadChamadoDetails();
+          },
+          error: (err: any) => {
+            console.error('Erro ao reabrir chamado:', err);
+            this.toastr.error(err.error?.message || 'Erro ao reabrir chamado');
+          }
+        });
+      }
+    });
+  }
+
+  adicionarComentario(): void {
+    this.modalService.addComment().then(comentario => {
+      if (comentario.trim()) {
+        // Usar o serviço de atualizações para adicionar comentário
+        this.chamadoAtualizacaoService.registrarComentario({
+          chamadoId: this.chamadoId,
+          usuarioId: 1, // TODO: pegar ID do usuário logado
+          comentario: comentario.trim()
+        }).subscribe({
+          next: () => {
+            this.toastr.success('Comentário adicionado com sucesso!');
+            this.loadAtualizacoes();
+          },
+          error: (err: any) => {
+            console.error('Erro ao adicionar comentário:', err);
+            this.toastr.error('Erro ao adicionar comentário');
+          }
+        });
+      }
+    });
   }
 }

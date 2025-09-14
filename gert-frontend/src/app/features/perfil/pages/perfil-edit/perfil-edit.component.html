@@ -1,0 +1,174 @@
+<div class="container-fluid">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h2>Meu Perfil</h2>
+      <p class="text-muted">Gerencie suas informações pessoais</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Informações Pessoais</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="perfilForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome</label>
+              <input
+                type="text"
+                class="form-control"
+                id="nome"
+                formControlName="nome"
+                [class.is-invalid]="perfilForm.get('nome')?.invalid && perfilForm.get('nome')?.touched">
+              <div class="invalid-feedback">
+                Nome é obrigatório
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                formControlName="email"
+                [class.is-invalid]="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched">
+              <div class="invalid-feedback">
+                Email válido é obrigatório
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="cargo" class="form-label">Cargo</label>
+              <input
+                type="text"
+                class="form-control"
+                id="cargo"
+                formControlName="cargo"
+                readonly>
+            </div>
+
+            <!-- Campos futuros - comentados até implementação no banco -->
+            <!-- <div class="mb-3">
+              <label for="telefone" class="form-label">Telefone</label>
+              <input
+                type="tel"
+                class="form-control"
+                id="telefone"
+                placeholder="(11) 99999-9999">
+            </div>
+
+            <div class="mb-3">
+              <label for="cpf" class="form-label">CPF</label>
+              <input
+                type="text"
+                class="form-control"
+                id="cpf"
+                placeholder="000.000.000-00"
+                readonly>
+            </div> -->
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="loading || perfilForm.invalid">
+              <i class="fas fa-save me-2" *ngIf="!loading"></i>
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="loading"></span>
+              Salvar Alterações
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-key me-2"></i>Alterar Senha
+          </h5>
+        </div>
+        <div class="card-body">
+          <!-- <button class="btn btn-outline-warning w-100" disabled>
+            <i class="fas fa-lock me-2"></i>Alterar Senha
+          </button> -->
+          <p class="text-muted mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            Funcionalidade em desenvolvimento - aguardando estrutura do banco de dados
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-user-circle me-2"></i>Foto do Perfil
+          </h5>
+        </div>
+        <div class="card-body text-center">
+          <div class="mb-3">
+            <i class="fas fa-user-circle fa-5x text-muted"></i>
+          </div>
+          <!-- <button class="btn btn-outline-primary" disabled>
+            <i class="fas fa-camera me-2"></i>Alterar Foto
+          </button> -->
+          <p class="text-muted mb-0 mt-2">
+            <i class="fas fa-info-circle me-2"></i>
+            Funcionalidade em desenvolvimento
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seções futuras - comentadas até implementação -->
+  <!-- <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-cog me-2"></i>Preferências Pessoais
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-info" disabled>
+              <i class="fas fa-tachometer-alt me-2"></i>Dashboard Personalizado
+            </button>
+            <button class="btn btn-outline-info" disabled>
+              <i class="fas fa-eye me-2"></i>Visualização Padrão
+            </button>
+            <button class="btn btn-outline-info" disabled>
+              <i class="fas fa-keyboard me-2"></i>Atalhos Personalizados
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-chart-bar me-2"></i>Estatísticas Pessoais
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-success" disabled>
+              <i class="fas fa-history me-2"></i>Últimos Acessos
+            </button>
+            <button class="btn btn-outline-success" disabled>
+              <i class="fas fa-tasks me-2"></i>Chamados Atribuídos
+            </button>
+            <button class="btn btn-outline-success" disabled>
+              <i class="fas fa-trophy me-2"></i>Produtividade
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+</div>

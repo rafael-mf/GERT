@@ -11,7 +11,7 @@ export const authGuard = (route: any, state: any) => {
 
   if (authService.isAuthenticated()) {
     // Verificar se há restrições de papel/cargo
-    if (route.data['roles'] && !route.data['roles'].includes(authService.currentUserValue?.cargo)) {
+    if (route.data && route.data['roles'] && !route.data['roles'].includes(authService.currentUserValue?.cargo)) {
       router.navigate(['/acesso-negado']);
       return false;
     }
@@ -29,19 +29,47 @@ export const routes: Routes = [
       import('./features/auth/pages/login/login.component').then(m => m.LoginComponent)
   },
   {
-    path: '',
+    path: 'acesso-negado',
+    loadComponent: () =>
+      import('./shared/pages/acesso-negado/acesso-negado.component').then(m => m.AcessoNegadoComponent)
+  },
+  // Rotas independentes com MainLayoutComponent
+  {
+    path: 'perfil',
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
       {
         path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
+        loadComponent: () => import('./features/perfil/pages/perfil-edit/perfil-edit.component').then(m => m.PerfilEditComponent)
+      }
+    ]
+  },
+  {
+    path: 'configuracoes',
+    component: MainLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/configuracoes/pages/configuracoes-home/configuracoes-home.component').then(m => m.ConfiguracoesHomeComponent)
+      }
+    ]
+  },
+  {
+    path: '',
+    component: MainLayoutComponent,
+    canActivate: [authGuard],
+    children: [
       {
         path: 'dashboard',
         loadComponent: () =>
           import('./features/dashboard/pages/dashboard-home/dashboard-home.component').then(m => m.DashboardHomeComponent)
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
       },
       // Rotas para Chamados
       {
@@ -67,12 +95,19 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/tecnicos/tecnicos.routes').then(m => m.TECNICOS_ROUTES)
       },
+      // Rotas para Serviços
+      {
+        path: 'servicos',
+        loadChildren: () =>
+          import('./features/servicos/servicos.routes').then(m => m.SERVICOS_ROUTES)
+      },
       // Rotas para Relatórios
       {
         path: 'relatorios',
         loadChildren: () =>
           import('./features/relatorios/relatorios.routes').then(m => m.RELATORIOS_ROUTES)
-      }
+      },
+
     ]
   },
   {

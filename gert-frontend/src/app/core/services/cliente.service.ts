@@ -48,10 +48,15 @@ export class ClienteService {
   deleteCliente(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+  // Dentro da classe ClienteService
+
+  createDispositivo(clienteId: number, dispositivo: Omit<Dispositivo, 'id'>): Observable<Dispositivo> {
+    return this.http.post<Dispositivo>(`${this.apiUrl}/${clienteId}/dispositivos`, dispositivo);
+  }
 
   // Se precisar buscar dispositivos associados a um cliente específico pelo frontend
   getDispositivosPorCliente(clienteId: number): Observable<Dispositivo[]> {
-     return this.http.get<Dispositivo[]>(`${environment.apiUrl}/chamados/aux/dispositivos/cliente/${clienteId}`);
-     // Alternativamente, crie uma rota /api/clientes/:id/dispositivos no backend
+    return this.http.get<Dispositivo[]>(`${environment.apiUrl}/chamados/aux/dispositivos/cliente/${clienteId}`);
+    // Alternativamente, crie uma rota /api/clientes/:id/dispositivos no backend
   }
 }

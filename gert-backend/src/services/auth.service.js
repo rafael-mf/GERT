@@ -61,6 +61,84 @@ class AuthService {
       return { valido: false, erro: error.message };
     }
   }
+
+  async getProfile(userId) {
+    const usuario = await Usuario.findByPk(userId, {
+      attributes: ['id', 'nome', 'email', 'telefone', 'cargo', 'ultimoAcesso', 'ativo']
+    });
+
+    if (!usuario) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    // Se for técnico, obter informações adicionais
+    let tecnico = null;
+    if (usuario.cargo === 'Técnico') {
+      tecnico = await Tecnico.findOne({
+        where: { usuarioId: usuario.id },
+        attributes: ['id', 'especialidade', 'disponivel']
+      });
+    }
+
+    return {
+      id: usuario.id,
+      nome: usuario.nome,
+      email: usuario.email,
+      telefone: usuario.telefone,
+      cargo: usuario.cargo,
+      ultimoAcesso: usuario.ultimoAcesso,
+      ativo: usuario.ativo,
+      tecnico: tecnico
+    };
+  }
+
+  async updateProfile(userId, { nome, email, telefone }) {
+    const usuario = await Usuario.findByPk(userId);
+    if (!usuario) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    // Verificar se o email já está em uso por outro usuário
+    if (email !== usuario.email) {
+      const emailExists = await Usuario.findOne({ where: { email } });
+      if (emailExists) {
+        throw new Error('Email já está em uso');
+      }
+    }
+
+    // Atualizar dados
+    await usuario.update({
+      nome,
+      email,
+      telefone
+    });
+
+    return {
+      id: usuario.id,
+      nome: usuario.nome,
+      email: usuario.email,
+      telefone: usuario.telefone,
+      cargo: usuario.cargo
+    };
+  }
+
+  async changePassword(userId, senhaAtual, novaSenha) {
+    const usuario = await Usuario.findByPk(userId);
+    if (!usuario) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    // Verificar senha atual
+    const senhaAtualValida = await usuario.verificarSenha(senhaAtual);
+    if (!senhaAtualValida) {
+      throw new Error('Senha atual incorreta');
+    }
+
+    // Atualizar senha
+    await usuario.update({ senha: novaSenha });
+
+    return true;
+  }
 }
 
 module.exports = new AuthService();

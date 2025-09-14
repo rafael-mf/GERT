@@ -1,50 +1,36 @@
-// File: gert-backend/src/services/tecnico.service.js
-const { Tecnico, Usuario } = require('../models');
+const { Tecnico, Usuario, sequelize } = require('../models');
+const authService = require('./auth.service');
 const { Op } = require('sequelize');
-const bcrypt = require('bcryptjs');
 
 class TecnicoService {
   async getAllTecnicos(queryParams) {
-    const { searchTerm, page = 1, limit = 10, disponivel } = queryParams;
+    const { searchTerm, page = 1, limit = 10 } = queryParams;
     const offset = (page - 1) * limit;
-    const whereTecnico = {};
-    const whereUsuario = {};
-
-    if (disponivel !== undefined) {
-        whereTecnico.disponivel = disponivel === 'true' || disponivel === true;
-    }
+    let where = {};
 
     if (searchTerm) {
-      whereUsuario[Op.or] = [
-        { nome: { [Op.like]: `%${searchTerm}%` } },
-        { email: { [Op.like]: `%${searchTerm}%` } },
+      where[Op.or] = [
+        { '$usuario.nome$': { [Op.like]: `%${searchTerm}%` } },
+        { '$usuario.email$': { [Op.like]: `%${searchTerm}%` } },
+        { especialidade: { [Op.like]: `%${searchTerm}%` } },
       ];
-      // Também poderia buscar por especialidade do técnico
-      whereTecnico.especialidade = { [Op.like]: `%${searchTerm}%` };
     }
-
-    const includeOptions = [{
-        model: Usuario,
-        as: 'usuario',
-        attributes: ['id', 'nome', 'email', 'ativo', 'cargo'],
-        where: Object.keys(whereUsuario).length ? whereUsuario : undefined,
-    }];
-
+    
+    where['$usuario.cargo$'] = 'Técnico';
 
     const { count, rows } = await Tecnico.findAndCountAll({
-      where: Object.keys(whereTecnico).length ? whereTecnico : undefined,
-      include: includeOptions,
+      where,
+      include: [{ model: Usuario, as: 'usuario' }],
       limit: parseInt(limit, 10),
       offset: parseInt(offset, 10),
       order: [[{ model: Usuario, as: 'usuario' }, 'nome', 'ASC']],
-      distinct: true, // Necessário por causa do include com where
     });
     return { totalItems: count, totalPages: Math.ceil(count / limit), currentPage: parseInt(page, 10), tecnicos: rows };
   }
-
+  
   async getTecnicoById(id) {
     const tecnico = await Tecnico.findByPk(id, {
-      include: [{ model: Usuario, as: 'usuario', attributes: { exclude: ['senha'] } }]
+      include: [{ model: Usuario, as: 'usuario' }]
     });
     if (!tecnico) {
       throw new Error('Técnico não encontrado');
@@ -53,61 +39,73 @@ class TecnicoService {
   }
 
   async createTecnico(dadosTecnico) {
-    const { nome, email, senha, cargo = 'Técnico', ativo = true, especialidade, disponivel = true } = dadosTecnico;
+    const t = await sequelize.transaction();
+    try {
+      // 1. Criar o Usuário
+      const dadosUsuario = {
+        nome: dadosTecnico.nome,
+        email: dadosTecnico.email,
+        senha: dadosTecnico.senha,
+        cargo: 'Técnico',
+        ativo: dadosTecnico.ativo !== undefined ? dadosTecnico.ativo : true
+      };
+      const novoUsuario = await authService.register(dadosUsuario, { transaction: t });
 
-    if (!nome || !email || !senha) {
-        throw new Error('Nome, email e senha são obrigatórios para criar o usuário do técnico.');
+      // 2. Criar o Técnico associado
+      const dadosTecnicoFinal = {
+        usuarioId: novoUsuario.id,
+        especialidade: dadosTecnico.especialidade,
+        disponivel: dadosTecnico.disponivel !== undefined ? dadosTecnico.disponivel : true
+      };
+      const novoTecnico = await Tecnico.create(dadosTecnicoFinal, { transaction: t });
+
+      await t.commit();
+      return this.getTecnicoById(novoTecnico.id);
+
+    } catch (error) {
+      await t.rollback();
+      // Verifica se o erro é de e-mail duplicado
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        throw new Error('O email fornecido já está em uso.');
+      }
+      throw error;
     }
-    // O hook no modelo Usuario cuidará do hash da senha
-    const novoUsuario = await Usuario.create({ nome, email, senha, cargo, ativo });
-
-    const novoTecnico = await Tecnico.create({
-      usuarioId: novoUsuario.id,
-      especialidade,
-      disponivel
-    });
-
-    return await this.getTecnicoById(novoTecnico.id);
   }
 
   async updateTecnico(id, dadosTecnico) {
-    const tecnico = await Tecnico.findByPk(id, { include: [{ model: Usuario, as: 'usuario' }] });
-    if (!tecnico) {
-      throw new Error('Técnico não encontrado');
-    }
+     const t = await sequelize.transaction();
+     try {
+        const tecnico = await Tecnico.findByPk(id, { transaction: t });
+        if (!tecnico) {
+            throw new Error('Técnico não encontrado');
+        }
 
-    const { nome, email, senha, ativo, especialidade, disponivel } = dadosTecnico;
+        // 1. Atualiza dados do técnico
+        await tecnico.update({
+            especialidade: dadosTecnico.especialidade,
+            disponivel: dadosTecnico.disponivel
+        }, { transaction: t });
 
-    // Atualizar dados do Usuario
-    if (tecnico.usuario) {
-        if (nome) tecnico.usuario.nome = nome;
-        if (email) tecnico.usuario.email = email; // Adicionar validação de unicidade se necessário
-        if (senha) tecnico.usuario.senha = await bcrypt.hash(senha, 10); // Hash manual ou deixar o hook fazer
-        if (ativo !== undefined) tecnico.usuario.ativo = ativo;
-        await tecnico.usuario.save(); // Se a senha for alterada aqui, o hook do modelo Usuario deve re-hashear
-    }
+        // 2. Atualiza dados do usuário associado
+        const usuario = await Usuario.findByPk(tecnico.usuarioId, { transaction: t });
+        if (usuario) {
+            await usuario.update({
+                nome: dadosTecnico.nome,
+                email: dadosTecnico.email,
+                ativo: dadosTecnico.ativo
+            }, { transaction: t });
+        }
+        
+        await t.commit();
+        return this.getTecnicoById(id);
 
-    // Atualizar dados do Tecnico
-    if (especialidade) tecnico.especialidade = especialidade;
-    if (disponivel !== undefined) tecnico.disponivel = disponivel;
-    await tecnico.save();
-
-    return await this.getTecnicoById(id);
-  }
-
-  async deleteTecnico(id) {
-    const tecnico = await Tecnico.findByPk(id);
-    if (!tecnico) {
-      throw new Error('Técnico não encontrado');
-    }
-    // Considerar o que acontece com os chamados atribuídos a este técnico
-    // Por agora, vamos deletar. Pode ser melhor apenas desativar o usuário associado.
-    const usuario = await Usuario.findByPk(tecnico.usuarioId);
-    await tecnico.destroy();
-    if (usuario) {
-        await usuario.destroy(); // Ou apenas usuario.update({ ativo: false });
-    }
-    return { message: 'Técnico e usuário associado excluídos com sucesso' };
+     } catch (error) {
+         await t.rollback();
+         if (error.name === 'SequelizeUniqueConstraintError') {
+           throw new Error('O email fornecido já está em uso por outro usuário.');
+         }
+         throw error;
+     }
   }
 }
 

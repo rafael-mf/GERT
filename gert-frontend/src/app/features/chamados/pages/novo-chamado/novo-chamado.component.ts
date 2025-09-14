@@ -1,114 +1,151 @@
-// File: gert-frontend/src/app/features/chamados/pages/novo-chamado/novo-chamado.component.ts
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ChamadoService } from '../../../../core/services/chamado.service';
 import { ToastrService } from 'ngx-toastr';
-import { Chamado } from '../../../../shared/models/chamado.model';
+
+import { ChamadoService } from '../../../../core/services/chamado.service';
+import { ClienteService } from '../../../../core/services/cliente.service';
+
 import { Cliente } from '../../../../shared/models/cliente.model';
 import { Dispositivo } from '../../../../shared/models/dispositivo.model';
-import { Prioridade } from '../../../../shared/models/prioridade.model';
-import { StatusChamado } from '../../../../shared/models/status-chamado.model';
 import { Tecnico } from '../../../../shared/models/tecnico.model';
+import { Prioridade } from '../../../../shared/models/prioridade.model';
+import { CategoriaDispositivo } from '../../../../shared/models/categoria-dispositivo.model';
 
 @Component({
   selector: 'app-novo-chamado',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, DatePipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './novo-chamado.component.html',
   styleUrls: ['./novo-chamado.component.scss']
 })
 export class NovoChamadoComponent implements OnInit {
-  chamadoForm!: FormGroup;
-  loading = false;
-  submitted = false;
-  error = '';
+  chamadoForm: FormGroup;
+  newDeviceForm: FormGroup;
 
+  // Arrays para os dropdowns
   clientes: Cliente[] = [];
   dispositivos: Dispositivo[] = [];
-  prioridades: Prioridade[] = [];
-  statusList: StatusChamado[] = []; // Para status inicial, se necessário
   tecnicos: Tecnico[] = [];
+  prioridades: Prioridade[] = [];
+  categoriasDispositivo: CategoriaDispositivo[] = [];
 
+  // Controle de estado
+  loading = false;
+  submitted = false;
+  showNewDeviceForm = false;
 
   constructor(
     private fb: FormBuilder,
     private chamadoService: ChamadoService,
+    private clienteService: ClienteService,
     private router: Router,
     private toastr: ToastrService
-  ) {}
-
-  ngOnInit(): void {
+  ) {
+    // Formulário principal do chamado
     this.chamadoForm = this.fb.group({
-      clienteId: ['', Validators.required],
-      dispositivoId: ['', Validators.required],
       titulo: ['', Validators.required],
       descricao: ['', Validators.required],
+      clienteId: ['', Validators.required],
+      dispositivoId: ['', Validators.required],
       prioridadeId: ['', Validators.required],
-      tecnicoId: [null], // Opcional na criação
-      // statusId será definido pelo backend ou um valor padrão
-      dataPrevista: [null]
+      tecnicoId: ['']
     });
 
-    this.loadClientes();
-    this.loadPrioridades();
-    // this.loadStatus(); // Carregar se o usuário puder definir o status inicial
-    this.loadTecnicos();
+    // Formulário para cadastrar um novo dispositivo
+    this.newDeviceForm = this.fb.group({
+      marca: ['', Validators.required],
+      modelo: ['', Validators.required],
+      numeroSerie: [''],
+      categoriaId: ['', Validators.required]
+    });
+  }
 
+  ngOnInit(): void {
+    this.loadInitialData();
+
+    // Quando o clienteId muda no formulário principal, busca os dispositivos dele
     this.chamadoForm.get('clienteId')?.valueChanges.subscribe(clienteId => {
-      this.dispositivos = [];
-      this.chamadoForm.get('dispositivoId')?.setValue('');
+      this.dispositivos = []; // Limpa a lista de dispositivos anterior
+      this.chamadoForm.get('dispositivoId')?.reset(''); // Reseta a seleção
       if (clienteId) {
-        this.loadDispositivosPorCliente(clienteId);
+        this.loadDispositivosDoCliente(clienteId);
       }
     });
   }
 
-  loadClientes() {
+  // Carrega todos os dados necessários para os dropdowns da página
+  loadInitialData(): void {
     this.chamadoService.getClientes().subscribe(data => this.clientes = data);
-  }
-
-  loadDispositivosPorCliente(clienteId: number) {
-    this.chamadoService.getDispositivosPorCliente(clienteId).subscribe(data => this.dispositivos = data);
-  }
-
-  loadPrioridades() {
-    this.chamadoService.getPrioridades().subscribe(data => this.prioridades = data);
-  }
-
-  // loadStatus() {
-  //   this.chamadoService.getStatusChamados().subscribe(data => this.statusList = data);
-  // }
-
-  loadTecnicos() {
     this.chamadoService.getTecnicos().subscribe(data => this.tecnicos = data);
+    this.chamadoService.getPrioridades().subscribe(data => this.prioridades = data);
+    this.chamadoService.getCategoriasDispositivo().subscribe(data => this.categoriasDispositivo = data);
   }
 
-  get f() { return this.chamadoForm.controls; }
+  // Carrega os dispositivos para um cliente específico
+  loadDispositivosDoCliente(clienteId: number): void {
+    this.chamadoService.getDispositivosPorCliente(clienteId).subscribe(data => {
+      this.dispositivos = data;
+    });
+  }
 
+  // Salva o chamado principal
   onSubmit(): void {
     this.submitted = true;
     if (this.chamadoForm.invalid) {
-      this.toastr.error('Por favor, preencha todos os campos obrigatórios.', 'Formulário Inválido');
+      // Adiciona um log para ajudar a depurar qual campo está inválido
+      Object.keys(this.chamadoForm.controls).forEach(key => {
+        const controlErrors = this.chamadoForm.get(key)?.errors;
+        if (controlErrors != null) {
+          console.error('Campo com erro:', key, ', Erros:', controlErrors);
+        }
+      });
+      this.toastr.error('Por favor, preencha todos os campos obrigatórios marcados com *.');
       return;
     }
 
     this.loading = true;
-    const novoChamado: Chamado = this.chamadoForm.value;
-
-    this.chamadoService.createChamado(novoChamado).subscribe({
-      next: (chamadoCriado) => {
-        this.toastr.success(`Chamado #${chamadoCriado.id} criado com sucesso!`);
-        this.router.navigate(['/chamados', chamadoCriado.id]);
+    this.chamadoService.createChamado(this.chamadoForm.value).subscribe({
+      next: () => {
+        this.toastr.success('Chamado criado com sucesso!');
+        this.router.navigate(['/chamados']);
       },
       error: (err) => {
-        this.error = 'Erro ao criar chamado. Verifique os dados e tente novamente.';
-        this.toastr.error(this.error);
+        this.toastr.error('Falha ao criar o chamado. Tente novamente.');
         console.error(err);
         this.loading = false;
+      }
+    });
+  }
+
+  // **FUNÇÃO CORRIGIDA**
+  // Salva o novo dispositivo
+  onSaveNewDevice(): void {
+    if (this.newDeviceForm.invalid || !this.chamadoForm.get('clienteId')?.value) {
+      this.toastr.error('Preencha todos os campos do novo dispositivo e selecione um cliente.');
+      return;
+    }
+
+    const clienteId = this.chamadoForm.get('clienteId')?.value;
+    this.clienteService.createDispositivo(clienteId, this.newDeviceForm.value).subscribe({
+      next: (novoDispositivo) => {
+        this.toastr.success('Dispositivo cadastrado com sucesso!');
+        this.showNewDeviceForm = false;
+        this.newDeviceForm.reset();
+
+        // --- LÓGICA CORRIGIDA ---
+        // 1. Adiciona o novo dispositivo à lista local imediatamente.
+        // O .slice() força a detecção de mudanças do Angular.
+        this.dispositivos = [...this.dispositivos, novoDispositivo];
+
+        // 2. Define o valor do dispositivo recém-criado no formulário principal.
+        this.chamadoForm.get('dispositivoId')?.setValue(novoDispositivo.id);
       },
-      complete: () => this.loading = false
+      error: (err) => {
+        this.toastr.error('Falha ao cadastrar dispositivo.');
+        console.error(err);
+      }
     });
   }
 }

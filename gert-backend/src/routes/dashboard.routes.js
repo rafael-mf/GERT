@@ -1,14 +1,14 @@
+// gert-backend/src/routes/dashboard.routes.js
 const express = require('express');
 const { verifyToken } = require('../middlewares/auth.middleware');
+const dashboardController = require('../controllers/dashboard.controller');
 
 const router = express.Router();
 
 // Todas as rotas abaixo requerem autenticação
 router.use(verifyToken);
 
-// Rotas temporárias
-router.get('/', (req, res) => {
-  res.json({ message: 'API de dashboard disponível' });
-});
+// Rota principal do dashboard que busca as estatísticas
+router.get('/', dashboardController.getStats);
 
 module.exports = router;

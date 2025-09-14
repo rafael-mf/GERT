@@ -1,9 +1,8 @@
-// File: gert-frontend/src/app/features/chamados/pages/lista-chamados/lista-chamados.component.ts
+// gert-frontend/src/app/features/chamados/pages/lista-chamados/lista-chamados.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ChamadoService, PaginatedChamados } from '../../../../core/services/chamado.service';
-import { Chamado } from '../../../../shared/models/chamado.model';
 import { Prioridade } from '../../../../shared/models/prioridade.model';
 import { StatusChamado } from '../../../../shared/models/status-chamado.model';
 import { Tecnico } from '../../../../shared/models/tecnico.model';
@@ -23,7 +22,7 @@ export class ListaChamadosComponent implements OnInit {
   loading = false;
   error = '';
 
-  // Filtros
+  // Filter properties
   searchTerm: string = '';
   statusIdFiltro: string = '';
   prioridadeIdFiltro: string = '';
@@ -31,6 +30,7 @@ export class ListaChamadosComponent implements OnInit {
   page: number = 1;
   limit: number = 10;
 
+  // Data for filters
   statusList: StatusChamado[] = [];
   prioridadesList: Prioridade[] = [];
   tecnicosList: Tecnico[] = [];
@@ -109,7 +109,7 @@ export class ListaChamadosComponent implements OnInit {
       this.chamadoService.deleteChamado(id).subscribe({
         next: () => {
           this.toastr.success('Chamado excluído com sucesso!');
-          this.loadChamados(); // Recarregar a lista
+          this.loadChamados(); // Reload the list
         },
         error: (err) => {
           this.toastr.error('Erro ao excluir chamado.');

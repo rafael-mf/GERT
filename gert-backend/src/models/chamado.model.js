@@ -5,6 +5,8 @@ const { Dispositivo } = require('./dispositivo.model');
 const { Tecnico } = require('./tecnico.model');
 const { Prioridade } = require('./prioridade.model');
 const { StatusChamado } = require('./status-chamado.model');
+const { PecaUsada } = require('./peca-usada.model');
+const { ChamadoAtualizacao } = require('./chamado-atualizacao.model');
 
 const Chamado = sequelize.define('Chamado', {
   id: {
@@ -98,5 +100,8 @@ Chamado.belongsTo(Dispositivo, { foreignKey: 'dispositivoId', as: 'dispositivo' 
 Chamado.belongsTo(Tecnico, { foreignKey: 'tecnicoId', as: 'tecnico' });
 Chamado.belongsTo(Prioridade, { foreignKey: 'prioridadeId', as: 'prioridade' });
 Chamado.belongsTo(StatusChamado, { foreignKey: 'statusId', as: 'status' });
+Chamado.hasMany(PecaUsada, { foreignKey: 'chamadoId', as: 'pecasUsadas' });
+Chamado.hasMany(ChamadoAtualizacao, { foreignKey: 'chamadoId', as: 'atualizacoes' });
+// Associações inversas serão definidas no index.js para evitar conflitos
 
 module.exports = { Chamado };

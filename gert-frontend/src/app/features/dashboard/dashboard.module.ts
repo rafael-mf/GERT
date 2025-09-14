@@ -1,19 +1,21 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SharedModule } from '../../shared/shared.module';
-import { DashboardHomeComponent } from './pages/dashboard-home/dashboard-home.component';
 
 @NgModule({
   declarations: [
-    DashboardHomeComponent
   ],
   imports: [
     CommonModule,
     SharedModule,
     RouterModule.forChild([
-      { path: '', component: DashboardHomeComponent }
+      { path: '', loadComponent: () => import('./pages/dashboard-home/dashboard-home.component').then(m => m.DashboardHomeComponent) }
     ])
+  ],
+  providers: [
+    CurrencyPipe,
+    DatePipe
   ]
 })
 export class DashboardModule { }

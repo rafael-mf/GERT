@@ -1,20 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 @NgModule({
   declarations: [
-    MainLayoutComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    NgbModule
+    RouterOutlet,
+    NgbModule,
+    NgxChartsModule
   ],
   exports: [
     CommonModule,
@@ -22,7 +23,7 @@ import { MainLayoutComponent } from './layouts/main-layout/main-layout.component
     ReactiveFormsModule,
     RouterModule,
     NgbModule,
-    MainLayoutComponent
+    NgxChartsModule
   ]
 })
 export class SharedModule { }

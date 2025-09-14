@@ -1,13 +1,121 @@
 <div class="container-fluid">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h2>Detalhes do Cliente</h2>
-      <button class="btn btn-secondary" routerLink="/clientes">Voltar</button>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 *ngIf="cliente">Detalhes do Cliente: {{ cliente.nome }}</h2>
+    <div>
+      <button class="btn btn-outline-secondary me-2" routerLink="/clientes">
+        <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
+      </button>
+      <button *ngIf="cliente" class="btn btn-primary" (click)="editCliente()">
+        <i class="fas fa-edit me-2"></i>Editar Cliente
+      </button>
     </div>
-    <div class="card-body">
-      <p class="lead">Esta página será implementada em breve.</p>
-      <div class="text-center my-4">
-        <i class="fas fa-code fa-5x text-primary"></i>
+  </div>
+
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div>
+  </div>
+  <div *ngIf="!loading && error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!loading && cliente" class="row">
+    <div class="col-lg-5 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title mb-0"><i class="fas fa-user-circle me-2"></i>Informações de Contato</h5>
+        </div>
+        <div class="card-body">
+          <dl class="row">
+            <dt class="col-sm-4">Nome/Razão Social</dt>
+            <dd class="col-sm-8">{{ cliente.nome }}</dd>
+
+            <dt class="col-sm-4">CPF/CNPJ</dt>
+            <dd class="col-sm-8">{{ cliente.cpfCnpj || 'Não informado' }}</dd>
+
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8">{{ cliente.email || 'Não informado' }}</dd>
+
+            <dt class="col-sm-4">Telefone</dt>
+            <dd class="col-sm-8">{{ cliente.telefone || 'Não informado' }}</dd>
+
+            <dt class="col-sm-4">Endereço</dt>
+            <dd class="col-sm-8">{{ cliente.endereco || 'Não informado' }}</dd>
+
+            <dt class="col-sm-4">Cidade/UF</dt>
+            <dd class="col-sm-8">{{ cliente.cidade || 'N/A' }} / {{ cliente.estado || 'N/A' }}</dd>
+
+            <dt class="col-sm-4">Data de Cadastro</dt>
+            <dd class="col-sm-8">{{ cliente.dataCadastro | date:'dd/MM/yyyy' }}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title mb-0"><i class="fas fa-laptop-house me-2"></i>Dispositivos Associados</h5>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="!cliente.dispositivos || cliente.dispositivos.length === 0" class="alert alert-info m-3">
+            Nenhum dispositivo cadastrado para este cliente.
+          </div>
+          <div *ngIf="cliente.dispositivos && cliente.dispositivos.length > 0" class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Nº de Série</th>
+                  <th>Categoria</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let dispositivo of cliente.dispositivos">
+                  <td>{{ dispositivo.marca }}</td>
+                  <td>{{ dispositivo.modelo }}</td>
+                  <td>{{ dispositivo.numeroSerie || 'N/A' }}</td>
+                  <td>{{ dispositivo.categoria?.nome || 'N/A' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-7 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title mb-0"><i class="fas fa-ticket-alt me-2"></i>Chamados Associados</h5>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="!cliente.chamados || cliente.chamados.length === 0" class="alert alert-info m-3">
+            Nenhum chamado cadastrado para este cliente.
+          </div>
+          <div *ngIf="cliente.chamados && cliente.chamados.length > 0" class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>#ID</th>
+                  <th>Dispositivo</th>
+                  <th>Status</th>
+                  <th>Data Abertura</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let chamado of cliente.chamados">
+                  <td>{{ chamado.id }}</td>
+                  <td>{{ chamado.dispositivo?.marca }} {{ chamado.dispositivo?.modelo }}</td>
+                  <td><span class="badge" [style.background-color]="chamado.status?.cor || '#6c757d'">{{ chamado.status?.nome }}</span></td>
+                  <td>{{ chamado.dataAbertura | date:'dd/MM/yyyy' }}</td>
+                  <td>
+                    <a [routerLink]="['/chamados', chamado.id]" class="btn btn-sm btn-outline-info" title="Ver Detalhes"><i class="fas fa-eye"></i></a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>

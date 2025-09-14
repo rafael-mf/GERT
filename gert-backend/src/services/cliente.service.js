@@ -1,5 +1,4 @@
-// File: gert-backend/src/services/cliente.service.js
-const { Cliente, Dispositivo } = require('../models'); // Assumindo que models/index.js exporta tudo
+const { Cliente, Dispositivo } = require('../models');
 const { Op } = require('sequelize');
 
 class ClienteService {
@@ -28,7 +27,26 @@ class ClienteService {
 
   async getClienteById(id) {
     const cliente = await Cliente.findByPk(id, {
-      include: [{ model: Dispositivo, as: 'dispositivos' }] // Se definida a associação no modelo Cliente
+      // Inclui os dispositivos associados, com suas categorias.
+      // A associação 'hasMany' deve estar definida no modelo Cliente.
+      include: [{
+        model: Dispositivo,
+        as: 'dispositivos',
+        include: [{
+            model: require('../models').CategoriaDispositivo, // Importação direta para garantir
+            as: 'categoria'
+        }]
+      }, {
+        model: require('../models').Chamado,
+        as: 'chamados',
+        include: [{
+          model: require('../models').StatusChamado,
+          as: 'status'
+        }, {
+          model: Dispositivo,
+          as: 'dispositivo'
+        }]
+      }]
     });
     if (!cliente) {
       throw new Error('Cliente não encontrado');
@@ -37,7 +55,6 @@ class ClienteService {
   }
 
   async createCliente(dadosCliente) {
-    // Validações adicionais podem ser inseridas aqui
     if (dadosCliente.cpfCnpj) {
         const existingCliente = await Cliente.findOne({ where: { cpfCnpj: dadosCliente.cpfCnpj } });
         if (existingCliente) {
@@ -67,11 +84,18 @@ class ClienteService {
     if (!cliente) {
       throw new Error('Cliente não encontrado');
     }
-    // Adicionar verificação se o cliente possui chamados ou dispositivos antes de excluir
-    // Por enquanto, vamos deletar diretamente.
     await cliente.destroy();
     return { message: 'Cliente excluído com sucesso' };
   }
+
+  // --- MÉTODO MOVIDO PARA DENTRO DA CLASSE ---
+  async createDispositivoForCliente(clienteId, dispositivoData) {
+    // Garante que o dispositivo seja associado ao cliente correto
+    dispositivoData.clienteId = clienteId;
+    const novoDispositivo = await Dispositivo.create(dispositivoData);
+    return novoDispositivo;
+  }
 }
 
+// --- EXPORTAÇÃO ÚNICA E CORRETA ---
 module.exports = new ClienteService();

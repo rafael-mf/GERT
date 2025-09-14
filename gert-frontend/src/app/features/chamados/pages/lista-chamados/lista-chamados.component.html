@@ -6,38 +6,56 @@
     </button>
   </div>
 
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5 class="card-title">Filtros</h5>
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-gradient bg-light border-0 py-3">
+      <h6 class="mb-0 fw-semibold">
+        <i class="fas fa-filter me-2 text-primary"></i>Filtros
+      </h6>
+    </div>
+    <div class="card-body p-4">
       <form (ngSubmit)="applyFilters()" class="row g-3 align-items-end">
         <div class="col-md-3">
-          <label for="searchTerm" class="form-label">Buscar</label>
-          <input type="text" class="form-control form-control-sm" id="searchTerm" [(ngModel)]="searchTerm" name="searchTerm" placeholder="Título, cliente, dispositivo...">
+          <label for="searchTerm" class="form-label fw-medium">
+            <i class="fas fa-search me-2 text-muted"></i>Buscar
+          </label>
+          <input type="text" class="form-control border-0 shadow-sm" id="searchTerm" [(ngModel)]="searchTerm" name="searchTerm" placeholder="Título, cliente, dispositivo...">
         </div>
         <div class="col-md-2">
-          <label for="statusFiltro" class="form-label">Status</label>
-          <select class="form-select form-select-sm" id="statusFiltro" [(ngModel)]="statusIdFiltro" name="statusIdFiltro">
+          <label for="statusFiltro" class="form-label fw-medium">
+            <i class="fas fa-tag me-2 text-muted"></i>Status
+          </label>
+          <select class="form-select border-0 shadow-sm" id="statusFiltro" [(ngModel)]="statusIdFiltro" name="statusIdFiltro">
             <option value="">Todos</option>
             <option *ngFor="let status of statusList" [value]="status.id">{{ status.nome }}</option>
           </select>
         </div>
         <div class="col-md-2">
-          <label for="prioridadeFiltro" class="form-label">Prioridade</label>
-          <select class="form-select form-select-sm" id="prioridadeFiltro" [(ngModel)]="prioridadeIdFiltro" name="prioridadeIdFiltro">
+          <label for="prioridadeFiltro" class="form-label fw-medium">
+            <i class="fas fa-exclamation-circle me-2 text-muted"></i>Prioridade
+          </label>
+          <select class="form-select border-0 shadow-sm" id="prioridadeFiltro" [(ngModel)]="prioridadeIdFiltro" name="prioridadeIdFiltro">
             <option value="">Todas</option>
             <option *ngFor="let prioridade of prioridadesList" [value]="prioridade.id">{{ prioridade.nome }}</option>
           </select>
         </div>
         <div class="col-md-2">
-          <label for="tecnicoFiltro" class="form-label">Técnico</label>
-          <select class="form-select form-select-sm" id="tecnicoFiltro" [(ngModel)]="tecnicoIdFiltro" name="tecnicoIdFiltro">
+          <label for="tecnicoFiltro" class="form-label fw-medium">
+            <i class="fas fa-user-cog me-2 text-muted"></i>Técnico
+          </label>
+          <select class="form-select border-0 shadow-sm" id="tecnicoFiltro" [(ngModel)]="tecnicoIdFiltro" name="tecnicoIdFiltro">
             <option value="">Todos</option>
             <option *ngFor="let tecnico of tecnicosList" [value]="tecnico.id">{{ tecnico.usuario?.nome }}</option>
           </select>
         </div>
-        <div class="col-md-3 d-flex">
-          <button type="submit" class="btn btn-primary btn-sm me-2">Aplicar</button>
-          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="clearFilters()">Limpar</button>
+        <div class="col-md-3">
+          <div class="d-flex justify-content-end gap-2">
+            <button type="submit" class="btn btn-primary shadow-sm px-4">
+              <i class="fas fa-filter me-2"></i>Aplicar
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">
+              Limpar
+            </button>
+          </div>
         </div>
       </form>
     </div>

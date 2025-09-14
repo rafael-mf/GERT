@@ -2,99 +2,113 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Novo Chamado</h2>
     <button class="btn btn-secondary" routerLink="/chamados">
-      <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
+      <i class="fas fa-times me-2"></i>Cancelar
     </button>
   </div>
 
-  <div class="card">
-    <div class="card-body">
-      <form [formGroup]="chamadoForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="chamadoForm" (ngSubmit)="onSubmit()">
+    <div class="card">
+      <div class="card-header">
+        <h5>Informações Principais</h5>
+      </div>
+      <div class="card-body">
         <div class="row">
+          <!-- Título -->
+          <div class="col-12 mb-3">
+            <label for="titulo" class="form-label">Título <span class="text-danger">*</span></label>
+            <input type="text" id="titulo" class="form-control" formControlName="titulo">
+          </div>
+
+          <!-- Cliente -->
           <div class="col-md-6 mb-3">
             <label for="clienteId" class="form-label">Cliente <span class="text-danger">*</span></label>
-            <select id="clienteId" formControlName="clienteId" class="form-select"
-                    [ngClass]="{ 'is-invalid': submitted && f['clienteId'].errors }">
-              <option value="" disabled>Selecione o Cliente</option>
-              <option *ngFor="let cliente of clientes" [value]="cliente.id">{{ cliente.nome }} ({{ cliente.cpfCnpj || 'N/A' }})</option>
+            <select class="form-select" id="clienteId" formControlName="clienteId">
+              <option value="">Selecione um cliente...</option>
+              <option *ngFor="let cliente of clientes" [value]="cliente.id">{{ cliente.nome }}</option>
             </select>
-            <div *ngIf="submitted && f['clienteId'].errors" class="invalid-feedback">
-              <div *ngIf="f['clienteId'].errors['required']">Cliente é obrigatório.</div>
-            </div>
           </div>
 
+          <!-- Dispositivo -->
           <div class="col-md-6 mb-3">
             <label for="dispositivoId" class="form-label">Dispositivo <span class="text-danger">*</span></label>
-            <select id="dispositivoId" formControlName="dispositivoId" class="form-select"
-                    [ngClass]="{ 'is-invalid': submitted && f['dispositivoId'].errors }"
-                    [disabled]="!f['clienteId'].value || dispositivos.length === 0">
-              <option value="" disabled>Selecione o Dispositivo</option>
-              <option *ngFor="let dispositivo of dispositivos" [value]="dispositivo.id">
-                {{ dispositivo.marca }} {{ dispositivo.modelo }} (S/N: {{ dispositivo.numeroSerie || 'N/A' }})
-              </option>
-            </select>
-            <div *ngIf="submitted && f['dispositivoId'].errors" class="invalid-feedback">
-              <div *ngIf="f['dispositivoId'].errors['required']">Dispositivo é obrigatório.</div>
-            </div>
-            <small *ngIf="f['clienteId'].value && dispositivos.length === 0" class="form-text text-muted">
-              Nenhum dispositivo cadastrado para este cliente.
-            </small>
-          </div>
-
-          <div class="col-12 mb-3">
-            <label for="titulo" class="form-label">Título do Chamado <span class="text-danger">*</span></label>
-            <input type="text" id="titulo" formControlName="titulo" class="form-control"
-                   [ngClass]="{ 'is-invalid': submitted && f['titulo'].errors }">
-            <div *ngIf="submitted && f['titulo'].errors" class="invalid-feedback">
-              <div *ngIf="f['titulo'].errors['required']">Título é obrigatório.</div>
+            <div class="input-group">
+              <select class="form-select" id="dispositivoId" formControlName="dispositivoId" [disabled]="!chamadoForm.get('clienteId')?.value">
+                <option value="" disabled>
+                  {{ !chamadoForm.get('clienteId')?.value ? 'Selecione um cliente primeiro' : (dispositivos.length === 0 ? 'Nenhum dispositivo encontrado' : 'Selecione um dispositivo...') }}
+                </option>
+                <option *ngFor="let dispositivo of dispositivos" [value]="dispositivo.id">{{ dispositivo.marca }} - {{ dispositivo.modelo }}</option>
+              </select>
+              <button class="btn btn-outline-secondary" type="button" (click)="showNewDeviceForm = !showNewDeviceForm" [disabled]="!chamadoForm.get('clienteId')?.value" title="Adicionar novo dispositivo">
+                <i class="fas" [ngClass]="{'fa-plus': !showNewDeviceForm, 'fa-times': showNewDeviceForm}"></i>
+              </button>
             </div>
           </div>
 
+          <!-- Formulário do Novo Dispositivo (condicional) -->
+          <div *ngIf="showNewDeviceForm" class="col-12">
+            <div class="p-3 mb-3 border rounded bg-light">
+              <h6><i class="fas fa-laptop-medical me-2"></i>Cadastrar Novo Dispositivo</h6>
+              <div [formGroup]="newDeviceForm">
+                <div class="row">
+                  <div class="col-md-6 mb-2">
+                    <label for="newDeviceMarca" class="form-label">Marca <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" id="newDeviceMarca" formControlName="marca">
+                  </div>
+                  <div class="col-md-6 mb-2">
+                    <label for="newDeviceModelo" class="form-label">Modelo <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control form-control-sm" id="newDeviceModelo" formControlName="modelo">
+                  </div>
+                  <div class="col-md-6 mb-2">
+                    <label for="newDeviceSerie" class="form-label">Nº de Série</label>
+                    <input type="text" class="form-control form-control-sm" id="newDeviceSerie" formControlName="numeroSerie">
+                  </div>
+                  <div class="col-md-6 mb-2">
+                    <label for="newDeviceCategoria" class="form-label">Categoria <span class="text-danger">*</span></label>
+                    <select class="form-select form-select-sm" id="newDeviceCategoria" formControlName="categoriaId">
+                      <option value="">Selecione...</option>
+                      <option *ngFor="let cat of categoriasDispositivo" [value]="cat.id">{{ cat.nome }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-end mt-2">
+                  <button type="button" class="btn btn-primary btn-sm" (click)="onSaveNewDevice()" [disabled]="newDeviceForm.invalid">Salvar Dispositivo</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descrição -->
           <div class="col-12 mb-3">
             <label for="descricao" class="form-label">Descrição do Problema <span class="text-danger">*</span></label>
-            <textarea id="descricao" formControlName="descricao" class="form-control" rows="4"
-                      [ngClass]="{ 'is-invalid': submitted && f['descricao'].errors }"></textarea>
-            <div *ngIf="submitted && f['descricao'].errors" class="invalid-feedback">
-              <div *ngIf="f['descricao'].errors['required']">Descrição é obrigatória.</div>
-            </div>
+            <textarea id="descricao" class="form-control" rows="4" formControlName="descricao"></textarea>
           </div>
 
+          <!-- Prioridade -->
           <div class="col-md-6 mb-3">
             <label for="prioridadeId" class="form-label">Prioridade <span class="text-danger">*</span></label>
-            <select id="prioridadeId" formControlName="prioridadeId" class="form-select"
-                    [ngClass]="{ 'is-invalid': submitted && f['prioridadeId'].errors }">
-              <option value="" disabled>Selecione a Prioridade</option>
-              <option *ngFor="let prioridade of prioridades" [value]="prioridade.id">{{ prioridade.nome }}</option>
-            </select>
-            <div *ngIf="submitted && f['prioridadeId'].errors" class="invalid-feedback">
-              <div *ngIf="f['prioridadeId'].errors['required']">Prioridade é obrigatória.</div>
-            </div>
-          </div>
-
-          <div class="col-md-6 mb-3">
-            <label for="tecnicoId" class="form-label">Técnico Responsável (Opcional)</label>
-            <select id="tecnicoId" formControlName="tecnicoId" class="form-select">
-              <option [ngValue]="null">Não atribuído</option>
-              <option *ngFor="let tecnico of tecnicos" [value]="tecnico.id">{{ tecnico.usuario?.nome }}</option>
+            <select class="form-select" id="prioridadeId" formControlName="prioridadeId">
+              <option value="">Selecione...</option>
+              <option *ngFor="let p of prioridades" [value]="p.id">{{ p.nome }}</option>
             </select>
           </div>
 
+          <!-- Técnico Responsável -->
           <div class="col-md-6 mb-3">
-            <label for="dataPrevista" class="form-label">Data Prevista (Opcional)</label>
-            <input type="date" id="dataPrevista" formControlName="dataPrevista" class="form-control">
+            <label for="tecnicoId" class="form-label">Técnico Responsável</label>
+            <select class="form-select" id="tecnicoId" formControlName="tecnicoId">
+              <option value="">Nenhum</option>
+              <option *ngFor="let t of tecnicos" [value]="t.id">{{ t.usuario?.nome }}</option>
+            </select>
           </div>
 
         </div>
-
-        <div *ngIf="error" class="alert alert-danger mt-3">{{ error }}</div>
-
-        <div class="mt-4 d-flex justify-content-end">
-          <button type="button" class="btn btn-outline-secondary me-2" routerLink="/chamados">Cancelar</button>
-          <button type="submit" class="btn btn-primary" [disabled]="loading">
-            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-            {{ loading ? 'Salvando...' : 'Criar Chamado' }}
-          </button>
-        </div>
-      </form>
+      </div>
+      <div class="card-footer text-end">
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ loading ? 'Salvando...' : 'Criar Chamado' }}
+        </button>
+      </div>
     </div>
-  </div>
+  </form>
 </div>

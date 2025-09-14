@@ -32,17 +32,22 @@
               <i class="fas fa-users me-2"></i>Clientes
             </a>
           </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <a class="nav-link text-white" routerLink="/estoque" routerLinkActive="active">
               <i class="fas fa-boxes me-2"></i>Estoque
             </a>
-          </li>
+          </li> -->
           <li class="nav-item">
             <a class="nav-link text-white" routerLink="/tecnicos" routerLinkActive="active">
               <i class="fas fa-user-cog me-2"></i>Técnicos
             </a>
           </li>
           <li class="nav-item">
+            <a class="nav-link text-white" routerLink="/servicos" routerLinkActive="active">
+              <i class="fas fa-tools me-2"></i>Serviços
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="isAdmin()">
             <a class="nav-link text-white" routerLink="/relatorios" routerLinkActive="active">
               <i class="fas fa-chart-bar me-2"></i>Relatórios
             </a>
@@ -62,14 +67,12 @@
         </div>
 
         <div class="d-flex align-items-center">
-          <div class="position-relative me-3">
-            <button class="btn btn-sm btn-outline-secondary position-relative">
-              <i class="fas fa-bell"></i>
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                3
-              </span>
-            </button>
+          <!-- Notificações - Comentado temporariamente -->
+          <!-- 
+          <div class="me-3">
+            <app-notifications></app-notifications>
           </div>
+          -->
 
           <div ngbDropdown>
             <button class="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center" type="button" ngbDropdownToggle>
@@ -77,13 +80,14 @@
               <span class="d-none d-md-inline">{{ authService.currentUserValue?.nome || 'Usuário' }}</span>
             </button>
             <div ngbDropdownMenu class="dropdown-menu dropdown-menu-end">
-              <button ngbDropdownItem routerLink="/perfil">
+              <!-- Botões comentados temporariamente até implementação completa no banco -->
+              <!-- <button ngbDropdownItem (click)="navigateToProfile()">
                 <i class="fas fa-user me-2"></i>Perfil
               </button>
-              <button ngbDropdownItem routerLink="/configuracoes">
+              <button ngbDropdownItem (click)="navigateToSettings()">
                 <i class="fas fa-cog me-2"></i>Configurações
               </button>
-              <div class="dropdown-divider"></div>
+              <div class="dropdown-divider"></div> -->
               <button ngbDropdownItem (click)="logout()">
                 <i class="fas fa-sign-out-alt me-2"></i>Sair
               </button>

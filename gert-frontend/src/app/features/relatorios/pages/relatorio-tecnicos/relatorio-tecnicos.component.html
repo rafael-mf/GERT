@@ -1,13 +1,146 @@
 <div class="container-fluid">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h2>Relatório de Desempenho</h2>
-      <button class="btn btn-secondary" routerLink="/relatorios">Voltar</button>
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2>Relatório de Técnicos</h2>
+          <p class="text-muted">Análise de desempenho dos técnicos</p>
+        </div>
+        <button class="btn btn-secondary" routerLink="/relatorios">
+          <i class="fas fa-arrow-left me-1"></i>Voltar
+        </button>
+      </div>
     </div>
-    <div class="card-body">
-      <p class="lead">Esta página será implementada em breve.</p>
-      <div class="text-center my-4">
-        <i class="fas fa-code fa-5x text-primary"></i>
+  </div>
+
+  <!-- Filtros de Período -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <app-filtros-periodo
+        (filtroChange)="onFiltroChange($event)">
+      </app-filtros-periodo>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+          <p class="mt-3 mb-0">Carregando dados dos técnicos...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Erro -->
+  <div *ngIf="error && !loading" class="row mb-4">
+    <div class="col-12">
+      <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Estatísticas Gerais -->
+  <div *ngIf="dados && !loading" class="row mb-4">
+    <div class="col-md-4">
+      <div class="card stats-card text-center h-100">
+        <div class="card-body">
+          <i class="fas fa-users fa-2x text-primary mb-3"></i>
+          <h3 class="text-primary fw-bold">{{ dados.estatisticas.totalTecnicos }}</h3>
+          <p class="card-text text-muted mb-0">Total de Técnicos</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card stats-card success text-center h-100">
+        <div class="card-body">
+          <i class="fas fa-tasks fa-2x text-success mb-3"></i>
+          <h3 class="text-success fw-bold">{{ dados.estatisticas.totalAtendimentos }}</h3>
+          <p class="card-text text-muted mb-0">Total de Atendimentos</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card stats-card info text-center h-100">
+        <div class="card-body">
+          <i class="fas fa-chart-line fa-2x text-info mb-3"></i>
+          <h3 class="text-info fw-bold">{{ dados.estatisticas.mediaAtendimentoPorTecnico }}</h3>
+          <p class="card-text text-muted mb-0">Média por Técnico</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de Técnicos -->
+  <div *ngIf="dados && !loading" class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Desempenho dos Técnicos</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Técnico</th>
+                  <th>Total Chamados</th>
+                  <th>Concluídos</th>
+                  <th>Em Andamento</th>
+                  <th>Em Atraso</th>
+                  <th>Tempo Médio</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let tecnico of dados.tecnicos">
+                  <td>
+                    <strong>{{ tecnico.nome }}</strong>
+                  </td>
+                  <td>{{ tecnico.totalChamados }}</td>
+                  <td>
+                    <span class="badge bg-success">{{ tecnico.chamadosConcluidos }}</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-warning text-dark">{{ tecnico.chamadosAndamento }}</span>
+                  </td>
+                  <td>
+                    <span class="badge" 
+                          [ngClass]="tecnico.chamadosAtrasados > 0 ? 'bg-danger' : 'bg-success'">
+                      {{ tecnico.chamadosAtrasados }}
+                    </span>
+                  </td>
+                  <td>{{ tecnico.tempoMedioAtendimento }}</td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <span class="me-2">{{ tecnico.avaliacaoMedia }}/5</span>
+                      <div class="progress" style="width: 80px;">
+                        <div class="progress-bar" 
+                             [ngClass]="{
+                               'bg-success': tecnico.avaliacaoMedia >= 4,
+                               'bg-warning': tecnico.avaliacaoMedia >= 2.5 && tecnico.avaliacaoMedia < 4,
+                               'bg-danger': tecnico.avaliacaoMedia < 2.5
+                             }"
+                             [style.width.%]="(tecnico.avaliacaoMedia / 5) * 100">
+                        </div>
+                      </div>
+                    </div>
+                    <small class="text-muted">{{ tecnico.percentualNoPrazo }}% no prazo</small>
+                  </td>
+                </tr>
+                <tr *ngIf="dados.tecnicos.length === 0">
+                  <td colspan="6" class="text-center text-muted">Nenhum técnico encontrado</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>

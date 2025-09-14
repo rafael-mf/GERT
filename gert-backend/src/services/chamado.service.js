@@ -1,4 +1,3 @@
-// File: gert-backend/src/services/chamado.service.js
 const {
   Chamado,
   Cliente,
@@ -8,9 +7,13 @@ const {
   StatusChamado,
   Servico,
   ChamadoServico,
-  Usuario, // For tecnico user details
-} = require('../models'); // Assuming models are exported from an index.js in models folder
+  Usuario,
+  CategoriaDispositivo,
+  PecaUsada, // Novo modelo
+  ChamadoAtualizacao,
+} = require('../models');
 const { Op } = require('sequelize');
+const chamadoAtualizacaoService = require('./chamado-atualizacao.service');
 
 class ChamadoService {
   async getAllChamados(queryParams) {
@@ -79,7 +82,32 @@ class ChamadoService {
           as: 'servicos',
           include: [{ model: Servico, as: 'servico' }]
         },
-        // Include ChamadoAtualizacao if model is created
+        {
+          model: PecaUsada,
+          as: 'pecasUsadas'
+        },
+        {
+          model: ChamadoAtualizacao,
+          as: 'atualizacoes',
+          include: [
+            {
+              model: Usuario,
+              as: 'usuario',
+              attributes: ['id', 'nome', 'email']
+            },
+            {
+              model: StatusChamado,
+              as: 'statusAnterior',
+              attributes: ['id', 'nome', 'cor']
+            },
+            {
+              model: StatusChamado,
+              as: 'statusNovo',
+              attributes: ['id', 'nome', 'cor']
+            }
+          ],
+          order: [['dataAtualizacao', 'ASC']]
+        },
       ],
     });
     if (!chamado) {
@@ -89,28 +117,60 @@ class ChamadoService {
   }
 
   async createChamado(dadosChamado) {
-    // Ensure statusId is set, e.g., to a default 'Aberto' status
     if (!dadosChamado.statusId) {
         const statusAberto = await StatusChamado.findOne({ where: { nome: 'Aberto' } });
         if (statusAberto) {
             dadosChamado.statusId = statusAberto.id;
         } else {
-            // Fallback if 'Aberto' status is not found (should be seeded)
             throw new Error('Status "Aberto" padrão não encontrado. Verifique os dados iniciais do sistema.');
         }
     }
-    return await Chamado.create(dadosChamado);
+
+    const chamado = await Chamado.create(dadosChamado);
+
+    // Registrar abertura no histórico se usuário foi informado
+    if (dadosChamado.usuarioCriadorId) {
+      let comentarioAbertura = 'Chamado aberto';
+      
+      // Incluir motivo se fornecido
+      if (dadosChamado.motivo) {
+        comentarioAbertura += ` - Motivo: ${dadosChamado.motivo}`;
+      }
+      
+      await chamadoAtualizacaoService.registrarComentario(
+        chamado.id,
+        dadosChamado.usuarioCriadorId,
+        comentarioAbertura
+      );
+    }
+
+    return chamado;
   }
 
-  async updateChamado(id, dadosChamado) {
+  async updateChamado(id, dadosChamado, usuarioId = null) {
     const chamado = await Chamado.findByPk(id);
     if (!chamado) {
       throw new Error('Chamado não encontrado');
     }
-    // Prevent changing dataAbertura, clienteId, dispositivoId after creation for simplicity
+
+    // Capturar status anterior se estiver sendo alterado
+    const statusAnterior = dadosChamado.statusId && dadosChamado.statusId !== chamado.statusId ? chamado.statusId : null;
+
     const { clienteId, dispositivoId, dataAbertura, ...updatableData } = dadosChamado;
     await chamado.update(updatableData);
-    return await this.getChamadoById(id); // Return updated chamado with includes
+
+    // Registrar mudança de status no histórico se houver mudança e usuário informado
+    if (statusAnterior && usuarioId) {
+      await chamadoAtualizacaoService.registrarAtualizacao(
+        id,
+        usuarioId,
+        statusAnterior,
+        dadosChamado.statusId,
+        dadosChamado.comentario || null
+      );
+    }
+
+    return await this.getChamadoById(id);
   }
 
   async deleteChamado(id) {
@@ -118,14 +178,11 @@ class ChamadoService {
     if (!chamado) {
       throw new Error('Chamado não encontrado');
     }
-    // Instead of deleting, consider changing status to 'Cancelado' or an 'ativo' flag
-    // For now, we'll delete it.
-    // await chamado.update({ statusId: ID_DO_STATUS_CANCELADO });
     await chamado.destroy();
     return { message: 'Chamado excluído com sucesso' };
   }
 
-  // --- Métodos para entidades relacionadas (Cliente, Dispositivo, Tecnico, etc.) ---
+  // --- Métodos para entidades relacionadas ---
   async getClientes() {
     return await Cliente.findAll({ attributes: ['id', 'nome', 'cpfCnpj'] });
   }
@@ -156,48 +213,296 @@ class ChamadoService {
     return await Servico.findAll({ where: { ativo: true }, attributes: ['id', 'nome', 'valorBase'] });
   }
 
-  async addServicoAoChamado(chamadoId, servicoId, valor, observacoes) {
+  // 2. Método movido para dentro da classe
+  async getCategoriasDispositivo() {
+    return await CategoriaDispositivo.findAll({
+      order: [['nome', 'ASC']]
+    });
+  }
+
+  // === MÉTODOS PARA SERVIÇOS NOS CHAMADOS ===
+  async addServicoAoChamado(chamadoId, dadosServico, usuarioId = null) {
     const chamado = await Chamado.findByPk(chamadoId);
     if (!chamado) throw new Error('Chamado não encontrado');
-    const servico = await Servico.findByPk(servicoId);
+
+    const servico = await Servico.findByPk(dadosServico.servicoId);
     if (!servico) throw new Error('Serviço não encontrado');
 
-    const valorServico = valor !== undefined ? valor : servico.valorBase;
+    // Verificar se o serviço já foi adicionado ao chamado
+    const servicoExistente = await ChamadoServico.findOne({
+      where: { chamadoId, servicoId: dadosServico.servicoId }
+    });
+
+    if (servicoExistente) {
+      throw new Error('Este serviço já foi adicionado ao chamado');
+    }
 
     const chamadoServico = await ChamadoServico.create({
       chamadoId,
-      servicoId,
-      valor: valorServico,
-      observacoes
+      servicoId: dadosServico.servicoId,
+      valor: dadosServico.valor || servico.valorBase,
+      observacoes: dadosServico.observacoes || null
     });
-    // Recalcular valor total do chamado
+
     await this.recalcularValorTotalChamado(chamadoId);
+
+    // Registrar adição do serviço no histórico
+    if (usuarioId) {
+      await chamadoAtualizacaoService.registrarComentario(
+        chamadoId,
+        usuarioId,
+        `Serviço adicionado: ${servico.nome} (R$ ${chamadoServico.valor})`
+      );
+    }
+
     return chamadoServico;
   }
 
-  async removeServicoDoChamado(chamadoServicoId) {
-    const cs = await ChamadoServico.findByPk(chamadoServicoId);
-    if (!cs) throw new Error('Serviço do chamado não encontrado');
-    const chamadoId = cs.chamadoId;
-    await cs.destroy();
-    // Recalcular valor total do chamado
+  async removeServicoDoChamado(chamadoId, chamadoServicoId, usuarioId = null) {
+    const chamado = await Chamado.findByPk(chamadoId);
+    if (!chamado) throw new Error('Chamado não encontrado');
+
+    // Verificar se o chamado está fechado
+    const statusChamado = await StatusChamado.findByPk(chamado.statusId);
+    if (statusChamado && ['Concluído', 'Fechado', 'Cancelado'].includes(statusChamado.nome)) {
+      throw new Error('Não é possível remover serviços de chamados fechados');
+    }
+
+    const chamadoServico = await ChamadoServico.findOne({
+      where: { id: chamadoServicoId, chamadoId },
+      include: [{ model: Servico, as: 'servico' }]
+    });
+
+    if (!chamadoServico) {
+      throw new Error('Serviço não encontrado neste chamado');
+    }
+
+    // Registrar remoção do serviço no histórico
+    if (usuarioId) {
+      await chamadoAtualizacaoService.registrarComentario(
+        chamadoId,
+        usuarioId,
+        `Serviço removido: ${chamadoServico.servico.nome}/R$ ${chamadoServico.valor}`
+      );
+    }
+
+    await chamadoServico.destroy();
     await this.recalcularValorTotalChamado(chamadoId);
-    return { message: 'Serviço removido do chamado com sucesso.' };
+
+    return { message: 'Serviço removido do chamado com sucesso' };
+  }
+
+  async updateServicoDoChamado(chamadoId, chamadoServicoId, dadosServico) {
+    const chamado = await Chamado.findByPk(chamadoId);
+    if (!chamado) throw new Error('Chamado não encontrado');
+
+    const chamadoServico = await ChamadoServico.findOne({
+      where: { id: chamadoServicoId, chamadoId }
+    });
+
+    if (!chamadoServico) {
+      throw new Error('Serviço não encontrado neste chamado');
+    }
+
+    await chamadoServico.update(dadosServico);
+    await this.recalcularValorTotalChamado(chamadoId);
+
+    return chamadoServico;
   }
 
   async recalcularValorTotalChamado(chamadoId) {
     const chamado = await Chamado.findByPk(chamadoId, {
-      include: [{ model: ChamadoServico, as: 'servicos' }]
+      include: [
+        { model: ChamadoServico, as: 'servicos' },
+        { model: PecaUsada, as: 'pecasUsadas' }
+      ]
     });
     if (chamado) {
-      let valorTotalServicos = 0;
+      let valorTotal = 0;
+      
+      // Somar valor dos serviços
       if (chamado.servicos) {
-        valorTotalServicos = chamado.servicos.reduce((sum, s) => sum + parseFloat(s.valor), 0);
+        valorTotal += chamado.servicos.reduce((sum, s) => sum + parseFloat(s.valor), 0);
       }
-      // Adicionar valor de peças se essa lógica for reintroduzida
-      chamado.valorTotal = valorTotalServicos;
+      
+      // Somar valor das peças usadas
+      if (chamado.pecasUsadas) {
+        valorTotal += chamado.pecasUsadas.reduce((sum, p) => sum + parseFloat(p.valor), 0);
+      }
+      
+      chamado.valorTotal = valorTotal;
       await chamado.save();
     }
+  }
+
+  // === MÉTODOS PARA PEÇAS USADAS ===
+  async addPecaUsadaAoChamado(chamadoId, dadosPeca, usuarioId = null) {
+    const chamado = await Chamado.findByPk(chamadoId);
+    if (!chamado) throw new Error('Chamado não encontrado');
+
+    const pecaUsada = await PecaUsada.create({
+      chamadoId,
+      ...dadosPeca
+    });
+
+    await this.recalcularValorTotalChamado(chamadoId);
+
+    // Registrar adição da peça no histórico
+    if (usuarioId) {
+      let comentarioPeca = `Peça adicionada: ${dadosPeca.nome} (R$ ${dadosPeca.valor})`;
+      
+      // Incluir número de série se fornecido
+      if (dadosPeca.numeroSerie) {
+        comentarioPeca += ` - SN: ${dadosPeca.numeroSerie}`;
+      }
+      
+      // Incluir descrição se fornecida
+      if (dadosPeca.descricao) {
+        comentarioPeca += ` - ${dadosPeca.descricao}`;
+      }
+      
+      await chamadoAtualizacaoService.registrarComentario(
+        chamadoId,
+        usuarioId,
+        comentarioPeca
+      );
+    }
+
+    return pecaUsada;
+  }
+
+  async removePecaUsadaDoChamado(pecaUsadaId, usuarioId = null) {
+    const pecaUsada = await PecaUsada.findByPk(pecaUsadaId);
+    if (!pecaUsada) throw new Error('Peça usada não encontrada');
+
+    const chamadoId = pecaUsada.chamadoId;
+
+    // Registrar remoção da peça no histórico antes de excluir
+    if (usuarioId) {
+      let comentarioRemocao = `Peça removida: ${pecaUsada.nome}/R$ ${pecaUsada.valor}`;
+      
+      // Incluir número de série se existir
+      if (pecaUsada.numeroSerie) {
+        comentarioRemocao += `/${pecaUsada.numeroSerie}`;
+      }
+      
+      await chamadoAtualizacaoService.registrarComentario(
+        chamadoId,
+        usuarioId,
+        comentarioRemocao
+      );
+    }
+
+    await pecaUsada.destroy();
+    await this.recalcularValorTotalChamado(chamadoId);
+
+    return { message: 'Peça removida do chamado com sucesso.' };
+  }
+
+  async updatePecaUsada(pecaUsadaId, dadosPeca) {
+    const pecaUsada = await PecaUsada.findByPk(pecaUsadaId);
+    if (!pecaUsada) throw new Error('Peça usada não encontrada');
+    
+    await pecaUsada.update(dadosPeca);
+    const chamadoId = pecaUsada.chamadoId;
+    await this.recalcularValorTotalChamado(chamadoId);
+    
+    return pecaUsada;
+  }
+
+  // === MÉTODO PARA FECHAR CHAMADO ===
+  async fecharChamado(chamadoId, dadosFechamento) {
+    const chamado = await Chamado.findByPk(chamadoId);
+    if (!chamado) throw new Error('Chamado não encontrado');
+
+    // Validações de fechamento
+    if (!dadosFechamento.diagnostico || dadosFechamento.diagnostico.trim() === '') {
+      throw new Error('Diagnóstico é obrigatório para fechar o chamado');
+    }
+
+    if (!dadosFechamento.solucao || dadosFechamento.solucao.trim() === '') {
+      throw new Error('Solução é obrigatória para fechar o chamado');
+    }
+
+    const statusConcluido = await StatusChamado.findOne({ where: { nome: 'Concluído' } });
+    if (!statusConcluido) throw new Error('Status "Concluído" não encontrado');
+
+    // Atualizar chamado com dados de fechamento
+    await chamado.update({
+      statusId: statusConcluido.id,
+      dataFechamento: new Date(),
+      diagnostico: dadosFechamento.diagnostico,
+      solucao: dadosFechamento.solucao,
+      valorTotal: dadosFechamento.valorTotal || chamado.valorTotal
+    });
+
+    // Registrar fechamento no histórico com diagnóstico e solução
+    if (dadosFechamento.usuarioId) {
+      await chamadoAtualizacaoService.registrarComentario(
+        chamadoId,
+        dadosFechamento.usuarioId,
+        `Chamado fechado - Diagnóstico: ${dadosFechamento.diagnostico} | Solução: ${dadosFechamento.solucao}`
+      );
+    }
+
+    return await this.getChamadoById(chamadoId);
+  }
+
+  // === MÉTODO PARA REABRIR CHAMADO ===
+  async reabrirChamado(chamadoId, usuarioId, comentario = null) {
+    const chamado = await Chamado.findByPk(chamadoId);
+    if (!chamado) throw new Error('Chamado não encontrado');
+
+    // Verificar se o chamado está fechado
+    const statusAtual = await StatusChamado.findByPk(chamado.statusId);
+    if (!statusAtual || !['Concluído', 'Fechado', 'Cancelado'].includes(statusAtual.nome)) {
+      throw new Error('Este chamado não está fechado');
+    }
+
+    // Verificar permissões: apenas técnico responsável ou admin pode reabrir
+    const usuario = await Usuario.findByPk(usuarioId);
+    if (!usuario) throw new Error('Usuário não encontrado');
+
+    // Se não for admin, verificar se é o técnico responsável
+    if (usuario.cargo !== 'Administrador') {
+      if (chamado.tecnicoId !== usuarioId) {
+        throw new Error('Apenas o técnico responsável ou um administrador pode reabrir este chamado');
+      }
+    }
+
+    // Buscar status "Em Andamento" ou "Aberto"
+    const statusReaberto = await StatusChamado.findOne({
+      where: { nome: { [Op.in]: ['Em Andamento', 'Aberto'] } }
+    });
+
+    if (!statusReaberto) {
+      throw new Error('Status para reabertura não encontrado');
+    }
+
+    // Reabrir chamado
+    await chamado.update({
+      statusId: statusReaberto.id,
+      dataFechamento: null,
+      diagnostico: null,
+      solucao: null
+    });
+
+    // Registrar no histórico
+    if (comentario) {
+      await chamadoAtualizacaoService.registrarComentario(
+        chamadoId,
+        usuarioId,
+        `Chamado reaberto: ${comentario}`
+      );
+    } else {
+      await chamadoAtualizacaoService.registrarComentario(
+        chamadoId,
+        usuarioId,
+        'Chamado reaberto'
+      );
+    }
+
+    return await this.getChamadoById(chamadoId);
   }
 }
 

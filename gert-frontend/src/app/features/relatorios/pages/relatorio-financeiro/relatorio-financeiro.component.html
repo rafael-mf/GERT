@@ -1,13 +1,176 @@
 <div class="container-fluid">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h2>Relatório Financeiro</h2>
-      <button class="btn btn-secondary" routerLink="/relatorios">Voltar</button>
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2>Relatório Financeiro</h2>
+          <p class="text-muted">Análise completa do desempenho financeiro</p>
+        </div>
+        <button class="btn btn-secondary" routerLink="/relatorios">
+          <i class="fas fa-arrow-left me-1"></i>Voltar
+        </button>
+      </div>
     </div>
-    <div class="card-body">
-      <p class="lead">Esta página será implementada em breve.</p>
-      <div class="text-center my-4">
-        <i class="fas fa-code fa-5x text-primary"></i>
+  </div>
+
+  <!-- Filtros de Período -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <app-filtros-periodo
+        (filtroChange)="onFiltroChange($event)">
+      </app-filtros-periodo>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+          <p class="mt-3 mb-0">Carregando dados do relatório...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Erro -->
+  <div *ngIf="error && !loading" class="row mb-4">
+    <div class="col-12">
+      <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Indicadores Financeiros -->
+  <div *ngIf="dados && !loading" class="row mb-4">
+    <div class="col-md-3">
+      <div class="card stats-card success text-center h-100">
+        <div class="card-body">
+          <i class="fas fa-dollar-sign fa-2x text-success mb-3"></i>
+          <h3 class="text-success fw-bold">{{ dados.estatisticas.totalReceita }}</h3>
+          <p class="card-text text-muted mb-0">Receita Total</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stats-card info text-center h-100">
+        <div class="card-body">
+          <i class="fas fa-calculator fa-2x text-info mb-3"></i>
+          <h3 class="text-info fw-bold">{{ dados.estatisticas.mediaPorChamado }}</h3>
+          <p class="card-text text-muted mb-0">Média por Chamado</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stats-card text-center h-100">
+        <div class="card-body">
+          <i class="fas fa-hashtag fa-2x text-primary mb-3"></i>
+          <h3 class="text-primary fw-bold">{{ dados.estatisticas.totalChamadosComValor }}</h3>
+          <p class="card-text text-muted mb-0">Chamados c/ Valor</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stats-card warning text-center h-100">
+        <div class="card-body">
+          <i class="fas fa-users fa-2x text-warning mb-3"></i>
+          <h3 class="text-warning fw-bold">{{ receitaPorTecnicoArray.length }}</h3>
+          <p class="card-text text-muted mb-0">Técnicos Ativos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informações do Período -->
+  <div *ngIf="dados && !loading" class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Período de Análise</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <strong>Data Início:</strong> {{ dados.periodo.dataInicio | date:'dd/MM/yyyy' }}
+            </div>
+            <div class="col-md-6">
+              <strong>Data Final:</strong> {{ dados.periodo.dataFinal | date:'dd/MM/yyyy' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detalhamento -->
+  <div *ngIf="dados && !loading" class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Receita por Técnico</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Técnico</th>
+                  <th>Receita</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of receitaPorTecnicoArray">
+                  <td>{{ item.tecnico }}</td>
+                  <td class="text-success">{{ item.receita | currency:'BRL':'symbol':'1.2-2' }}</td>
+                </tr>
+                <tr *ngIf="receitaPorTecnicoArray.length === 0">
+                  <td colspan="2" class="text-center text-muted">Nenhum dado encontrado</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Chamados Recentes</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Chamado</th>
+                  <th>Cliente</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let chamado of dados.chamados?.slice(0, 5)">
+                  <td>
+                    <div class="fw-bold">#{{ chamado.id }}</div>
+                    <small class="text-muted">{{ chamado.titulo }}</small>
+                  </td>
+                  <td>
+                    <div>{{ chamado.cliente }}</div>
+                    <small class="text-muted">{{ chamado.tecnico }}</small>
+                  </td>
+                  <td class="text-success">{{ chamado.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</td>
+                </tr>
+                <tr *ngIf="!dados.chamados || dados.chamados.length === 0">
+                  <td colspan="3" class="text-center text-muted">Nenhum chamado encontrado</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>

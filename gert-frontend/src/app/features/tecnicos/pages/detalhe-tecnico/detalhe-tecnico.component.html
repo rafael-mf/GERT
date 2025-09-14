@@ -1,13 +1,157 @@
 <div class="container-fluid">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h2>Perfil do Técnico</h2>
-      <button class="btn btn-secondary" routerLink="/tecnicos">Voltar</button>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 *ngIf="tecnico">Perfil do Técnico: {{ tecnico.usuario?.nome }}</h2>
+    <h2 *ngIf="!tecnico && !loading">Técnico Não Encontrado</h2>
+    <div>
+      <button class="btn btn-outline-secondary me-2" routerLink="/tecnicos">
+        <i class="fas fa-arrow-left me-2"></i>Voltar para Lista
+      </button>
+      <button *ngIf="tecnico" class="btn btn-primary" (click)="editTecnico()">
+        <i class="fas fa-edit me-2"></i>Editar Técnico
+      </button>
     </div>
-    <div class="card-body">
-      <p class="lead">Esta página será implementada em breve.</p>
-      <div class="text-center my-4">
-        <i class="fas fa-code fa-5x text-primary"></i>
+  </div>
+
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!loading && tecnico" class="row">
+    <!-- Informações do Técnico -->
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Informações Pessoais</h5>
+        </div>
+        <div class="card-body">
+          <div class="text-center mb-3">
+            <i class="fas fa-user-circle fa-4x text-primary"></i>
+          </div>
+          <table class="table table-sm table-borderless">
+            <tr>
+              <td style="width: 100px;"><strong>Nome:</strong></td>
+              <td>{{ tecnico.usuario?.nome }}</td>
+            </tr>
+            <tr>
+              <td><strong>Email:</strong></td>
+              <td>{{ tecnico.usuario?.email }}</td>
+            </tr>
+            <tr>
+              <td><strong>Cargo:</strong></td>
+              <td>{{ tecnico.usuario?.cargo }}</td>
+            </tr>
+            <tr>
+              <td><strong>Especialidade:</strong></td>
+              <td>{{ tecnico.especialidade || 'Não definida' }}</td>
+            </tr>
+            <tr>
+              <td><strong>Status:</strong></td>
+              <td>
+                <span class="badge" [class]="tecnico.disponivel ? 'bg-success' : 'bg-warning'">
+                  {{ tecnico.disponivel ? 'Disponível' : 'Indisponível' }}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chamados Ativos -->
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Chamados Ativos ({{ chamadosAtivos.length }})</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loadingChamados" class="text-center">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+              <span class="visually-hidden">Carregando chamados...</span>
+            </div>
+          </div>
+
+          <div *ngIf="!loadingChamados && chamadosAtivos.length > 0">
+            <div class="list-group">
+              <div *ngFor="let chamado of chamadosAtivos" class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="mb-1">
+                      <a [routerLink]="['/chamados', chamado.id]" class="text-decoration-none">
+                        #{{ chamado.id }} - {{ chamado.titulo }}
+                      </a>
+                    </h6>
+                    <p class="mb-1 text-muted">{{ chamado.cliente?.nome }}</p>
+                    <small class="text-muted">
+                      Aberto em {{ chamado.dataAbertura | date:'dd/MM/yyyy' }}
+                    </small>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge me-2" [style.background-color]="chamado.status?.cor || '#6c757d'">
+                      {{ chamado.status?.nome }}
+                    </span>
+                    <br>
+                    <span class="badge mt-1" [style.background-color]="chamado.prioridade?.cor || '#6c757d'">
+                      {{ chamado.prioridade?.nome }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!loadingChamados && chamadosAtivos.length === 0" class="text-center text-muted py-4">
+            <i class="fas fa-check-circle fa-2x mb-2"></i>
+            <p>Nenhum chamado ativo no momento.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chamados Concluídos Recentes -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <h5 class="mb-0">Chamados Concluídos Recentes ({{ chamadosConcluidos.length }})</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loadingChamados" class="text-center">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+              <span class="visually-hidden">Carregando chamados...</span>
+            </div>
+          </div>
+
+          <div *ngIf="!loadingChamados && chamadosConcluidos.length > 0">
+            <div class="list-group">
+              <div *ngFor="let chamado of chamadosConcluidos" class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="mb-1">
+                      <a [routerLink]="['/chamados', chamado.id]" class="text-decoration-none">
+                        #{{ chamado.id }} - {{ chamado.titulo }}
+                      </a>
+                    </h6>
+                    <p class="mb-1 text-muted">{{ chamado.cliente?.nome }}</p>
+                    <small class="text-muted">
+                      Concluído em {{ chamado.dataAbertura | date:'dd/MM/yyyy' }}
+                    </small>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge" [style.background-color]="chamado.status?.cor || '#6c757d'">
+                      {{ chamado.status?.nome }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!loadingChamados && chamadosConcluidos.length === 0" class="text-center text-muted py-4">
+            <i class="fas fa-history fa-2x mb-2"></i>
+            <p>Nenhum chamado concluído recentemente.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

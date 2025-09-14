@@ -10,6 +10,7 @@ import { StatusChamado } from '../../shared/models/status-chamado.model'; // Cre
 import { Tecnico } from '../../shared/models/tecnico.model'; // Create this model
 import { Servico } from '../../shared/models/servico.model'; // Create this model
 import { environment } from '../../../environments/environment';
+import { CategoriaDispositivo } from '../../shared/models/categoria-dispositivo.model';
 
 export interface PaginatedChamados {
   totalItems: number;
@@ -86,4 +87,31 @@ export class ChamadoService {
   removeServicoDoChamado(chamadoId: number, chamadoServicoId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${chamadoId}/servicos/${chamadoServicoId}`);
   }
+
+  // === MÉTODOS PARA PEÇAS USADAS ===
+  addPecaUsada(chamadoId: number, pecaData: { nome: string; valor: number; descricao?: string; numeroSerie?: string; garantia?: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${chamadoId}/pecas-usadas`, pecaData);
+  }
+
+  updatePecaUsada(pecaUsadaId: number, pecaData: { nome?: string; quantidade?: number; valorUnitario?: number }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/pecas-usadas/${pecaUsadaId}`, pecaData);
+  }
+
+  removePecaUsada(pecaUsadaId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/pecas-usadas/${pecaUsadaId}`);
+  }
+
+  // === MÉTODO PARA FECHAR CHAMADO ===
+  fecharChamado(chamadoId: number, dadosFechamento: { diagnostico: string; solucao: string; valorTotal?: number }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${chamadoId}/fechar`, dadosFechamento);
+  }
+
+  // === MÉTODO PARA REABRIR CHAMADO ===
+  reabrirChamado(chamadoId: number, comentario?: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${chamadoId}/reabrir`, { comentario });
+  }
+
+  getCategoriasDispositivo(): Observable<CategoriaDispositivo[]> {
+  return this.http.get<CategoriaDispositivo[]>(`${this.apiUrl}/aux/categorias-dispositivo`);
+}
 }

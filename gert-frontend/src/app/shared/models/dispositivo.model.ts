@@ -1,4 +1,5 @@
-// File: gert-frontend/src/app/shared/models/dispositivo.model.ts
+import { CategoriaDispositivo } from "./categoria-dispositivo.model";
+
 export interface Dispositivo {
   id?: number;
   clienteId: number;
@@ -8,5 +9,5 @@ export interface Dispositivo {
   numeroSerie?: string;
   especificacoes?: string;
   dataCadastro?: Date;
-  // categoria?: any; // Already in backend model, consider for frontend if needed
+  categoria?: CategoriaDispositivo;
 }

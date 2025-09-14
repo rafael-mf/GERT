@@ -7,10 +7,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;

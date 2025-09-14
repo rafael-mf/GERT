@@ -1,3 +1,6 @@
+import { Dispositivo } from "./dispositivo.model";
+import { Chamado } from "./chamado.model";
+
 export interface Cliente {
   id?: number;
   nome: string;
@@ -10,4 +13,6 @@ export interface Cliente {
   cep?: string;
   observacoes?: string;
   dataCadastro?: Date;
+  dispositivos?: Dispositivo[];
+  chamados?: Chamado[];
 }

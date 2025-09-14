@@ -1,0 +1,118 @@
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Gerenciar Serviços</h2>
+    <a routerLink="/servicos/novo" class="btn btn-primary">
+      <i class="fas fa-plus me-2"></i>Novo Serviço
+    </a>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-gradient bg-light border-0 py-3">
+      <h6 class="mb-0 fw-semibold">
+        <i class="fas fa-search me-2 text-primary"></i>Filtros
+      </h6>
+    </div>
+    <div class="card-body p-4">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-8">
+          <label class="form-label fw-medium">
+            <i class="fas fa-tools me-2 text-muted"></i>Buscar
+          </label>
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control border-0 shadow-sm"
+              placeholder="Nome, descrição, valor..."
+              [(ngModel)]="searchTerm"
+              (keyup.enter)="onSearch()">
+            <button class="btn btn-primary shadow-sm me-2" type="button" (click)="onSearch()">
+              <i class="fas fa-search me-2"></i>Buscar
+            </button>
+            <button class="btn btn-outline-secondary shadow-sm" type="button" (click)="limparFiltros()">
+              Limpar
+            </button>
+          </div>
+        </div>
+        <div class="col-md-4 text-end">
+          <div class="d-flex justify-content-end align-items-center">
+            <small class="text-muted">Total: {{ totalItems }} serviços</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
+  <!-- Erro -->
+  <div *ngIf="!loading && error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- Lista de serviços -->
+  <div *ngIf="servicos.length === 0 && !loading && !error" class="text-center py-5">
+    <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+    <h5 class="text-muted">Nenhum serviço encontrado</h5>
+    <p class="text-muted">Comece criando o primeiro serviço do sistema.</p>
+    <a routerLink="/servicos/novo" class="btn btn-primary">
+      <i class="fas fa-plus me-2"></i>Criar Primeiro Serviço
+    </a>
+  </div>
+
+  <div *ngIf="servicos.length > 0 && !loading && !error" class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-header">
+        <tr>
+          <th>Nome</th>
+          <th>Descrição</th>
+          <th>Valor Base</th>
+          <th>Tempo Estimado</th>
+          <th>Status</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let servico of servicos">
+          <td>{{ servico.nome }}</td>
+          <td>{{ servico.descricao || '-' }}</td>
+          <td>{{ servico.valorBase | currency:'BRL':'symbol':'1.2-2' }}</td>
+          <td>{{ servico.tempoEstimado ? servico.tempoEstimado + ' min' : '-' }}</td>
+          <td>
+            <span class="badge" [class]="servico.ativo ? 'bg-success' : 'bg-secondary'">
+              {{ servico.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
+          </td>
+          <td class="text-center">
+            <a [routerLink]="['/servicos', servico.id, 'editar']" class="btn btn-sm btn-outline-primary me-1" title="Editar">
+              <i class="fas fa-edit"></i>
+            </a>
+            <button class="btn btn-sm btn-outline-danger" (click)="deleteServico(servico)" title="Excluir">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginação -->
+    <nav *ngIf="totalPages > 1" class="mt-3">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" href="#" (click)="onPageChange(currentPage - 1); $event.preventDefault()">Anterior</a>
+        </li>
+
+        <li *ngFor="let page of getPagesArray()" class="page-item" [class.active]="page === currentPage">
+          <a class="page-link" href="#" (click)="onPageChange(page); $event.preventDefault()">{{ page }}</a>
+        </li>
+
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <a class="page-link" href="#" (click)="onPageChange(currentPage + 1); $event.preventDefault()">Próximo</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>

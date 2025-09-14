@@ -75,4 +75,12 @@ export class AuthService {
   hasRole(role: string): boolean {
     return this.currentUserValue?.cargo === role;
   }
+
+  updateCurrentUser(user: Usuario): void {
+    // Only access localStorage in browser environment
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    }
+    this.currentUserSubject.next(user);
+  }
 }

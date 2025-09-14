@@ -39,8 +39,20 @@ const routes: Routes = [
         loadChildren: () => import('./features/tecnicos/tecnicos.module').then(m => m.TecnicosModule)
       },
       {
+        path: 'servicos',
+        loadChildren: () => import('./features/servicos/servicos.module').then(m => m.ServicosModule)
+      },
+      {
         path: 'relatorios',
         loadChildren: () => import('./features/relatorios/relatorios.module').then(m => m.RelatoriosModule)
+      },
+      {
+        path: 'perfil',
+        loadComponent: () => import('./features/perfil/pages/perfil-edit/perfil-edit.component').then(m => m.PerfilEditComponent)
+      },
+      {
+        path: 'configuracoes', 
+        loadComponent: () => import('./features/configuracoes/pages/configuracoes-home/configuracoes-home.component').then(m => m.ConfiguracoesHomeComponent)
       }
     ]
   },

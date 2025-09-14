@@ -1,14 +1,67 @@
 <div class="container-fluid">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h2>Central de Relatórios</h2>
-      <button class="btn btn-secondary" routerLink="/relatorios">Voltar</button>
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h1 class="display-6 fw-bold text-primary">Central de Relatórios</h1>
+      <p class="lead text-muted">Análises completas e insights para gestão estratégica</p>
+      <hr class="my-4" style="width: 100px; margin: 0 auto;">
     </div>
-    <div class="card-body">
-      <p class="lead">Esta página será implementada em breve.</p>
-      <div class="text-center my-4">
-        <i class="fas fa-code fa-5x text-primary"></i>
+  </div>
+
+  <div class="row">
+    <!-- Relatório de Chamados -->
+    <div class="col-md-6 col-xl-4 mb-4">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-body text-center p-4">
+          <div class="mb-4">
+            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3">
+              <i class="fas fa-ticket-alt fa-2x text-primary"></i>
+            </div>
+          </div>
+          <h5 class="card-title fw-bold mb-3">Relatório de Chamados</h5>
+          <p class="card-text text-muted mb-4">Visualize estatísticas e dados dos chamados de serviço</p>
+          <a href="#" routerLink="/relatorios/chamados" class="btn btn-primary btn-sm px-4">
+            <i class="fas fa-chart-line me-2"></i>Visualizar Relatório
+          </a>
+        </div>
       </div>
     </div>
+
+    <!-- Relatório Financeiro -->
+    <div class="col-md-6 col-xl-4 mb-4">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-body text-center p-4">
+          <div class="mb-4">
+            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex p-3">
+              <i class="fas fa-dollar-sign fa-2x text-success"></i>
+            </div>
+          </div>
+          <h5 class="card-title fw-bold mb-3">Relatório Financeiro</h5>
+          <p class="card-text text-muted mb-4">Acompanhe receitas, custos e lucros do período</p>
+          <a href="#" routerLink="/relatorios/financeiro" class="btn btn-success btn-sm px-4">
+            <i class="fas fa-chart-line me-2"></i>Visualizar Relatório
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Relatório de Técnicos -->
+    <div class="col-md-6 col-xl-4 mb-4">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-body text-center p-4">
+          <div class="mb-4">
+            <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex p-3">
+              <i class="fas fa-users fa-2x text-info"></i>
+            </div>
+          </div>
+          <h5 class="card-title fw-bold mb-3">Relatório de Técnicos</h5>
+          <p class="card-text text-muted mb-4">Performance e produtividade dos técnicos</p>
+          <a href="#" routerLink="/relatorios/tecnicos" class="btn btn-info btn-sm px-4">
+            <i class="fas fa-chart-line me-2"></i>Visualizar Relatório
+          </a>
+        </div>
+      </div>
+    </div>
+
+
   </div>
 </div>

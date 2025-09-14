@@ -5,6 +5,7 @@ import { Prioridade } from './prioridade.model';
 import { StatusChamado } from './status-chamado.model';
 import { Tecnico } from './tecnico.model';
 import { ChamadoServico } from './chamado-servico.model';
+import { PecaUsada } from './peca-usada.model';
 
 
 export interface Chamado {
@@ -30,5 +31,6 @@ export interface Chamado {
   prioridade?: Prioridade;
   status?: StatusChamado;
   servicos?: ChamadoServico[]; // Changed from any[]
+  pecasUsadas?: PecaUsada[]; // Peças utilizadas no chamado
   // pecas?: any[]; // Estoque is ignored for now
 }

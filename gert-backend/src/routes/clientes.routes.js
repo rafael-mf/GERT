@@ -15,5 +15,6 @@ router.get('/:id', isTecnico, clienteController.getClienteById);
 // Apenas Administradores podem alterar ou excluir clientes
 router.put('/:id', isAdmin, clienteController.updateCliente);
 router.delete('/:id', isAdmin, clienteController.deleteCliente);
+router.post('/:clienteId/dispositivos', isAdmin, clienteController.createDispositivoForCliente);
 
 module.exports = router;

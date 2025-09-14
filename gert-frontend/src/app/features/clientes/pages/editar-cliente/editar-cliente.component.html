@@ -1,14 +1,72 @@
 <div class="container-fluid">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h2>Editar Cliente</h2>
-      <button class="btn btn-secondary" routerLink="/clientes">Voltar</button>
-    </div>
-    <div class="card-body">
-      <p class="lead">Esta página será implementada em breve.</p>
-      <div class="text-center my-4">
-        <i class="fas fa-code fa-5x text-primary"></i>
-      </div>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Editar Cliente</h2>
+    <button class="btn btn-secondary" [routerLink]="['/clientes', clienteId]">
+      <i class="fas fa-arrow-left me-2"></i>Voltar
+    </button>
+  </div>
+
+  <div *ngIf="loading && !clienteForm.dirty" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
     </div>
   </div>
+
+  <form [formGroup]="clienteForm" (ngSubmit)="onSubmit()" *ngIf="!loading || clienteForm.dirty">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-12 mb-3">
+            <label for="nome" class="form-label">Nome Completo / Razão Social <span class="text-danger">*</span></label>
+            <input type="text" id="nome" formControlName="nome" class="form-control"
+                   [ngClass]="{ 'is-invalid': submitted && clienteForm.get('nome')?.errors }">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="cpfCnpj" class="form-label">CPF/CNPJ</label>
+            <input type="text" id="cpfCnpj" formControlName="cpfCnpj" class="form-control">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" formControlName="email" class="form-control"
+                   [ngClass]="{ 'is-invalid': submitted && clienteForm.get('email')?.errors }">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="telefone" class="form-label">Telefone</label>
+            <input type="text" id="telefone" formControlName="telefone" class="form-control">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="cep" class="form-label">CEP</label>
+            <input type="text" id="cep" formControlName="cep" class="form-control">
+          </div>
+
+          <div class="col-md-12 mb-3">
+            <label for="endereco" class="form-label">Endereço</label>
+            <input type="text" id="endereco" formControlName="endereco" class="form-control">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="cidade" class="form-label">Cidade</label>
+            <input type="text" id="cidade" formControlName="cidade" class="form-control">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="estado" class="form-label">Estado (UF)</label>
+            <input type="text" id="estado" formControlName="estado" class="form-control" maxlength="2">
+          </div>
+
+        </div>
+      </div>
+      <div class="card-footer text-end">
+        <button type="button" class="btn btn-outline-secondary me-2" [routerLink]="['/clientes', clienteId]">Cancelar</button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ loading ? 'Salvando...' : 'Salvar Alterações' }}
+        </button>
+      </div>
+    </div>
+  </form>
 </div>
