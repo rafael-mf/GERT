@@ -1,0 +1,9 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/gert-frontend",
+  "installCommand": "npm install --legacy-peer-deps",
+  "framework": "angular",
+  "env": {
+    "NPM_FLAGS": "--legacy-peer-deps"
+  }
+}
