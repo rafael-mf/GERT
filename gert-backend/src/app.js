@@ -17,9 +17,58 @@ const { swaggerUi, swaggerSpec } = require('./config/swagger');
 
 const app = express();
 
+// Configuração do CORS
+const allowedOrigins = [
+  'http://localhost:4200',           // Desenvolvimento local
+  'https://gert-frontend.vercel.app', // Produção Vercel
+  process.env.FRONTEND_URL || 'http://localhost:4200'
+];
+
+// Adicionar origins do .env se existir
+if (process.env.ALLOWED_ORIGINS) {
+  allowedOrigins.push(...process.env.ALLOWED_ORIGINS.split(','));
+}
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permitir requests sem origin (mobile apps, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Verificar origins específicas
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Verificar padrões Vercel
+    if (origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Verificar padrões Railway
+    if (origin.includes('railway.app')) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Não permitido pelo CORS'));
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true
+};
+
 // Middlewares
-app.use(cors());
-app.use(helmet());
+app.use(cors(corsOptions));
+app.use(helmet({
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"]
+    }
+  }
+}));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -45,6 +94,8 @@ app.get('/', (req, res) => {
     message: 'API do Sistema de Assistência Técnica',
     version: '1.0.0',
     documentation: '/api-docs',
+    cors: 'configured',
+    origin: req.headers.origin || 'no-origin',
     endpoints: {
       auth: '/api/auth',
       chamados: '/api/chamados',
@@ -57,6 +108,17 @@ app.get('/', (req, res) => {
       relatorios: '/api/relatorios',
       auditoria: '/api/auditoria'
     }
+  });
+});
+
+// Health check com CORS
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    cors: 'enabled',
+    origin: req.headers.origin || 'no-origin',
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
