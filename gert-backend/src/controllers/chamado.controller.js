@@ -37,7 +37,7 @@ class ChamadoController {
 
   async updateChamado(req, res, next) {
     try {
-      const usuarioId = req.user?.id; // ID do usuário autenticado
+      const usuarioId = req.usuario?.id; // ID do usuário autenticado
       const chamadoAtualizado = await chamadoService.updateChamado(req.params.id, req.body, usuarioId);
       res.json(chamadoAtualizado);
     } catch (error) {

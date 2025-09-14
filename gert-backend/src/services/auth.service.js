@@ -27,7 +27,7 @@ class AuthService {
     const token = jwt.sign(
       { id: usuario.id, email: usuario.email, cargo: usuario.cargo },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRATION }
+      { expiresIn: process.env.JWT_EXPIRATION || '24h' }
     );
 
     // Se for técnico, obter informações adicionais

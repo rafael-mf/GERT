@@ -4,6 +4,7 @@ import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ChamadoService } from '../../../../core/services/chamado.service';
 import { ChamadoAtualizacaoService, ChamadoAtualizacao } from '../../../../core/services/chamado-atualizacao.service';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 import { Chamado } from '../../../../shared/models/chamado.model';
 import { Servico } from '../../../../shared/models/servico.model';
 import { ToastrService } from 'ngx-toastr';
@@ -47,6 +48,7 @@ export class DetalheChamadoComponent implements OnInit {
   private router = inject(Router);
   private chamadoService = inject(ChamadoService);
   private chamadoAtualizacaoService = inject(ChamadoAtualizacaoService);
+  private authService = inject(AuthService);
   private toastr = inject(ToastrService);
   private modalService = inject(ModalService);
 
@@ -317,9 +319,15 @@ export class DetalheChamadoComponent implements OnInit {
     this.modalService.addComment().then(comentario => {
       if (comentario.trim()) {
         // Usar o serviço de atualizações para adicionar comentário
+        const usuarioLogado = this.authService.currentUserValue;
+        if (!usuarioLogado?.id) {
+          this.toastr.error('Usuário não autenticado');
+          return;
+        }
+        
         this.chamadoAtualizacaoService.registrarComentario({
           chamadoId: this.chamadoId,
-          usuarioId: 1, // TODO: pegar ID do usuário logado
+          usuarioId: usuarioLogado.id,
           comentario: comentario.trim()
         }).subscribe({
           next: () => {
