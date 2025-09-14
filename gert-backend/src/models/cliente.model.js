@@ -41,7 +41,8 @@ const Cliente = sequelize.define('Cliente', {
   },
   dataCadastro: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+    defaultValue: DataTypes.NOW,
+    field: 'data_cadastro' // Mapeia para o campo data_cadastro no banco
   }
 }, {
   tableName: 'clientes',

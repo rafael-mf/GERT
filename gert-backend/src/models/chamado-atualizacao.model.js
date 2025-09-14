@@ -49,6 +49,7 @@ const ChamadoAtualizacao = sequelize.define('ChamadoAtualizacao', {
   dataAtualizacao: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
+    field: 'data_atualizacao'
   }
 }, {
   tableName: 'chamados_atualizacoes',

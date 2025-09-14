@@ -34,11 +34,13 @@ const Usuario = sequelize.define('Usuario', {
   },
   dataCriacao: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+    defaultValue: DataTypes.NOW,
+    field: 'data_criacao' // Mapeia para o campo data_criacao no banco
   },
   ultimoAcesso: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
+    field: 'ultimo_acesso' // Mapeia para o campo ultimo_acesso no banco
   }
 }, {
   tableName: 'usuarios',
