@@ -13,7 +13,8 @@ const Cliente = sequelize.define('Cliente', {
   },
   cpfCnpj: {
     type: DataTypes.STRING(20),
-    unique: true
+    unique: true,
+    field: 'cpf_cnpj' // Mapeia para o campo cpf_cnpj no banco
   },
   email: {
     type: DataTypes.STRING(100),
