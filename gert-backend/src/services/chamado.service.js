@@ -12,6 +12,8 @@ const {
   Peca,
   ChamadoPeca, // Usar ChamadoPeca em vez de PecaUsada
   ChamadoAtualizacao,
+  PecaUsada,
+  sequelize
 } = require('../models');
 const { Op } = require('sequelize');
 const chamadoAtualizacaoService = require('./chamado-atualizacao.service');
@@ -86,7 +88,7 @@ class ChamadoService {
         {
           model: ChamadoPeca,
           as: 'pecas',
-          include: [{ model: Peca, as: 'peca', attributes: ['id', 'nome', 'numeroSerie'] }]
+          include: [{ model: Peca, as: 'peca', attributes: ['id', 'nome'] }]
         },
         {
           model: ChamadoAtualizacao,
@@ -180,8 +182,45 @@ class ChamadoService {
     if (!chamado) {
       throw new Error('Chamado não encontrado');
     }
-    await chamado.destroy();
-    return { message: 'Chamado excluído com sucesso' };
+
+    // Excluir registros filhos primeiro para evitar erro de integridade referencial
+    const transaction = await sequelize.transaction();
+
+    try {
+      // 1. Excluir atualizações do chamado
+      await ChamadoAtualizacao.destroy({
+        where: { chamadoId: id },
+        transaction
+      });
+
+      // 2. Excluir peças associadas ao chamado
+      await ChamadoPeca.destroy({
+        where: { chamadoId: id },
+        transaction
+      });
+
+      // 3. Excluir serviços associados ao chamado
+      await ChamadoServico.destroy({
+        where: { chamadoId: id },
+        transaction
+      });
+
+      // 4. Excluir peças usadas associadas ao chamado
+      await PecaUsada.destroy({
+        where: { chamadoId: id },
+        transaction
+      });
+
+      // 5. Finalmente, excluir o chamado
+      await chamado.destroy({ transaction });
+
+      await transaction.commit();
+      return { message: 'Chamado excluído com sucesso' };
+
+    } catch (error) {
+      await transaction.rollback();
+      throw new Error(`Erro ao excluir chamado: ${error.message}`);
+    }
   }
 
   // --- Métodos para entidades relacionadas ---
