@@ -42,7 +42,6 @@ export class DetalheChamadoComponent implements OnInit {
   valorUnitarioPeca: number | null = null;
   addingPeca = false;
 
-  // Campos para peça específica do chamado
   pecaNome: string = '';
   pecaDescricao: string = '';
   pecaMarca: string = '';
@@ -211,7 +210,6 @@ export class DetalheChamadoComponent implements OnInit {
   private resetPecaForm(): void {
     this.quantidadePeca = 1;
     this.valorUnitarioPeca = null;
-    // Reset dos campos da peça específica
     this.pecaNome = '';
     this.pecaDescricao = '';
     this.pecaMarca = '';

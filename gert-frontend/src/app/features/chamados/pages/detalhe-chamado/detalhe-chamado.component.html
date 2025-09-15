@@ -122,7 +122,6 @@
                 <small class="d-block text-muted">Quantidade: {{ pu.quantidade }}</small>
                 <small *ngIf="pu.marca" class="d-block text-muted">{{ pu.marca }} {{ pu.modelo }}</small>
                 <small *ngIf="pu.numeroSerie" class="d-block text-muted">S/N: {{ pu.numeroSerie }}</small>
-                <small class="d-block text-primary">Peça específica do chamado</small>
               </div>
               <div class="d-flex align-items-center">
                 <span class="me-2">{{ (pu.quantidade * pu.valorUnitario) | currency:'BRL' }}</span>
@@ -299,12 +298,6 @@
       </div>
       <div class="modal-body">
         <form>
-          <div class="alert alert-info">
-            <i class="fas fa-info-circle me-2"></i>
-            <strong>Peça específica do chamado</strong><br>
-            Digite os dados da peça que será utilizada neste chamado.
-          </div>
-
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="pecaNomeInput" class="form-label">Nome da Peça *</label>

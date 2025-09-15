@@ -392,14 +392,13 @@ class ChamadoService {
     const chamado = await Chamado.findByPk(chamadoId);
     if (!chamado) throw new Error('Chamado não encontrado');
 
-    // Se não há pecaId, significa que é uma peça específica do chamado
+    let pecaUsada;
+
     if (!dadosPeca.pecaId) {
-      // Criar uma nova entrada na tabela chamados_pecas com dados da peça
-      const pecaUsada = await ChamadoPeca.create({
+      pecaUsada = await ChamadoPeca.create({
         chamadoId,
         quantidade: dadosPeca.quantidade,
         valorUnitario: dadosPeca.valorUnitario,
-        // Campos específicos da peça para chamados
         nome: dadosPeca.nome,
         descricao: dadosPeca.descricao,
         marca: dadosPeca.marca,
@@ -408,8 +407,7 @@ class ChamadoService {
         dataUtilizacao: new Date()
       });
     } else {
-      // Lógica existente para peças do estoque
-      const pecaUsada = await ChamadoPeca.create({
+      pecaUsada = await ChamadoPeca.create({
         chamadoId,
         pecaId: dadosPeca.pecaId,
         quantidade: dadosPeca.quantidade,

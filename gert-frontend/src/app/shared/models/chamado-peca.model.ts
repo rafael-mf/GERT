@@ -4,13 +4,12 @@ import { Peca } from './peca.model';
 export interface ChamadoPeca {
   id?: number;
   chamadoId: number;
-  pecaId?: number | null; // Agora opcional para peças específicas do chamado
+  pecaId?: number | null;
   quantidade: number;
   valorUnitario: number;
   dataUtilizacao?: Date | string;
   peca?: Peca; // Para incluir informações da peça relacionada
 
-  // Campos para peças específicas do chamado
   nome?: string;
   descricao?: string;
   marca?: string;
