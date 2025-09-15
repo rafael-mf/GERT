@@ -1,0 +1,14 @@
+# Railway Build Configuration
+# This tells Railway to use Node.js native build instead of Docker
+
+[phases.setup]
+nixPkgs = ["nodejs", "npm"]
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["echo 'Build completed - no build step needed for Node.js API'"]
+
+[start]
+cmd = "npm start"
