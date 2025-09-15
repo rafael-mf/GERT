@@ -1,4 +1,5 @@
 const chamadoService = require('../services/chamado.service');
+const { clearCache } = require('../middlewares/cache.middleware');
 
 class ChamadoController {
   async getAllChamados(req, res, next) {
@@ -29,6 +30,10 @@ class ChamadoController {
         usuarioCriadorId: req.usuario?.id
       };
       const novoChamado = await chamadoService.createChamado(dadosChamado);
+
+      // Limpar cache de listagem de chamados
+      clearCache('/api/chamados');
+
       res.status(201).json(novoChamado);
     } catch (error) {
       next(error);
@@ -39,6 +44,10 @@ class ChamadoController {
     try {
       const usuarioId = req.usuario?.id; // ID do usuário autenticado
       const chamadoAtualizado = await chamadoService.updateChamado(req.params.id, req.body, usuarioId);
+
+      // Limpar cache de listagem de chamados
+      clearCache('/api/chamados');
+
       res.json(chamadoAtualizado);
     } catch (error) {
       if (error.message === 'Chamado não encontrado') {
@@ -51,6 +60,10 @@ class ChamadoController {
   async deleteChamado(req, res, next) {
     try {
       const result = await chamadoService.deleteChamado(req.params.id);
+
+      // Limpar cache de listagem de chamados
+      clearCache('/api/chamados');
+
       res.json(result);
     } catch (error) {
       if (error.message === 'Chamado não encontrado') {
@@ -134,6 +147,10 @@ class ChamadoController {
         dadosServico,
         req.usuario?.id
       );
+
+      // Limpar cache de listagem de chamados
+      clearCache('/api/chamados');
+
       res.status(201).json(chamadoServico);
     } catch (error) {
       if (error.message.includes('não encontrado')) {
@@ -150,6 +167,10 @@ class ChamadoController {
         req.params.chamadoServicoId,
         req.usuario?.id
       );
+
+      // Limpar cache de listagem de chamados
+      clearCache('/api/chamados');
+
       res.json(result);
     } catch (error) {
       if (error.message === 'Serviço do chamado não encontrado') {
@@ -168,6 +189,10 @@ class ChamadoController {
         req.body,
         req.usuario?.id
       );
+
+      // Limpar cache de listagem de chamados
+      clearCache('/api/chamados');
+
       res.status(201).json(pecaUsada);
     } catch (error) {
       next(error);
@@ -178,6 +203,10 @@ class ChamadoController {
     try {
       const { pecaUsadaId } = req.params;
       const pecaUsada = await chamadoService.updatePecaUsada(pecaUsadaId, req.body);
+
+      // Limpar cache de listagem de chamados
+      clearCache('/api/chamados');
+
       res.json(pecaUsada);
     } catch (error) {
       if (error.message === 'Peça usada não encontrada') {
@@ -193,6 +222,10 @@ class ChamadoController {
         req.params.pecaUsadaId,
         req.usuario?.id
       );
+
+      // Limpar cache de listagem de chamados
+      clearCache('/api/chamados');
+
       res.json(result);
     } catch (error) {
       if (error.message === 'Peça usada não encontrada') {
