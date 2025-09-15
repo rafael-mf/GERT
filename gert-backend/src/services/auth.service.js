@@ -139,6 +139,32 @@ class AuthService {
 
     return true;
   }
+
+  // Método para registrar novos usuários
+  async register(dadosUsuario, options = {}) {
+    try {
+      // Verificar se o email já existe
+      const usuarioExistente = await Usuario.findOne({ 
+        where: { email: dadosUsuario.email },
+        ...options
+      });
+
+      if (usuarioExistente) {
+        throw new Error('Email já está em uso');
+      }
+
+      // Criar novo usuário
+      const novoUsuario = await Usuario.create(dadosUsuario, options);
+      
+      // Retornar usuário sem a senha
+      const { senha, ...usuarioSemSenha } = novoUsuario.toJSON();
+      
+      return usuarioSemSenha;
+    } catch (error) {
+      console.error('Erro ao registrar usuário:', error.message);
+      throw error;
+    }
+  }
 }
 
 module.exports = new AuthService();

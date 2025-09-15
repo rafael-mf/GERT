@@ -20,9 +20,7 @@ if (process.env.MYSQL_URL) {
         require: true,
         rejectUnauthorized: false
       } : false,
-      connectTimeout: 60000,
-      acquireTimeout: 60000,
-      timeout: 60000
+      connectTimeout: 60000
     }
   });
 } else {
