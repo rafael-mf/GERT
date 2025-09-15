@@ -348,6 +348,124 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Estilos customizados para Toastr */
+.toast-container {
+  z-index: 9999 !important;
+  position: fixed !important;
+}
+
+.toast-top-right {
+  top: 20px !important;
+  right: 20px !important;
+}
+
+.toast {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--box-shadow), 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  padding: 15px !important;
+  margin: 0 0 6px !important;
+  min-height: auto !important;
+  width: 350px !important;
+}
+
+.toast-title {
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  margin-bottom: 5px !important;
+}
+
+.toast-message {
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  word-wrap: break-word !important;
+}
+
+.toast-success {
+  background-color: var(--success-color) !important;
+  color: white !important;
+  border-color: var(--success-color) !important;
+}
+
+.toast-error {
+  background-color: var(--danger-color) !important;
+  color: white !important;
+  border-color: var(--danger-color) !important;
+}
+
+.toast-info {
+  background-color: var(--info-color) !important;
+  color: white !important;
+  border-color: var(--info-color) !important;
+}
+
+.toast-warning {
+  background-color: var(--warning-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--warning-color) !important;
+}
+
+.toast-close-button {
+  position: relative !important;
+  right: 0 !important;
+  top: 0 !important;
+  float: right !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  line-height: 1 !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 1) !important;
+  opacity: 0.8 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.toast-close-button:hover {
+  color: white !important;
+  opacity: 1 !important;
+}
+
+.toast-progress {
+  background-color: rgba(255, 255, 255, 0.4) !important;
+  height: 3px !important;
+  opacity: 1 !important;
+}
+
+/* Animações mais suaves */
+.toast {
+  -webkit-animation: flyInRight 0.3s !important;
+  animation: flyInRight 0.3s !important;
+}
+
+.toast.ng-leave {
+  -webkit-animation: fadeOut 0.3s !important;
+  animation: fadeOut 0.3s !important;
+}
+
+@keyframes flyInRight {
+  from {
+    transform: translate3d(100%, 0, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 /* Sobrescrevendo estilos móveis */
 @media (max-width: 768px) {
   .card:hover {
@@ -356,5 +474,15 @@ h1, h2, h3, h4, h5, h6 {
   
   .btn:hover {
     transform: none;
+  }
+  
+  .toast {
+    width: calc(100vw - 30px) !important;
+    margin: 0 15px 6px !important;
+  }
+  
+  .toast-container {
+    left: 0 !important;
+    right: 0 !important;
   }
 }
