@@ -18,12 +18,21 @@ import { ToastrModule } from 'ngx-toastr';
     SharedModule,
     NgbModule,
     ToastrModule.forRoot({
-      timeOut: 3000,
+      timeOut: 5000,
       positionClass: 'toast-top-right',
       preventDuplicates: true,
       closeButton: true,
       progressBar: true,
-      enableHtml: true
+      enableHtml: true,
+      newestOnTop: true,
+      tapToDismiss: true,
+      maxOpened: 3,
+      autoDismiss: true,
+      includeTitleDuplicates: false,
+      countDuplicates: false,
+      resetTimeoutOnDuplicate: false,
+      easeTime: 300,
+      extendedTimeOut: 1000
     })
   ],
   providers: [],
