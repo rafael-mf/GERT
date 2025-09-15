@@ -11,7 +11,10 @@
     "dev": "nodemon src/server.js",
     "migrate": "node migrate.js",
     "diagnose": "node diagnose-db.js",
-    "lint": "eslint src/**/*.js"
+    "lint": "eslint src/**/*.js",
+    "verify": "node verificar-sistema.js",
+    "health": "node -e \"require('./verificar-sistema').verificarConectividade().then(ok => process.exit(ok ? 0 : 1))\"",
+    "check-db": "node -e \"require('./verificar-sistema').verificarEstruturaBanco().then(ok => process.exit(ok ? 0 : 1))\""
   },
   "keywords": [],
   "author": "",

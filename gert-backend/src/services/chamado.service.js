@@ -85,7 +85,7 @@ class ChamadoService {
         },
         {
           model: ChamadoPeca,
-          as: 'pecasUsadas',
+          as: 'pecas',
           include: [{ model: Peca, as: 'peca', attributes: ['id', 'nome', 'numeroSerie'] }]
         },
         {
@@ -316,7 +316,7 @@ class ChamadoService {
     const chamado = await Chamado.findByPk(chamadoId, {
       include: [
         { model: ChamadoServico, as: 'servicos' },
-        { model: ChamadoPeca, as: 'pecasUsadas' }
+        { model: ChamadoPeca, as: 'pecas' }
       ]
     });
     if (chamado) {
@@ -328,8 +328,8 @@ class ChamadoService {
       }
       
       // Somar valor das peças usadas
-      if (chamado.pecasUsadas) {
-        valorTotal += chamado.pecasUsadas.reduce((sum, p) => sum + (parseFloat(p.quantidade) * parseFloat(p.valorUnitario)), 0);
+      if (chamado.pecas) {
+        valorTotal += chamado.pecas.reduce((sum, p) => sum + (parseFloat(p.quantidade) * parseFloat(p.valorUnitario)), 0);
       }
       
       chamado.valorTotal = valorTotal;

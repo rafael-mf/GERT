@@ -36,7 +36,9 @@ export class TokenInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
+        // Only handle 401 errors for API requests (not for login page, etc.)
+        if (error.status === 401 && !request.url.includes('/login')) {
+          console.warn('Token expirado ou inválido, fazendo logout');
           this.authService.logout();
           this.router.navigate(['/login']);
         }

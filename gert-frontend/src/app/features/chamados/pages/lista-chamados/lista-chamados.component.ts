@@ -9,6 +9,7 @@ import { Tecnico } from '../../../../shared/models/tecnico.model';
 import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
+import { ModalService } from '../../../../shared/services/modal.service';
 
 @Component({
   selector: 'app-lista-chamados',
@@ -38,7 +39,8 @@ export class ListaChamadosComponent implements OnInit {
   constructor(
     private chamadoService: ChamadoService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private modalService: ModalService
   ) {}
 
   ngOnInit(): void {
@@ -105,17 +107,29 @@ export class ListaChamadosComponent implements OnInit {
   }
 
   deleteChamado(id?: number): void {
-    if (id && confirm('Tem certeza que deseja excluir este chamado?')) {
-      this.chamadoService.deleteChamado(id).subscribe({
-        next: () => {
-          this.toastr.success('Chamado excluído com sucesso!');
-          this.loadChamados(); // Reload the list
-        },
-        error: (err) => {
-          this.toastr.error('Erro ao excluir chamado.');
-          console.error(err);
+    if (id) {
+      this.modalService.confirmDelete('este chamado').then((confirmed) => {
+        if (confirmed) {
+          this.loading = true;
+          this.chamadoService.deleteChamado(id).subscribe({
+            next: () => {
+              this.toastr.success('Chamado excluído com sucesso!');
+              this.loadChamados(); // Reload the list
+              this.loading = false;
+            },
+            error: (err) => {
+              this.toastr.error('Erro ao excluir chamado.');
+              console.error('Erro ao excluir chamado:', err);
+              this.loading = false;
+            }
+          });
         }
+      }).catch((error) => {
+        console.error('Erro no modal de confirmação:', error);
+        this.toastr.error('Erro ao processar confirmação');
       });
+    } else {
+      this.toastr.warning('ID do chamado não encontrado');
     }
   }
 }

@@ -48,6 +48,7 @@ Dispositivo.belongsTo(CategoriaDispositivo, { foreignKey: 'categoriaId', as: 'ca
 // Associações para ChamadoPeca
 ChamadoPeca.belongsTo(Chamado, { foreignKey: 'chamadoId', as: 'chamado' });
 ChamadoPeca.belongsTo(Peca, { foreignKey: 'pecaId', as: 'peca' });
+Peca.hasMany(ChamadoPeca, { foreignKey: 'pecaId', as: 'chamadosPecas' });
 
 module.exports = {
   sequelize,

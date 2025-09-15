@@ -79,5 +79,7 @@ const Peca = sequelize.define('Peca', {
 
 // Associações
 Peca.belongsTo(CategoriaPeca, { foreignKey: 'categoriaId', as: 'categoria' });
+// Removido: Peca.hasMany(ChamadoPeca, { foreignKey: 'pecaId', as: 'chamadosPecas' });
+// Definido em index.js para evitar problemas de carregamento
 
 module.exports = { Peca };

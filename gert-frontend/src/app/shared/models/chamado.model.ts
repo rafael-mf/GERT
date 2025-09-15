@@ -31,6 +31,6 @@ export interface Chamado {
   prioridade?: Prioridade;
   status?: StatusChamado;
   servicos?: ChamadoServico[]; // Changed from any[]
-  pecasUsadas?: ChamadoPeca[]; // Peças utilizadas no chamado (usando modelo correto)
+  pecas?: ChamadoPeca[]; // Peças utilizadas no chamado (usando modelo correto)
   // pecas?: any[]; // Estoque is ignored for now
 }

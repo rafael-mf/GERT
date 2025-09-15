@@ -25,7 +25,20 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       const storedUser = localStorage.getItem('currentUser');
       if (storedUser) {
-        this.currentUserSubject.next(JSON.parse(storedUser));
+        try {
+          const user = JSON.parse(storedUser);
+          // Verificar se o token ainda existe e parece válido
+          if (user && user.token) {
+            this.currentUserSubject.next(user);
+            console.log('Token carregado do localStorage');
+          } else {
+            console.warn('Token inválido encontrado no localStorage, removendo');
+            localStorage.removeItem('currentUser');
+          }
+        } catch (error) {
+          console.error('Erro ao parsear usuário do localStorage:', error);
+          localStorage.removeItem('currentUser');
+        }
       }
     }
 
@@ -70,6 +83,22 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return !!this.currentUserValue;
+  }
+
+  // Verificar se o token ainda é válido fazendo uma requisição de teste
+  checkTokenValidity(): Observable<boolean> {
+    if (!this.isAuthenticated()) {
+      return of(false);
+    }
+
+    return this.http.get(`${this.apiUrl}/perfil`).pipe(
+      map(() => true),
+      catchError(() => {
+        console.warn('Token inválido, fazendo logout');
+        this.logout();
+        return of(false);
+      })
+    );
   }
 
   hasRole(role: string): boolean {

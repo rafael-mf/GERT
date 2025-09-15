@@ -14,6 +14,7 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 const relatoriosRoutes = require('./routes/relatorios.routes');
 const auditRoutes = require('./routes/audit.routes');
 const { swaggerUi, swaggerSpec } = require('./config/swagger');
+const { sequelize, Chamado, ChamadoPeca, Peca } = require('./models');
 
 const app = express();
 
@@ -120,6 +121,76 @@ app.get('/api/health', (req, res) => {
     origin: req.headers.origin || 'no-origin',
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// Status detalhado do sistema
+app.get('/api/status', async (req, res) => {
+  try {
+    const status = {
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      database: {
+        connected: false,
+        tables: {}
+      },
+      associations: {
+        working: false
+      },
+      system: {
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        version: process.version
+      }
+    };
+
+    // Verificar conexão com banco
+    try {
+      await sequelize.authenticate();
+      status.database.connected = true;
+
+      // Verificar tabelas
+      const tabelas = ['usuarios', 'clientes', 'chamados', 'pecas'];
+      for (const tabela of tabelas) {
+        try {
+          const [results] = await sequelize.query(`SELECT COUNT(*) as count FROM ${tabela}`);
+          status.database.tables[tabela] = results[0].count;
+        } catch (error) {
+          status.database.tables[tabela] = 'error';
+        }
+      }
+    } catch (error) {
+      status.database.error = error.message;
+    }
+
+    // Verificar associações
+    try {
+      await Chamado.findAll({
+        limit: 1,
+        include: [{
+          model: ChamadoPeca,
+          as: 'pecas',
+          include: [{ model: Peca, as: 'peca' }]
+        }]
+      });
+      status.associations.working = true;
+    } catch (error) {
+      status.associations.error = error.message;
+    }
+
+    // Determinar status geral
+    const dbOk = status.database.connected;
+    const assocOk = status.associations.working;
+
+    status.overall = (dbOk && assocOk) ? 'healthy' : 'unhealthy';
+
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
 });
 
 // Middleware de tratamento de erros
