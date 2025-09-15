@@ -15,6 +15,7 @@ const { Peca } = require('./peca.model');
 const { ChamadoPeca } = require('./chamado-peca.model');
 const { Fornecedor } = require('./fornecedor.model');
 const { ChamadoAtualizacao } = require('./chamado-atualizacao.model');
+const { PecaUsada } = require('./peca-usada.model');
 
 const models = {
   Usuario,
@@ -32,6 +33,7 @@ const models = {
   ChamadoPeca,
   Fornecedor,
   ChamadoAtualizacao,
+  PecaUsada,
 };
 
 // Initialize associations if not already defined within models

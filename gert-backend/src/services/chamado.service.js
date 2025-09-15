@@ -178,47 +178,66 @@ class ChamadoService {
   }
 
   async deleteChamado(id) {
-    const chamado = await Chamado.findByPk(id);
-    if (!chamado) {
-      throw new Error('Chamado não encontrado');
-    }
+    console.log('🗑️ Iniciando exclusão do chamado ID:', id);
 
     // Excluir registros filhos primeiro para evitar erro de integridade referencial
     const transaction = await sequelize.transaction();
 
     try {
+      // Buscar o chamado dentro da transação
+      const chamado = await Chamado.findByPk(id, { transaction });
+      if (!chamado) {
+        console.log('❌ Chamado não encontrado:', id);
+        throw new Error('Chamado não encontrado');
+      }
+
+      console.log('✅ Chamado encontrado:', chamado.id);
+
       // 1. Excluir atualizações do chamado
-      await ChamadoAtualizacao.destroy({
+      const atualizacoesExcluidas = await ChamadoAtualizacao.destroy({
         where: { chamadoId: id },
         transaction
       });
+      console.log(`✅ ${atualizacoesExcluidas} atualizações excluídas`);
 
       // 2. Excluir peças associadas ao chamado
-      await ChamadoPeca.destroy({
+      const pecasExcluidas = await ChamadoPeca.destroy({
         where: { chamadoId: id },
         transaction
       });
+      console.log(`✅ ${pecasExcluidas} peças excluídas`);
 
       // 3. Excluir serviços associados ao chamado
-      await ChamadoServico.destroy({
+      const servicosExcluidos = await ChamadoServico.destroy({
         where: { chamadoId: id },
         transaction
       });
+      console.log(`✅ ${servicosExcluidos} serviços excluídos`);
 
       // 4. Excluir peças usadas associadas ao chamado
-      await PecaUsada.destroy({
+      const pecasUsadasExcluidas = await PecaUsada.destroy({
         where: { chamadoId: id },
         transaction
       });
+      console.log(`✅ ${pecasUsadasExcluidas} peças usadas excluídas`);
 
       // 5. Finalmente, excluir o chamado
+      console.log('🗑️ Excluindo chamado principal...');
+      if (!chamado || typeof chamado.destroy !== 'function') {
+        throw new Error('Objeto chamado inválido para exclusão');
+      }
+
       await chamado.destroy({ transaction });
+      console.log('✅ Chamado excluído com sucesso');
 
       await transaction.commit();
+      console.log('🎉 Transação confirmada');
       return { message: 'Chamado excluído com sucesso' };
 
     } catch (error) {
+      console.error('❌ Erro durante exclusão:', error.message);
       await transaction.rollback();
+      console.log('🔄 Transação revertida');
       throw new Error(`Erro ao excluir chamado: ${error.message}`);
     }
   }
