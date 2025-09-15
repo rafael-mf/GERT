@@ -9,6 +9,7 @@ const {
   ChamadoServico,
   Usuario,
   CategoriaDispositivo,
+  Peca,
   ChamadoPeca, // Usar ChamadoPeca em vez de PecaUsada
   ChamadoAtualizacao,
 } = require('../models');

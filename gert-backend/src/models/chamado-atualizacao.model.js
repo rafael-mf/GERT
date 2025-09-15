@@ -59,7 +59,7 @@ const ChamadoAtualizacao = sequelize.define('ChamadoAtualizacao', {
 ChamadoAtualizacao.associate = (models) => {
   ChamadoAtualizacao.belongsTo(models.Chamado, {
     foreignKey: 'chamadoId',
-    as: 'chamadoAtualizacao'
+    as: 'chamado'
   });
   ChamadoAtualizacao.belongsTo(models.Usuario, {
     foreignKey: 'usuarioId',

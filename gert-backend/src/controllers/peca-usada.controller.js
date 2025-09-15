@@ -34,7 +34,7 @@ class PecaUsadaController {
         await chamadoAtualizacaoService.registrarComentario(
           peca.chamadoId,
           usuarioId,
-          `Peça atualizada: ${peca.nome}`
+          `Peça atualizada: ${peca.peca?.nome || 'Peça sem nome'}`
         );
       }
 
