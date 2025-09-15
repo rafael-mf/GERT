@@ -18,10 +18,9 @@ const chamadoSchema = Joi.object({
     'number.integer': 'Prioridade deve ser um número inteiro',
     'any.required': 'Prioridade é obrigatória'
   }),
-  statusId: Joi.number().integer().required().messages({
-    'number.base': 'Status é obrigatório',
-    'number.integer': 'Status deve ser um número inteiro',
-    'any.required': 'Status é obrigatório'
+  statusId: Joi.number().integer().optional().messages({
+    'number.base': 'Status deve ser um número inteiro',
+    'number.integer': 'Status deve ser um número inteiro'
   }),
   titulo: Joi.string().min(1).max(100).required().messages({
     'string.empty': 'Título é obrigatório',

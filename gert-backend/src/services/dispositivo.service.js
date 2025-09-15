@@ -117,6 +117,16 @@ class DispositivoService {
       throw new Error('Dispositivo não encontrado');
     }
 
+    // Verificar se o dispositivo tem chamados vinculados
+    const { Chamado } = require('../models');
+    const chamadosCount = await Chamado.count({
+      where: { dispositivoId: id }
+    });
+
+    if (chamadosCount > 0) {
+      throw new Error('Não é possível excluir o dispositivo pois existem chamados vinculados a ele');
+    }
+
     await dispositivo.destroy();
     return { message: 'Dispositivo excluído com sucesso' };
   }

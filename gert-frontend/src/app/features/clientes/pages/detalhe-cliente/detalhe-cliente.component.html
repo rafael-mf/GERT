@@ -51,10 +51,82 @@
 
     <div class="col-lg-7 mb-4">
       <div class="card h-100">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="card-title mb-0"><i class="fas fa-laptop-house me-2"></i>Dispositivos Associados</h5>
+          <button class="btn btn-primary btn-sm" (click)="toggleDispositivoForm()">
+            <i class="fas fa-plus me-2"></i>Cadastrar Dispositivo
+          </button>
         </div>
         <div class="card-body p-0">
+          <!-- Formulário de cadastro de dispositivo -->
+          <div *ngIf="showDispositivoForm" class="p-3 border-bottom">
+            <h6 class="mb-3">Novo Dispositivo</h6>
+            <form (ngSubmit)="salvarDispositivo()" class="row g-3">
+              <div class="col-md-6">
+                <label for="categoriaId" class="form-label">Categoria *</label>
+                <select
+                  id="categoriaId"
+                  class="form-select"
+                  [(ngModel)]="novoDispositivo.categoriaId"
+                  name="categoriaId"
+                  required>
+                  <option value="">Selecione uma categoria</option>
+                  <option *ngFor="let categoria of categoriasDispositivo" [value]="categoria.id">
+                    {{ categoria.nome }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="marca" class="form-label">Marca *</label>
+                <input
+                  type="text"
+                  id="marca"
+                  class="form-control"
+                  [(ngModel)]="novoDispositivo.marca"
+                  name="marca"
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label for="modelo" class="form-label">Modelo *</label>
+                <input
+                  type="text"
+                  id="modelo"
+                  class="form-control"
+                  [(ngModel)]="novoDispositivo.modelo"
+                  name="modelo"
+                  required>
+              </div>
+              <div class="col-md-6">
+                <label for="numeroSerie" class="form-label">Número de Série</label>
+                <input
+                  type="text"
+                  id="numeroSerie"
+                  class="form-control"
+                  [(ngModel)]="novoDispositivo.numeroSerie"
+                  name="numeroSerie">
+              </div>
+              <div class="col-12">
+                <label for="especificacoes" class="form-label">Especificações</label>
+                <textarea
+                  id="especificacoes"
+                  class="form-control"
+                  [(ngModel)]="novoDispositivo.especificacoes"
+                  name="especificacoes"
+                  rows="2"></textarea>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-success me-2" [disabled]="savingDispositivo">
+                  <i class="fas fa-save me-2"></i>
+                  <span *ngIf="!savingDispositivo">Salvar</span>
+                  <span *ngIf="savingDispositivo">Salvando...</span>
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="toggleDispositivoForm()">
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+
           <div *ngIf="!cliente.dispositivos || cliente.dispositivos.length === 0" class="alert alert-info m-3">
             Nenhum dispositivo cadastrado para este cliente.
           </div>
@@ -66,6 +138,7 @@
                   <th>Modelo</th>
                   <th>Nº de Série</th>
                   <th>Categoria</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -74,6 +147,14 @@
                   <td>{{ dispositivo.modelo }}</td>
                   <td>{{ dispositivo.numeroSerie || 'N/A' }}</td>
                   <td>{{ dispositivo.categoria?.nome || 'N/A' }}</td>
+                  <td>
+                    <button
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="confirmarExclusaoDispositivo(dispositivo)"
+                      title="Excluir dispositivo">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
                 </tr>
               </tbody>
             </table>
