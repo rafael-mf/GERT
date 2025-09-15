@@ -10,7 +10,6 @@ import { Servico } from '../../../../shared/models/servico.model';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { ModalService } from '../../../../shared/services/modal.service';
-import { PecaService } from '../../../../core/services/peca.service';
 
 @Component({
   selector: 'app-detalhe-chamado',
@@ -38,12 +37,17 @@ export class DetalheChamadoComponent implements OnInit {
 
   // Modal de Peças
   showPecasModal = false;
-  pecasDisponiveis: any[] = [];
   loadingPecas = false;
-  selectedPecaId: number | null = null;
   quantidadePeca: number = 1;
   valorUnitarioPeca: number | null = null;
   addingPeca = false;
+
+  // Campos para peça específica do chamado
+  pecaNome: string = '';
+  pecaDescricao: string = '';
+  pecaMarca: string = '';
+  pecaModelo: string = '';
+  pecaNumeroSerie: string = '';
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -52,7 +56,6 @@ export class DetalheChamadoComponent implements OnInit {
   private authService = inject(AuthService);
   private toastr = inject(ToastrService);
   private modalService = inject(ModalService);
-  private pecaService = inject(PecaService);
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -197,7 +200,6 @@ export class DetalheChamadoComponent implements OnInit {
   // === MÉTODOS PARA MODAL DE PEÇAS ===
   openPecasModal(): void {
     this.showPecasModal = true;
-    this.loadPecasDisponiveis();
     this.resetPecaForm();
   }
 
@@ -207,44 +209,35 @@ export class DetalheChamadoComponent implements OnInit {
   }
 
   private resetPecaForm(): void {
-    this.selectedPecaId = null;
     this.quantidadePeca = 1;
     this.valorUnitarioPeca = null;
-  }
-
-  loadPecasDisponiveis(): void {
-    this.loadingPecas = true;
-    this.pecaService.getPecas().subscribe({
-      next: (result: any) => {
-        this.pecasDisponiveis = result.pecas || result;
-        this.loadingPecas = false;
-      },
-      error: (err: any) => {
-        console.error('Erro ao carregar peças:', err);
-        this.toastr.error('Erro ao carregar lista de peças');
-        this.loadingPecas = false;
-      }
-    });
-  }
-
-  onPecaSelected(): void {
-    if (this.selectedPecaId) {
-      const peca = this.pecasDisponiveis.find(p => p.id === this.selectedPecaId);
-      if (peca) {
-        this.valorUnitarioPeca = peca.precoVenda || peca.precoCusto || 0;
-      }
-    }
+    // Reset dos campos da peça específica
+    this.pecaNome = '';
+    this.pecaDescricao = '';
+    this.pecaMarca = '';
+    this.pecaModelo = '';
+    this.pecaNumeroSerie = '';
   }
 
   addPeca(): void {
-    if (!this.selectedPecaId || !this.chamadoId || !this.valorUnitarioPeca) {
-      this.toastr.warning('Selecione uma peça e defina o valor');
+    if (!this.pecaNome.trim()) {
+      this.toastr.warning('Digite o nome da peça');
+      return;
+    }
+
+    if (!this.valorUnitarioPeca) {
+      this.toastr.warning('Defina o valor unitário da peça');
       return;
     }
 
     this.addingPeca = true;
+
     const pecaData = {
-      pecaId: this.selectedPecaId,
+      nome: this.pecaNome.trim(),
+      descricao: this.pecaDescricao.trim(),
+      marca: this.pecaMarca.trim(),
+      modelo: this.pecaModelo.trim(),
+      numeroSerie: this.pecaNumeroSerie.trim(),
       quantidade: this.quantidadePeca,
       valorUnitario: this.valorUnitarioPeca
     };

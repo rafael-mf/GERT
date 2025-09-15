@@ -392,17 +392,40 @@ class ChamadoService {
     const chamado = await Chamado.findByPk(chamadoId);
     if (!chamado) throw new Error('Chamado não encontrado');
 
-    const pecaUsada = await ChamadoPeca.create({
-      chamadoId,
-      ...dadosPeca
-    });
+    // Se não há pecaId, significa que é uma peça específica do chamado
+    if (!dadosPeca.pecaId) {
+      // Criar uma nova entrada na tabela chamados_pecas com dados da peça
+      const pecaUsada = await ChamadoPeca.create({
+        chamadoId,
+        quantidade: dadosPeca.quantidade,
+        valorUnitario: dadosPeca.valorUnitario,
+        // Campos específicos da peça para chamados
+        nome: dadosPeca.nome,
+        descricao: dadosPeca.descricao,
+        marca: dadosPeca.marca,
+        modelo: dadosPeca.modelo,
+        numeroSerie: dadosPeca.numeroSerie,
+        dataUtilizacao: new Date()
+      });
+    } else {
+      // Lógica existente para peças do estoque
+      const pecaUsada = await ChamadoPeca.create({
+        chamadoId,
+        pecaId: dadosPeca.pecaId,
+        quantidade: dadosPeca.quantidade,
+        valorUnitario: dadosPeca.valorUnitario
+      });
+    }
 
     await this.recalcularValorTotalChamado(chamadoId);
 
     // Registrar adição da peça no histórico
     if (usuarioId) {
       let comentarioPeca = `Peça adicionada: ${dadosPeca.quantidade} x R$ ${dadosPeca.valorUnitario}`;
-      
+      if (dadosPeca.nome) {
+        comentarioPeca += ` - ${dadosPeca.nome}`;
+      }
+
       await chamadoAtualizacaoService.registrarComentario(
         chamadoId,
         usuarioId,
