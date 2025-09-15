@@ -10,9 +10,8 @@ const {
   Usuario,
   CategoriaDispositivo,
   Peca,
-  ChamadoPeca, // Usar ChamadoPeca em vez de PecaUsada
+  ChamadoPeca,
   ChamadoAtualizacao,
-  PecaUsada,
   sequelize
 } = require('../models');
 const { Op } = require('sequelize');
@@ -214,14 +213,7 @@ class ChamadoService {
       });
       console.log(`✅ ${servicosExcluidos} serviços excluídos`);
 
-      // 4. Excluir peças usadas associadas ao chamado
-      const pecasUsadasExcluidas = await PecaUsada.destroy({
-        where: { chamadoId: id },
-        transaction
-      });
-      console.log(`✅ ${pecasUsadasExcluidas} peças usadas excluídas`);
-
-      // 5. Finalmente, excluir o chamado
+      // 4. Finalmente, excluir o chamado
       console.log('🗑️ Excluindo chamado principal...');
       if (!chamado || typeof chamado.destroy !== 'function') {
         throw new Error('Objeto chamado inválido para exclusão');
