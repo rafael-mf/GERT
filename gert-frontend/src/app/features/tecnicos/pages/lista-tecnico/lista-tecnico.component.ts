@@ -34,7 +34,7 @@ export class ListaTecnicoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.isAdmin = this.authService.currentUserValue?.cargo === 'admin';
+    this.isAdmin = this.authService.hasRole('admin');
     this.loadTecnicos();
   }
 
