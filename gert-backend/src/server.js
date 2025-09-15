@@ -13,13 +13,32 @@ async function startServer() {
     await sequelize.authenticate();
     console.log('✅ Conexão com o banco de dados estabelecida com sucesso.');
     
-    // Só sincroniza o banco em ambiente de desenvolvimento
+    // Sincronização mais robusta para ambos os ambientes
     if (process.env.NODE_ENV === 'development') {
-      // Use { force: true } apenas se quiser recriar as tabelas
+      // Desenvolvimento: permite alterações na estrutura
       await sequelize.sync({ alter: true });
-      console.log('📊 Modelos sincronizados com o banco de dados.');
+      console.log('📊 Modelos sincronizados com o banco de dados (desenvolvimento).');
     } else {
-      console.log('🏭 Produção: Pulando sincronização do banco.');
+      // Produção: apenas verifica se as tabelas existem, sem alterar estrutura
+      try {
+        await sequelize.authenticate();
+        console.log('🏭 Produção: Conexão verificada. Modelos não serão alterados.');
+        
+        // Opcional: verificar se tabelas essenciais existem
+        const [tables] = await sequelize.query("SHOW TABLES");
+        const tableNames = tables.map(t => Object.values(t)[0]);
+        const requiredTables = ['usuarios', 'clientes', 'chamados', 'dispositivos'];
+        
+        for (const table of requiredTables) {
+          if (!tableNames.includes(table)) {
+            console.warn(`⚠️  Tabela '${table}' não encontrada no banco de produção!`);
+            console.warn('🔧 Considere executar as migrações manuais ou o script populate-db.js');
+          }
+        }
+      } catch (syncError) {
+        console.error('❌ Erro na verificação do banco de produção:', syncError.message);
+        // Não para o servidor, apenas loga o erro
+      }
     }
     
     app.listen(PORT, () => {

@@ -89,11 +89,11 @@ export class ChamadoService {
   }
 
   // === MÉTODOS PARA PEÇAS USADAS ===
-  addPecaUsada(chamadoId: number, pecaData: { nome: string; valor: number; descricao?: string; numeroSerie?: string; garantia?: string }): Observable<any> {
+  addPecaUsada(chamadoId: number, pecaData: { pecaId: number; quantidade: number; valorUnitario: number }): Observable<any> {
     return this.http.post(`${this.apiUrl}/${chamadoId}/pecas-usadas`, pecaData);
   }
 
-  updatePecaUsada(pecaUsadaId: number, pecaData: { nome?: string; quantidade?: number; valorUnitario?: number }): Observable<any> {
+  updatePecaUsada(pecaUsadaId: number, pecaData: { pecaId?: number; quantidade?: number; valorUnitario?: number }): Observable<any> {
     return this.http.put(`${this.apiUrl}/pecas-usadas/${pecaUsadaId}`, pecaData);
   }
 

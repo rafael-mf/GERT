@@ -149,12 +149,12 @@
                   <ul class="list-group list-group-flush">
                     <li *ngFor="let peca of currentChamado.pecasUsadas" class="list-group-item d-flex justify-content-between align-items-center">
                       <div>
-                        <strong>{{ peca.nome }}</strong>
-                        <br><small class="text-muted">{{ peca.descricao || 'Sem descrição' }}</small>
-                        <br><small class="text-muted">SN: {{ peca.numeroSerie || 'N/A' }}</small>
+                        <strong>{{ peca.peca?.nome || 'Peça sem nome' }}</strong>
+                        <br><small class="text-muted">Quantidade: {{ peca.quantidade }}</small>
+                        <br><small class="text-muted">{{ peca.peca?.marca }} {{ peca.peca?.modelo }}</small>
                       </div>
                       <div class="d-flex align-items-center">
-                        <span class="badge bg-success me-2">R$ {{ peca.valor | number:'1.2-2' }}</span>
+                        <span class="badge bg-success me-2">R$ {{ (peca.quantidade * peca.valorUnitario) | number:'1.2-2' }}</span>
                         <button class="btn btn-sm btn-outline-danger" (click)="removePeca(peca.id!)" *ngIf="peca.id">
                           <i class="fas fa-trash"></i>
                         </button>
@@ -238,33 +238,64 @@
         <button type="button" class="btn-close" (click)="closePecasModal()"></button>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label for="nomePeca" class="form-label">Nome da Peça <span class="text-danger">*</span></label>
-            <input type="text" id="nomePeca" class="form-control" [(ngModel)]="nomePeca" placeholder="Ex: Placa Mãe">
+        <form>
+          <div class="mb-3">
+            <label for="pecaSelect" class="form-label">Peça *</label>
+            <select
+              id="pecaSelect"
+              class="form-control"
+              [(ngModel)]="selectedPecaId"
+              name="selectedPecaId"
+              (change)="onPecaSelected()"
+              required>
+              <option value="">Selecione uma peça...</option>
+              <option *ngFor="let peca of pecasDisponiveis" [value]="peca.id">
+                {{ peca.nome }} - {{ peca.marca }} {{ peca.modelo }}
+                <span *ngIf="peca.precoVenda"> (R$ {{ peca.precoVenda | number:'1.2-2' }})</span>
+              </option>
+            </select>
           </div>
-          <div class="col-md-6 mb-3">
-            <label for="valorPeca" class="form-label">Valor (R$) <span class="text-danger">*</span></label>
-            <input type="number" id="valorPeca" class="form-control" [(ngModel)]="valorPeca" step="0.01" min="0">
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="quantidadeInput" class="form-label">Quantidade *</label>
+              <input
+                type="number"
+                id="quantidadeInput"
+                class="form-control"
+                [(ngModel)]="quantidadePeca"
+                name="quantidadePeca"
+                min="1"
+                step="1"
+                placeholder="Quantidade"
+                required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="valorUnitarioInput" class="form-label">Valor Unitário (R$) *</label>
+              <input
+                type="number"
+                id="valorUnitarioInput"
+                class="form-control"
+                [(ngModel)]="valorUnitarioPeca"
+                name="valorUnitarioPeca"
+                step="0.01"
+                min="0"
+                placeholder="Valor unitário"
+                required>
+            </div>
           </div>
-          <div class="col-md-6 mb-3">
-            <label for="numeroSeriePeca" class="form-label">Número de Série</label>
-            <input type="text" id="numeroSeriePeca" class="form-control" [(ngModel)]="numeroSeriePeca" placeholder="Ex: SN123456">
+
+          <div class="mb-3">
+            <label class="form-label">Valor Total</label>
+            <div class="form-control-plaintext">
+              <strong>{{ (quantidadePeca * (valorUnitarioPeca || 0)) | currency:'BRL' }}</strong>
+            </div>
           </div>
-          <div class="col-md-6 mb-3">
-            <label for="garantiaPeca" class="form-label">Garantia</label>
-            <input type="text" id="garantiaPeca" class="form-control" [(ngModel)]="garantiaPeca" placeholder="Ex: 1 ano">
-          </div>
-          <div class="col-12 mb-3">
-            <label for="descricaoPeca" class="form-label">Descrição</label>
-            <textarea id="descricaoPeca" class="form-control" [(ngModel)]="descricaoPeca" rows="3"
-                      placeholder="Descrição detalhada da peça"></textarea>
-          </div>
-        </div>
+        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closePecasModal()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="addPeca()" [disabled]="addingPeca || !nomePeca || !valorPeca">
+        <button type="button" class="btn btn-primary" (click)="addPeca()" [disabled]="addingPeca || !selectedPecaId || !valorUnitarioPeca">
           <span *ngIf="addingPeca" class="spinner-border spinner-border-sm me-2"></span>
           {{ addingPeca ? 'Adicionando...' : 'Adicionar Peça' }}
         </button>

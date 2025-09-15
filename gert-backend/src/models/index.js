@@ -14,7 +14,6 @@ const { CategoriaPeca } = require('./categoria-peca.model');
 const { Peca } = require('./peca.model');
 const { ChamadoPeca } = require('./chamado-peca.model');
 const { Fornecedor } = require('./fornecedor.model');
-const { PecaUsada } = require('./peca-usada.model');
 const { ChamadoAtualizacao } = require('./chamado-atualizacao.model');
 
 const models = {
@@ -32,7 +31,6 @@ const models = {
   Peca,
   ChamadoPeca,
   Fornecedor,
-  PecaUsada,
   ChamadoAtualizacao,
 };
 
@@ -46,6 +44,10 @@ Cliente.hasMany(Dispositivo, { foreignKey: 'clienteId', as: 'dispositivos' });
 Cliente.hasMany(Chamado, { foreignKey: 'clienteId', as: 'chamados' });
 Dispositivo.belongsTo(Cliente, { foreignKey: 'clienteId', as: 'cliente' });
 Dispositivo.belongsTo(CategoriaDispositivo, { foreignKey: 'categoriaId', as: 'categoria' });
+
+// Associações para ChamadoPeca
+ChamadoPeca.belongsTo(Chamado, { foreignKey: 'chamadoId', as: 'chamado' });
+ChamadoPeca.belongsTo(Peca, { foreignKey: 'pecaId', as: 'peca' });
 
 module.exports = {
   sequelize,

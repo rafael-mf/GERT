@@ -47,8 +47,9 @@ const ChamadoPeca = sequelize.define('ChamadoPeca', {
 });
 
 // Associações
-ChamadoPeca.belongsTo(Chamado, { foreignKey: 'chamadoId', as: 'chamado' });
-ChamadoPeca.belongsTo(Peca, { foreignKey: 'pecaId', as: 'peca' });
-Chamado.hasMany(ChamadoPeca, { foreignKey: 'chamadoId', as: 'pecas' });
+// ChamadoPeca.belongsTo(Chamado, { foreignKey: 'chamadoId', as: 'chamado' });
+// ChamadoPeca.belongsTo(Peca, { foreignKey: 'pecaId', as: 'peca' });
+// Chamado.hasMany(ChamadoPeca, { foreignKey: 'chamadoId', as: 'pecas' });
+// Movido para index.js para evitar problemas de carregamento
 
 module.exports = { ChamadoPeca };

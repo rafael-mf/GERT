@@ -9,7 +9,7 @@ const {
   ChamadoServico,
   Usuario,
   CategoriaDispositivo,
-  PecaUsada, // Novo modelo
+  ChamadoPeca, // Usar ChamadoPeca em vez de PecaUsada
   ChamadoAtualizacao,
 } = require('../models');
 const { Op } = require('sequelize');
@@ -83,8 +83,9 @@ class ChamadoService {
           include: [{ model: Servico, as: 'servico' }]
         },
         {
-          model: PecaUsada,
-          as: 'pecasUsadas'
+          model: ChamadoPeca,
+          as: 'pecasUsadas',
+          include: [{ model: Peca, as: 'peca', attributes: ['id', 'nome', 'numeroSerie'] }]
         },
         {
           model: ChamadoAtualizacao,
@@ -314,7 +315,7 @@ class ChamadoService {
     const chamado = await Chamado.findByPk(chamadoId, {
       include: [
         { model: ChamadoServico, as: 'servicos' },
-        { model: PecaUsada, as: 'pecasUsadas' }
+        { model: ChamadoPeca, as: 'pecasUsadas' }
       ]
     });
     if (chamado) {
@@ -327,7 +328,7 @@ class ChamadoService {
       
       // Somar valor das peças usadas
       if (chamado.pecasUsadas) {
-        valorTotal += chamado.pecasUsadas.reduce((sum, p) => sum + parseFloat(p.valor), 0);
+        valorTotal += chamado.pecasUsadas.reduce((sum, p) => sum + (parseFloat(p.quantidade) * parseFloat(p.valorUnitario)), 0);
       }
       
       chamado.valorTotal = valorTotal;
@@ -340,7 +341,7 @@ class ChamadoService {
     const chamado = await Chamado.findByPk(chamadoId);
     if (!chamado) throw new Error('Chamado não encontrado');
 
-    const pecaUsada = await PecaUsada.create({
+    const pecaUsada = await ChamadoPeca.create({
       chamadoId,
       ...dadosPeca
     });
@@ -349,17 +350,7 @@ class ChamadoService {
 
     // Registrar adição da peça no histórico
     if (usuarioId) {
-      let comentarioPeca = `Peça adicionada: ${dadosPeca.nome} (R$ ${dadosPeca.valor})`;
-      
-      // Incluir número de série se fornecido
-      if (dadosPeca.numeroSerie) {
-        comentarioPeca += ` - SN: ${dadosPeca.numeroSerie}`;
-      }
-      
-      // Incluir descrição se fornecida
-      if (dadosPeca.descricao) {
-        comentarioPeca += ` - ${dadosPeca.descricao}`;
-      }
+      let comentarioPeca = `Peça adicionada: ${dadosPeca.quantidade} x R$ ${dadosPeca.valorUnitario}`;
       
       await chamadoAtualizacaoService.registrarComentario(
         chamadoId,
@@ -372,19 +363,14 @@ class ChamadoService {
   }
 
   async removePecaUsadaDoChamado(pecaUsadaId, usuarioId = null) {
-    const pecaUsada = await PecaUsada.findByPk(pecaUsadaId);
+    const pecaUsada = await ChamadoPeca.findByPk(pecaUsadaId);
     if (!pecaUsada) throw new Error('Peça usada não encontrada');
 
     const chamadoId = pecaUsada.chamadoId;
 
     // Registrar remoção da peça no histórico antes de excluir
     if (usuarioId) {
-      let comentarioRemocao = `Peça removida: ${pecaUsada.nome}/R$ ${pecaUsada.valor}`;
-      
-      // Incluir número de série se existir
-      if (pecaUsada.numeroSerie) {
-        comentarioRemocao += `/${pecaUsada.numeroSerie}`;
-      }
+      let comentarioRemocao = `Peça removida: Qtd ${pecaUsada.quantidade} x R$ ${pecaUsada.valorUnitario}`;
       
       await chamadoAtualizacaoService.registrarComentario(
         chamadoId,
@@ -400,7 +386,7 @@ class ChamadoService {
   }
 
   async updatePecaUsada(pecaUsadaId, dadosPeca) {
-    const pecaUsada = await PecaUsada.findByPk(pecaUsadaId);
+    const pecaUsada = await ChamadoPeca.findByPk(pecaUsadaId);
     if (!pecaUsada) throw new Error('Peça usada não encontrada');
     
     await pecaUsada.update(dadosPeca);
