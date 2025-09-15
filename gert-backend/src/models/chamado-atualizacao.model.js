@@ -11,6 +11,7 @@ const ChamadoAtualizacao = sequelize.define('ChamadoAtualizacao', {
   chamadoId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    field: 'chamado_id',
     references: {
       model: 'chamados',
       key: 'id'
@@ -19,6 +20,7 @@ const ChamadoAtualizacao = sequelize.define('ChamadoAtualizacao', {
   usuarioId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    field: 'usuario_id',
     references: {
       model: 'usuarios',
       key: 'id'
