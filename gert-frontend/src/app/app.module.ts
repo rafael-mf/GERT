@@ -20,7 +20,10 @@ import { ToastrModule } from 'ngx-toastr';
     ToastrModule.forRoot({
       timeOut: 3000,
       positionClass: 'toast-top-right',
-      preventDuplicates: true
+      preventDuplicates: true,
+      closeButton: true,
+      progressBar: true,
+      enableHtml: true
     })
   ],
   providers: [],

@@ -76,7 +76,7 @@ class ChamadoService {
           include: [{ model: Usuario, as: 'usuario', attributes: ['id', 'nome', 'email'] }]
         },
         { model: Prioridade, as: 'prioridade' },
-        { model: StatusChamado, as: 'status' },
+        { model: StatusChamado, as: 'status', attributes: ['id', 'nome', 'cor'] },
         {
           model: ChamadoServico,
           as: 'servicos',

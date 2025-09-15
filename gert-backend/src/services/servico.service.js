@@ -87,6 +87,7 @@ class ServicoService {
         include: [{
           model: StatusChamado,
           as: 'status',
+          attributes: ['id', 'nome', 'cor'],
           where: { nome: { [require('sequelize').Op.in]: ['Concluído', 'Fechado', 'Cancelado'] } }
         }]
       }]

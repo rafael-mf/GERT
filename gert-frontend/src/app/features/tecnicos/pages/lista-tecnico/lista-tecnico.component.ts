@@ -7,6 +7,7 @@ import { Tecnico } from '../../../../shared/models/tecnico.model';
 import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-lista-tecnico',
@@ -23,14 +24,17 @@ export class ListaTecnicoComponent implements OnInit {
   filtroDisponivel: string = ''; // 'true', 'false', ou '' para todos
   page: number = 1;
   limit: number = 10;
+  isAdmin = false;
 
   constructor(
     private tecnicoService: TecnicoService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.currentUserValue?.cargo === 'admin';
     this.loadTecnicos();
   }
 

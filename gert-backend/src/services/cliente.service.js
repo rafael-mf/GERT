@@ -41,7 +41,8 @@ class ClienteService {
         as: 'chamados',
         include: [{
           model: require('../models').StatusChamado,
-          as: 'status'
+          as: 'status',
+          attributes: ['id', 'nome', 'cor']
         }, {
           model: Dispositivo,
           as: 'dispositivo'

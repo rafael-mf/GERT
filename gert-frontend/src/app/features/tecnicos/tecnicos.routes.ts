@@ -9,7 +9,8 @@ export const TECNICOS_ROUTES: Routes = [
   {
     path: 'novo',
     loadComponent: () =>
-      import('./pages/novo-tecnico/novo-tecnico.component').then(m => m.NovoTecnicoComponent)
+      import('./pages/novo-tecnico/novo-tecnico.component').then(m => m.NovoTecnicoComponent),
+    data: { roles: ['admin'] }
   },
   {
     path: ':id',
@@ -19,6 +20,7 @@ export const TECNICOS_ROUTES: Routes = [
   {
     path: ':id/editar',
     loadComponent: () =>
-      import('./pages/editar-tecnico/editar-tecnico.component').then(m => m.EditarTecnicoComponent)
+      import('./pages/editar-tecnico/editar-tecnico.component').then(m => m.EditarTecnicoComponent),
+    data: { roles: ['admin'] }
   }
 ];
