@@ -20,7 +20,7 @@ const ChamadoPeca = sequelize.define('ChamadoPeca', {
   },
   pecaId: {
     type: DataTypes.INTEGER,
-    allowNull: true, // Agora pode ser null para peças específicas do chamado
+    allowNull: true,
     field: 'peca_id',
     references: {
       model: Peca,
@@ -36,7 +36,6 @@ const ChamadoPeca = sequelize.define('ChamadoPeca', {
     allowNull: false,
     field: 'valor_unitario'
   },
-  // Campos para peças específicas do chamado (quando pecaId é null)
   nome: {
     type: DataTypes.STRING(100),
     allowNull: true
