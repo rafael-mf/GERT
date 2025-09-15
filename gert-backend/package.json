@@ -14,7 +14,9 @@
     "lint": "eslint src/**/*.js",
     "verify": "node verificar-sistema.js",
     "health": "node -e \"require('./verificar-sistema').verificarConectividade().then(ok => process.exit(ok ? 0 : 1))\"",
-    "check-db": "node -e \"require('./verificar-sistema').verificarEstruturaBanco().then(ok => process.exit(ok ? 0 : 1))\""
+    "check-db": "node -e \"require('./verificar-sistema').verificarEstruturaBanco().then(ok => process.exit(ok ? 0 : 1))\"",
+    "populate": "node populate-safe.js",
+    "populate-old": "node populate-db.js"
   },
   "keywords": [],
   "author": "",
