@@ -1,5 +1,7 @@
 # 🎯 GERT - Gerenciador de Chamados Técnicos
 
+link homologação: https://gert-xi.vercel.app/
+
 > **Sistema completo para gerenciamento de chamados de assistência técnica**
 
 Sistema profissional para gestão de assistência técnica de celulares e computadores, com interface moderna e funcionalidades completas para controle de chamados, técnicos, clientes e serviços.
