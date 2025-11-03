@@ -7,9 +7,14 @@ import { ChamadoAtualizacaoService, ChamadoAtualizacao } from '../../../../core/
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { Chamado } from '../../../../shared/models/chamado.model';
 import { Servico } from '../../../../shared/models/servico.model';
+import { StatusChamado } from '../../../../shared/models/status-chamado.model';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { ModalService } from '../../../../shared/services/modal.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { FinalizarChamadoModalComponent } from '../../../../shared/components/finalizar-chamado-modal/finalizar-chamado-modal.component';
+import { AtribuirTecnicoModalComponent } from '../../../../shared/components/atribuir-tecnico-modal/atribuir-tecnico-modal.component';
+import { DiagnosticoModalComponent } from '../../../../shared/components/diagnostico-modal/diagnostico-modal.component';
 
 @Component({
   selector: 'app-detalhe-chamado',
@@ -25,6 +30,14 @@ export class DetalheChamadoComponent implements OnInit {
   chamadoId!: number;
   atualizacoes: ChamadoAtualizacao[] = [];
   loadingAtualizacoes = false;
+
+  // Status inline
+  statusList: StatusChamado[] = [];
+  statusSelecionado: number = 0;
+  loadingStatus = false;
+
+  // Lista de técnicos para atribuição
+  tecnicosList: any[] = [];
 
   // Modal de Serviços
   showServicosModal = false;
@@ -55,12 +68,15 @@ export class DetalheChamadoComponent implements OnInit {
   private authService = inject(AuthService);
   private toastr = inject(ToastrService);
   private modalService = inject(ModalService);
+  private ngbModal = inject(NgbModal);
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.chamadoId = +idParam;
       this.loadChamadoDetails();
+      this.loadStatusList();
+      this.loadTecnicosList();
     } else {
       this.error = 'ID do chamado não fornecido.';
       this.toastr.error(this.error);
@@ -68,11 +84,34 @@ export class DetalheChamadoComponent implements OnInit {
     }
   }
 
+  loadStatusList(): void {
+    this.chamadoService.getStatusChamados().subscribe({
+      next: (data) => {
+        this.statusList = data;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar status:', err);
+      }
+    });
+  }
+
+  loadTecnicosList(): void {
+    this.chamadoService.getTecnicos().subscribe({
+      next: (data) => {
+        this.tecnicosList = data;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar técnicos:', err);
+      }
+    });
+  }
+
   loadChamadoDetails(): void {
     this.loading = true;
     this.chamadoService.getChamadoById(this.chamadoId).subscribe({
       next: (data) => {
         this.chamado = data;
+        this.statusSelecionado = data.status?.id || 0; // Sincronizar status selecionado
         this.loading = false;
         // Carregar histórico de atualizações
         this.loadAtualizacoes();
@@ -107,6 +146,164 @@ export class DetalheChamadoComponent implements OnInit {
     if (this.chamado?.id) {
       this.router.navigate(['/chamados', this.chamado.id, 'editar']);
     }
+  }
+
+  // === MÉTODO PARA MODAL DE FINALIZAÇÃO RÁPIDA ===
+  abrirModalFinalizacao(): void {
+    const modalRef = this.ngbModal.open(FinalizarChamadoModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    modalRef.componentInstance.chamadoId = this.chamadoId;
+    modalRef.componentInstance.chamadoNumero = `#${this.chamado?.id}`;
+
+    modalRef.result.then(
+      (success) => {
+        if (success) {
+          // Recarregar detalhes do chamado após finalização
+          this.loadChamadoDetails();
+        }
+      },
+      () => {
+        // Modal foi fechado/cancelado - não faz nada
+      }
+    );
+  }
+
+  // Verifica se pode finalizar o chamado
+  podeFinalizarChamado(): boolean {
+    if (!this.chamado) return false;
+    
+    const statusNaoFinalizados = ['Concluído', 'Cancelado', 'Entregue'];
+    return !statusNaoFinalizados.includes(this.chamado.status?.nome || '');
+  }
+
+  // === MÉTODO PARA ATRIBUIR TÉCNICO ===
+  abrirModalAtribuir(): void {
+    const modalRef = this.ngbModal.open(AtribuirTecnicoModalComponent, {
+      size: 'md',
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    modalRef.componentInstance.chamadoId = this.chamadoId;
+    modalRef.componentInstance.chamadoNumero = `#${this.chamado?.id}`;
+    modalRef.componentInstance.tecnicoAtualId = this.chamado?.tecnico?.id;
+    modalRef.componentInstance.tecnicosList = this.tecnicosList;
+
+    modalRef.result.then(
+      (success) => {
+        if (success) {
+          // Recarregar detalhes após atribuição
+          this.loadChamadoDetails();
+        }
+      },
+      () => {
+        // Modal foi fechado/cancelado - não faz nada
+      }
+    );
+  }
+
+  // === MÉTODO PARA EDITAR DIAGNÓSTICO ===
+  abrirModalDiagnostico(): void {
+    const modalRef = this.ngbModal.open(DiagnosticoModalComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      keyboard: false
+    });
+
+    modalRef.componentInstance.chamadoId = this.chamadoId;
+    modalRef.componentInstance.chamadoNumero = `#${this.chamado?.id}`;
+    modalRef.componentInstance.diagnosticoAtual = this.chamado?.diagnostico || '';
+
+    modalRef.result.then(
+      (success) => {
+        if (success) {
+          // Recarregar detalhes após salvar diagnóstico
+          this.loadChamadoDetails();
+        }
+      },
+      () => {
+        // Modal foi fechado/cancelado - não faz nada
+      }
+    );
+  }
+
+  // Verifica se o chamado está finalizado
+  chamadoFinalizado(): boolean {
+    if (!this.chamado) return false;
+    const statusFinalizados = ['Concluído', 'Cancelado', 'Entregue'];
+    return statusFinalizados.includes(this.chamado.status?.nome || '');
+  }
+
+  // === MÉTODOS PARA ATUALIZAÇÃO DE STATUS INLINE ===
+  confirmarMudancaStatus(): void {
+    if (this.loadingStatus) return;
+
+    const novoStatus = this.statusList.find(s => s.id === this.statusSelecionado);
+    const statusAtual = this.chamado?.status;
+
+    if (!novoStatus || !statusAtual) return;
+
+    // Se não houve mudança real, não faz nada
+    if (novoStatus.id === statusAtual.id) return;
+
+    // Confirmação com modal
+    this.modalService.confirm({
+      title: 'Confirmar Mudança de Status',
+      message: `Tem certeza que deseja alterar o status de "${statusAtual.nome}" para "${novoStatus.nome}"?`,
+      confirmText: 'Confirmar',
+      confirmClass: 'primary'
+    }).then((confirmed) => {
+      if (confirmed) {
+        this.atualizarStatus(this.statusSelecionado, statusAtual.id);
+      } else {
+        // Reverter seleção se cancelado
+        this.statusSelecionado = statusAtual.id;
+      }
+    }).catch(() => {
+      // Reverter seleção em caso de erro
+      this.statusSelecionado = statusAtual.id;
+    });
+  }
+
+  atualizarStatus(novoStatusId: number, statusAnteriorId: number): void {
+    this.loadingStatus = true;
+    
+    this.chamadoService.updateChamado(this.chamadoId, { statusId: novoStatusId } as any).subscribe({
+      next: () => {
+        const novoStatus = this.statusList.find(s => s.id === novoStatusId);
+        this.toastr.success(`Status atualizado para "${novoStatus?.nome}"`, 'Sucesso');
+        
+        // Registrar no histórico
+        const usuario = this.authService.currentUserValue;
+        if (usuario && usuario.id) {
+          const statusAnterior = this.statusList.find(s => s.id === statusAnteriorId);
+          this.chamadoAtualizacaoService.registrarComentario({
+            chamadoId: this.chamadoId,
+            usuarioId: usuario.id,
+            comentario: `Status alterado de "${statusAnterior?.nome}" para "${novoStatus?.nome}"`
+          }).subscribe({
+            next: () => {
+              // Recarregar histórico
+              this.loadAtualizacoes();
+            }
+          });
+        }
+        
+        // Recarregar chamado
+        this.loadChamadoDetails();
+        this.loadingStatus = false;
+      },
+      error: (err) => {
+        console.error('Erro ao atualizar status:', err);
+        this.toastr.error('Erro ao atualizar status', 'Erro');
+        this.statusSelecionado = statusAnteriorId; // Reverter
+        this.loadingStatus = false;
+      }
+    });
   }
 
   // === MÉTODOS PARA MODAL DE SERVIÇOS ===

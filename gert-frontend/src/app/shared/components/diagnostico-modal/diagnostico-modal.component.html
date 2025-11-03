@@ -1,0 +1,57 @@
+<!-- gert-frontend/src/app/shared/components/diagnostico-modal/diagnostico-modal.component.html -->
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="fas fa-stethoscope me-2"></i>
+    Editar Diagnóstico - {{ chamadoNumero }}
+  </h5>
+  <button type="button" class="btn-close" (click)="cancelar()" [disabled]="loading"></button>
+</div>
+
+<div class="modal-body">
+  <form #diagnosticoForm="ngForm">
+    <div class="mb-3">
+      <label for="diagnostico" class="form-label">Diagnóstico do Problema</label>
+      <textarea
+        id="diagnostico"
+        name="diagnostico"
+        class="form-control"
+        rows="5"
+        [(ngModel)]="diagnostico"
+        [disabled]="loading"
+        placeholder="Descreva o diagnóstico do problema identificado..."
+        required
+      ></textarea>
+      <div class="form-text">
+        <i class="fas fa-info-circle me-1"></i>
+        Descreva detalhadamente o diagnóstico do problema para melhor acompanhamento.
+      </div>
+    </div>
+
+    <div *ngIf="diagnosticoAtual && diagnosticoAtual.trim() !== ''" class="alert alert-info mb-0">
+      <strong><i class="fas fa-history me-1"></i>Diagnóstico Anterior:</strong>
+      <p class="mb-0 mt-2">{{ diagnosticoAtual }}</p>
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button
+    type="button"
+    class="btn btn-secondary"
+    (click)="cancelar()"
+    [disabled]="loading"
+  >
+    <i class="fas fa-times me-1"></i>
+    Cancelar
+  </button>
+  <button
+    type="button"
+    class="btn btn-primary"
+    (click)="salvarDiagnostico()"
+    [disabled]="loading || !diagnostico || diagnostico.trim() === ''"
+  >
+    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+    <i *ngIf="!loading" class="fas fa-save me-1"></i>
+    {{ loading ? 'Salvando...' : 'Salvar Diagnóstico' }}
+  </button>
+</div>

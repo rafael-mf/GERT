@@ -15,17 +15,26 @@ class RelatorioService {
     const where = {};
 
     // Filtros de data
-    if (dataInicio && dataFinal) {
+    if (dataInicio && dataInicio !== 'undefined' && dataInicio !== 'null' && 
+        dataFinal && dataFinal !== 'undefined' && dataFinal !== 'null') {
       where.dataAbertura = {
         [Op.between]: [new Date(dataInicio), new Date(dataFinal)]
       };
     }
 
     // Outros filtros
-    if (statusId) where.statusId = statusId;
-    if (prioridadeId) where.prioridadeId = prioridadeId;
-    if (tecnicoId) where.tecnicoId = tecnicoId;
-    if (clienteId) where.clienteId = clienteId;
+    if (statusId && statusId !== 'undefined' && statusId !== 'null' && statusId !== '') {
+      where.statusId = parseInt(statusId, 10);
+    }
+    if (prioridadeId && prioridadeId !== 'undefined' && prioridadeId !== 'null' && prioridadeId !== '') {
+      where.prioridadeId = parseInt(prioridadeId, 10);
+    }
+    if (tecnicoId && tecnicoId !== 'undefined' && tecnicoId !== 'null' && tecnicoId !== '') {
+      where.tecnicoId = parseInt(tecnicoId, 10);
+    }
+    if (clienteId && clienteId !== 'undefined' && clienteId !== 'null' && clienteId !== '') {
+      where.clienteId = parseInt(clienteId, 10);
+    }
 
     const chamados = await Chamado.findAll({
       where,
@@ -112,13 +121,16 @@ class RelatorioService {
     };
 
     // Filtros de data
-    if (dataInicio && dataFinal) {
+    if (dataInicio && dataInicio !== 'undefined' && dataInicio !== 'null' && 
+        dataFinal && dataFinal !== 'undefined' && dataFinal !== 'null') {
       where.dataAbertura = {
         [Op.between]: [new Date(dataInicio), new Date(dataFinal)]
       };
     }
 
-    if (tecnicoId) where.tecnicoId = tecnicoId;
+    if (tecnicoId && tecnicoId !== 'undefined' && tecnicoId !== 'null' && tecnicoId !== '') {
+      where.tecnicoId = parseInt(tecnicoId, 10);
+    }
 
     const chamados = await Chamado.findAll({
       where,
@@ -220,7 +232,8 @@ class RelatorioService {
     const where = {};
 
     // Filtros de data
-    if (dataInicio && dataFinal) {
+    if (dataInicio && dataInicio !== 'undefined' && dataInicio !== 'null' && 
+        dataFinal && dataFinal !== 'undefined' && dataFinal !== 'null') {
       where.dataAbertura = {
         [Op.between]: [new Date(dataInicio), new Date(dataFinal)]
       };

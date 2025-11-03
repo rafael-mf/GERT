@@ -73,15 +73,23 @@
     </div>
     <div class="card-footer d-flex justify-content-between align-items-center" *ngIf="paginatedClientes.totalPages > 1">
       <small>Página {{ paginatedClientes.currentPage }} de {{ paginatedClientes.totalPages }} (Total: {{ paginatedClientes.totalItems }} clientes)</small>
-      <ngb-pagination
-        [collectionSize]="paginatedClientes.totalItems"
-        [(page)]="page"
-        [pageSize]="limit"
-        [maxSize]="5"
-        [rotate]="true"
-        [boundaryLinks]="true"
-        (pageChange)="onPageChange($event)">
-      </ngb-pagination>
+      
+      <!-- Paginação Padrão -->
+      <nav>
+        <ul class="pagination mb-0">
+          <li class="page-item" [class.disabled]="page === 1">
+            <a class="page-link" href="#" (click)="onPageChange(page - 1); $event.preventDefault()">Anterior</a>
+          </li>
+
+          <li *ngFor="let p of getPagesArray()" class="page-item" [class.active]="p === page">
+            <a class="page-link" href="#" (click)="onPageChange(p); $event.preventDefault()">{{ p }}</a>
+          </li>
+
+          <li class="page-item" [class.disabled]="page === paginatedClientes.totalPages">
+            <a class="page-link" href="#" (click)="onPageChange(page + 1); $event.preventDefault()">Próximo</a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </div>

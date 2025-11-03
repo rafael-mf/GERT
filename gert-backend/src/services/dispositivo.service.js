@@ -4,25 +4,31 @@ const { Op } = require('sequelize');
 class DispositivoService {
   async getAllDispositivos(queryParams) {
     const { searchTerm, clienteId, page = 1, limit = 10 } = queryParams;
-    const offset = (page - 1) * limit;
+    
+    // Validar paginação
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
+    const offset = (pageNum - 1) * limitNum;
+    
     const where = {};
 
-    if (searchTerm) {
+    if (searchTerm && searchTerm !== 'undefined' && searchTerm !== 'null' && searchTerm.trim() !== '') {
+      const termo = searchTerm.trim();
       where[Op.or] = [
-        { marca: { [Op.like]: `%${searchTerm}%` } },
-        { modelo: { [Op.like]: `%${searchTerm}%` } },
-        { numeroSerie: { [Op.like]: `%${searchTerm}%` } },
+        { marca: { [Op.like]: `%${termo}%` } },
+        { modelo: { [Op.like]: `%${termo}%` } },
+        { numeroSerie: { [Op.like]: `%${termo}%` } },
       ];
     }
 
-    if (clienteId) {
-      where.clienteId = clienteId;
+    if (clienteId && clienteId !== 'undefined' && clienteId !== 'null' && clienteId !== '') {
+      where.clienteId = parseInt(clienteId, 10);
     }
 
     const { count, rows } = await Dispositivo.findAndCountAll({
       where,
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit: limitNum,
+      offset: offset,
       order: [['dataCadastro', 'DESC']],
       include: [
         {
@@ -40,8 +46,8 @@ class DispositivoService {
 
     return {
       totalItems: count,
-      totalPages: Math.ceil(count / limit),
-      currentPage: parseInt(page, 10),
+      totalPages: Math.ceil(count / limitNum),
+      currentPage: pageNum,
       dispositivos: rows
     };
   }

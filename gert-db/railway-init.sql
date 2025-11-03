@@ -223,11 +223,12 @@ INSERT INTO status_chamados (nome, descricao, cor) VALUES
 ('Em Andamento', 'Serviço em execução pelo técnico', '#fd7e14'),
 ('Aguardando Peça', 'Serviço aguardando chegada de peça', '#6c757d'),
 ('Concluído', 'Serviço finalizado com sucesso', '#28a745'),
-('Cancelado', 'Chamado cancelado', '#dc3545');
+('Cancelado', 'Chamado cancelado', '#dc3545'),
+('Entregue', 'Dispositivo entregue ao cliente após conclusão do serviço', '#28a745');
 
--- Usuário administrador padrão (senha: admin123)
+-- Usuário administrador padrão (senha: Admin@123)
 INSERT INTO usuarios (nome, email, senha, cargo) VALUES
-('Administrador', 'admin@gert.com', '$2a$10$y5M3I.LMDOj/47CeOeMvy.FCpep9OA4Qym69TAYEYx7VWO09XAyze', 'Administrador');
+('Administrador', 'admin@gert.com', '$2a$10$XyB4jAoQ/y4bvOBE/qB53e4nOIJC.bhYjQBIM8ZwxXoCQW2hjTjiG', 'Administrador');
 
 -- Categorias de peças
 INSERT INTO categorias_pecas (nome, descricao) VALUES

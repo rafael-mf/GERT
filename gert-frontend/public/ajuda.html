@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GERT - Guia de Uso</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .help-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .help-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .help-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .help-header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .help-content {
+            padding: 40px;
+        }
+        .help-section {
+            margin-bottom: 40px;
+        }
+        .help-section h2 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .help-section h3 {
+            color: #764ba2;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .step-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .shortcut-key {
+            display: inline-block;
+            background: #2c3e50;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin: 0 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .alert-custom {
+            border-left: 4px solid;
+            border-radius: 5px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+        }
+        .alert-tip {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .alert-warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        .role-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .role-admin {
+            background: #dc3545;
+            color: white;
+        }
+        .role-tecnico {
+            background: #007bff;
+            color: white;
+        }
+        .role-atendente {
+            background: #28a745;
+            color: white;
+        }
+        .feature-icon {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-right: 10px;
+        }
+        .back-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #667eea;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        .back-button:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        ul li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        ul li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .table-custom {
+            margin-top: 20px;
+        }
+        .table-custom th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="help-container">
+        <div class="help-header">
+            <h1><i class="fas fa-question-circle"></i> GERT - Guia de Uso</h1>
+            <p>Sistema de Gerenciamento de Chamados Técnicos</p>
+            <small>Pressione <span class="shortcut-key">F1</span> a qualquer momento para abrir esta ajuda</small>
+        </div>
+
+        <div class="help-content">
+            <!-- ATALHOS DO SISTEMA -->
+            <div class="help-section">
+                <h2><i class="fas fa-keyboard"></i> Atalhos do Sistema</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="step-card">
+                            <span class="shortcut-key">F1</span> Abrir esta ajuda
+                        </div>
+                        <div class="step-card">
+                            <span class="shortcut-key">ESC</span> Fechar modais e formulários
+                        </div>
+                    </div>
+                    <!-- <div class="col-md-6">
+                        <div class="step-card">
+                            <span class="shortcut-key">Ctrl</span> + <span class="shortcut-key">S</span> Salvar formulário (se aberto)
+                        </div>
+                        <div class="step-card">
+                            <span class="shortcut-key">Alt</span> + <span class="shortcut-key">N</span> Novo chamado (na lista)
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+
+            <!-- PARA ATENDENTES -->
+            <div class="help-section">
+                <h2><i class="fas fa-user-tie"></i> Para Atendentes</h2>
+                <span class="role-badge role-atendente">ATENDENTE</span>
+
+                <h3>📋 Como Abrir um Chamado</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse <strong>Chamados</strong> → <strong>Novo Chamado</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Selecione o <strong>Cliente</strong> (ou clique em "Novo Cliente" para cadastrar)
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Selecione o <strong>Dispositivo</strong> do cliente
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Preencha a <strong>Descrição do Problema</strong> (mínimo 10 caracteres)
+                </div>
+                <div class="step-card">
+                    <span class="step-number">5</span>
+                    Escolha a <strong>Prioridade</strong>: Normal, Alta ou Urgente
+                </div>
+                <div class="step-card">
+                    <span class="step-number">6</span>
+                    <em>(Opcional)</em> Atribua um <strong>Técnico</strong> responsável
+                </div>
+                <div class="step-card">
+                    <span class="step-number">7</span>
+                    <em>(Opcional)</em> Informe a <strong>Data Prevista</strong> de conclusão
+                </div>
+                <div class="step-card">
+                    <span class="step-number">8</span>
+                    Clique em <strong>Salvar</strong>
+                </div>
+
+                <div class="alert-custom alert-tip">
+                    <i class="fas fa-lightbulb"></i> <strong>Dica:</strong> O chamado será criado com status "Aguardando Diagnóstico" automaticamente.
+                </div>
+
+                <h3>🔍 Como Buscar um Chamado</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse <strong>Chamados</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Use a <strong>Barra de Busca</strong> para procurar por: ID do chamado (#123), Nome do cliente ou Descrição
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Ou use os <strong>Filtros Avançados</strong>: Status, Prioridade, Técnico
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Clique em <strong>Aplicar Filtros</strong>
+                </div>
+
+                <h3>📝 Como Cadastrar um Cliente</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse <strong>Clientes</strong> → <strong>Novo Cliente</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Preencha os dados: Nome, CPF/CNPJ, Telefone, Email, Endereço
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Clique em <strong>Salvar</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Na tela do cliente, clique em <strong>Adicionar Dispositivo</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">5</span>
+                    Preencha: Tipo (Celular/Computador), Marca, Modelo, IMEI/Série
+                </div>
+            </div>
+
+            <!-- PARA TÉCNICOS -->
+            <div class="help-section">
+                <h2><i class="fas fa-tools"></i> Para Técnicos</h2>
+                <span class="role-badge role-tecnico">TÉCNICO</span>
+
+                <h3>📱 Como Ver Meus Chamados</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse <strong>Chamados</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Clique no botão <strong>"Meus Chamados"</strong> <span class="badge bg-primary">🔵 12</span> (mostra quantidade)
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Visualize apenas os chamados atribuídos a você
+                </div>
+
+                <div class="alert-custom alert-info">
+                    <i class="fas fa-info-circle"></i> <strong>Informação:</strong> O número no badge mostra quantos chamados estão atribuídos a você.
+                </div>
+
+                <h3>🔬 Como Adicionar Diagnóstico</h3>
+                
+                <strong>Método 1 - Modal Rápido (Recomendado):</strong>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse os <strong>Detalhes do Chamado</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Na seção "Diagnóstico Técnico", clique em <button class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> Adicionar</button> ou <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i> Editar</button>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Digite o diagnóstico detalhado do problema no modal
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Clique em <strong>"Salvar Diagnóstico"</strong>
+                </div>
+
+                <strong>Método 2 - Edição Completa:</strong>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Clique em <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Editar Chamado</button>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Preencha o campo <strong>"Diagnóstico Técnico"</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Salve o chamado completo
+                </div>
+
+                <h3>👤 Como Atribuir Chamado a Mim</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Na lista de chamados, localize a coluna <strong>"Técnico"</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Clique no ícone <button class="btn btn-sm btn-outline-success"><i class="fas fa-user-plus"></i></button>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    No modal, selecione seu nome no dropdown
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Clique em <strong>"Atribuir Técnico"</strong>
+                </div>
+
+                <h3>🔧 Como Adicionar Serviços ao Chamado</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse os <strong>Detalhes do Chamado</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Na seção "Serviços Aplicados", clique em <strong>"Adicionar Serviço"</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Selecione o serviço do catálogo
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Informe o <strong>Valor</strong> (pode ser diferente do valor base)
+                </div>
+                <div class="step-card">
+                    <span class="step-number">5</span>
+                    Adicione <strong>Observações</strong> (opcional)
+                </div>
+                <div class="step-card">
+                    <span class="step-number">6</span>
+                    Clique em <strong>"Adicionar"</strong>
+                </div>
+
+                <h3>📦 Como Adicionar Peças ao Chamado</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse os <strong>Detalhes do Chamado</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Na seção "Peças Utilizadas", clique em <strong>"Adicionar Peça"</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Selecione a peça do estoque
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Informe a <strong>Quantidade</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">5</span>
+                    O valor será calculado automaticamente (quantidade × valor unitário)
+                </div>
+                <div class="step-card">
+                    <span class="step-number">6</span>
+                    Clique em <strong>"Adicionar"</strong>
+                </div>
+
+                <div class="alert-custom alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Atenção:</strong> A peça será baixada do estoque automaticamente ao finalizar o chamado.
+                </div>
+
+                <h3>✅ Como Finalizar Chamado</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse os <strong>Detalhes do Chamado</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Clique em <button class="btn btn-success"><i class="fas fa-check"></i> Finalizar Chamado</button>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    No modal de finalização, preencha:
+                    <ul style="margin-top: 10px; margin-bottom: 0;">
+                        <li><strong>Solução Aplicada</strong> (obrigatório)</li>
+                        <li><strong>Observações Finais</strong> (opcional)</li>
+                        <li><strong>Valor Total</strong> (preenchido automaticamente se houver serviços/peças)</li>
+                    </ul>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Clique em <strong>"Finalizar"</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">5</span>
+                    Status será alterado para <span class="badge bg-success">Concluído</span>
+                </div>
+
+                <h3>🔄 Como Alterar Status do Chamado</h3>
+                
+                <strong>Método 1 - Dropdown Inline (Rápido):</strong>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Na lista de chamados, localize a coluna <strong>"Status"</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Clique no dropdown do status atual
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Selecione o novo status
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Confirme a alteração no modal
+                </div>
+
+                <strong>Método 2 - Nos Detalhes:</strong>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse os <strong>Detalhes do Chamado</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Use o dropdown de status no topo da página
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Confirme a alteração
+                </div>
+
+                <div class="alert-custom alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Atenção:</strong> Chamados finalizados (Concluído, Cancelado, Entregue) não podem ter o status alterado.
+                </div>
+            </div>
+
+            <!-- PARA ADMINISTRADORES -->
+            <div class="help-section">
+                <h2><i class="fas fa-user-shield"></i> Para Administradores</h2>
+                <span class="role-badge role-admin">ADMIN</span>
+
+                <h3>📊 Como Ver Dashboard Completo</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse <strong>Dashboard</strong> no menu principal
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Visualize os KPIs: Total, Abertos, Concluídos, Cancelados
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Analise os gráficos: Por Status, Por Prioridade, Evolução Temporal
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Verifique a lista de últimos chamados e chamados urgentes
+                </div>
+
+                <h3>📈 Como Gerar Relatórios</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse <strong>Relatórios</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Escolha o tipo: Produtividade, Financeiro ou Clientes
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Defina o período (data inicial e final)
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Clique em <strong>"Gerar Relatório"</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">5</span>
+                    <em>(Opcional)</em> Exporte para PDF ou Excel
+                </div>
+
+                <h3>👥 Como Gerenciar Usuários</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse <strong>Usuários</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Para criar novo: clique em <strong>"Novo Usuário"</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Preencha: Nome, Email, Senha
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Escolha o <strong>Perfil</strong>: Admin, Técnico ou Atendente
+                </div>
+                <div class="step-card">
+                    <span class="step-number">5</span>
+                    Se escolher "Técnico", será criado um registro de técnico automaticamente
+                </div>
+
+                <h3>🛠️ Como Cadastrar Serviços</h3>
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    Acesse <strong>Serviços</strong> → <strong>"Novo Serviço"</strong>
+                </div>
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    Preencha: Nome, Descrição, Valor Base, Tempo Estimado
+                </div>
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    Marque como <strong>"Ativo"</strong> se deve aparecer no catálogo
+                </div>
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    Clique em <strong>"Salvar"</strong>
+                </div>
+            </div>
+
+            <!-- STATUS DOS CHAMADOS -->
+            <div class="help-section">
+                <h2><i class="fas fa-traffic-light"></i> Status dos Chamados</h2>
+                
+                <table class="table table-custom table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Descrição</th>
+                            <th>Próxima Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="status-badge" style="background: #ffc107; color: #000;">Aguardando Diagnóstico</span></td>
+                            <td>Chamado aberto, aguardando análise técnica</td>
+                            <td>Atribuir técnico, adicionar diagnóstico</td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-badge" style="background: #17a2b8; color: #fff;">Em Diagnóstico</span></td>
+                            <td>Técnico analisando o problema</td>
+                            <td>Registrar diagnóstico</td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-badge" style="background: #ff9800; color: #fff;">Aguardando Orçamento</span></td>
+                            <td>Diagnóstico concluído, precisa orçar</td>
+                            <td>Adicionar serviços e peças</td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-badge" style="background: #9c27b0; color: #fff;">Aguardando Aprovação</span></td>
+                            <td>Orçamento enviado ao cliente</td>
+                            <td>Cliente aprovar ou rejeitar</td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-badge" style="background: #4caf50; color: #fff;">Aprovado</span></td>
+                            <td>Cliente aprovou o orçamento</td>
+                            <td>Iniciar manutenção</td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-badge" style="background: #3f51b5; color: #fff;">Em Manutenção</span></td>
+                            <td>Técnico executando o reparo</td>
+                            <td>Finalizar chamado com solução</td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-badge" style="background: #2e7d32; color: #fff;">Concluído</span></td>
+                            <td>Serviço finalizado, pronto para retirada</td>
+                            <td>Cliente retirar dispositivo</td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-badge" style="background: #28a745; color: #fff;">Entregue</span></td>
+                            <td>Dispositivo entregue ao cliente</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-badge" style="background: #dc3545; color: #fff;">Cancelado</span></td>
+                            <td>Chamado cancelado (cliente desistiu)</td>
+                            <td>Pode ser reaberto (apenas admin)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- DICAS E ATALHOS -->
+            <div class="help-section">
+                <h2><i class="fas fa-lightbulb"></i> Dicas e Boas Práticas</h2>
+
+                <div class="alert-custom alert-tip">
+                    <i class="fas fa-check-circle"></i> <strong>Sempre adicione diagnóstico detalhado</strong> - Facilita o entendimento do problema e ajuda em casos futuros similares.
+                </div>
+
+                <div class="alert-custom alert-tip">
+                    <i class="fas fa-check-circle"></i> <strong>Use prioridades corretamente</strong> - Urgente apenas para casos críticos, Normal para maioria dos casos.
+                </div>
+
+                <div class="alert-custom alert-tip">
+                    <i class="fas fa-check-circle"></i> <strong>Atribua técnicos especializados</strong> - Verifique a especialidade do técnico antes de atribuir.
+                </div>
+
+                <div class="alert-custom alert-tip">
+                    <i class="fas fa-check-circle"></i> <strong>Mantenha clientes informados</strong> - Atualize o status regularmente e adicione observações quando necessário.
+                </div>
+
+                <div class="alert-custom alert-tip">
+                    <i class="fas fa-check-circle"></i> <strong>Use o botão "Meus Chamados"</strong> - Técnicos podem focar apenas nos chamados atribuídos a eles.
+                </div>
+
+                <div class="alert-custom alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Não delete chamados finalizados</strong> - Mantenha o histórico para referências futuras e relatórios.
+                </div>
+
+                <div class="alert-custom alert-info">
+                    <i class="fas fa-info-circle"></i> <strong>Todas as alterações são registradas</strong> - O sistema mantém histórico completo de todas as mudanças no chamado.
+                </div>
+            </div>
+
+            <!-- PROBLEMAS COMUNS -->
+            <div class="help-section">
+                <h2><i class="fas fa-wrench"></i> Problemas Comuns</h2>
+
+                <h3>❓ Não consigo alterar o status</h3>
+                <p><strong>Solução:</strong> Chamados finalizados (Concluído, Cancelado, Entregue) não podem ter status alterado. Apenas administradores podem reabrir chamados cancelados.</p>
+
+                <h3>❓ Não vejo o botão "Finalizar Chamado"</h3>
+                <p><strong>Solução:</strong> Este botão só aparece se você for o técnico atribuído ao chamado ou se for administrador.</p>
+
+                <h3>❓ O filtro "Meus Chamados" não mostra nada</h3>
+                <p><strong>Solução:</strong> Você não tem chamados atribuídos. Peça ao coordenador para atribuir chamados a você, ou atribua você mesmo.</p>
+
+                <h3>❓ Erro ao salvar: "Token inválido"</h3>
+                <p><strong>Solução:</strong> Seu login expirou (válido por 24h). Faça logout e login novamente.</p>
+            </div>
+        </div>
+    </div>
+
+    <button class="back-button" onclick="window.close();" title="Fechar Ajuda (ESC)">
+        <i class="fas fa-times"></i>
+    </button>
+
+    <script>
+        // Fechar com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.close();
+            }
+        });
+
+        // Smooth scroll para âncoras
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

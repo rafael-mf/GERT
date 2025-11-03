@@ -1,0 +1,89 @@
+<div class="modal-header bg-success text-white">
+  <h5 class="modal-title">
+    <i class="fas fa-flag-checkered me-2"></i>
+    Finalizar Chamado {{ chamadoNumero || '#' + chamadoId }}
+  </h5>
+  <button type="button" class="btn-close btn-close-white" 
+          [disabled]="loading"
+          (click)="fechar()" 
+          aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+  <!-- Alerta informativo -->
+  <div class="alert alert-info d-flex align-items-start">
+    <i class="fas fa-info-circle me-2 mt-1"></i>
+    <div>
+      <strong>Atenção:</strong> Ao finalizar este chamado:
+      <ul class="mb-0 mt-2">
+        <li>O status será alterado para <strong>Concluído</strong></li>
+        <li>A data de fechamento será registrada</li>
+        <li>O histórico será atualizado automaticamente</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Campo Diagnóstico -->
+  <div class="mb-3">
+    <label for="diagnostico" class="form-label">
+      <i class="fas fa-stethoscope me-1"></i>
+      Diagnóstico <span class="text-danger">*</span>
+    </label>
+    <textarea 
+      id="diagnostico"
+      [(ngModel)]="diagnostico" 
+      class="form-control" 
+      rows="4" 
+      placeholder="Descreva o problema identificado no dispositivo..."
+      [disabled]="loading"
+      required></textarea>
+    <div class="form-text">
+      <i class="fas fa-lightbulb me-1"></i>
+      Exemplo: "Tela quebrada após queda. Conector de carga danificado."
+    </div>
+  </div>
+
+  <!-- Campo Solução -->
+  <div class="mb-3">
+    <label for="solucao" class="form-label">
+      <i class="fas fa-tools me-1"></i>
+      Solução Aplicada <span class="text-danger">*</span>
+    </label>
+    <textarea 
+      id="solucao"
+      [(ngModel)]="solucao" 
+      class="form-control" 
+      rows="4" 
+      placeholder="Descreva como o problema foi resolvido..."
+      [disabled]="loading"
+      required></textarea>
+    <div class="form-text">
+      <i class="fas fa-lightbulb me-1"></i>
+      Exemplo: "Substituída tela original por nova. Trocado conector de carga. Testado funcionamento."
+    </div>
+  </div>
+
+  <!-- Avisos de validação -->
+  <div *ngIf="!diagnostico && !solucao" class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    Preencha o diagnóstico e a solução para finalizar o chamado.
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" 
+          class="btn btn-secondary" 
+          [disabled]="loading"
+          (click)="fechar()">
+    <i class="fas fa-times me-2"></i>
+    Cancelar
+  </button>
+  <button type="button" 
+          class="btn btn-success" 
+          (click)="finalizarChamado()" 
+          [disabled]="!diagnostico || !solucao || loading">
+    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+    <i *ngIf="!loading" class="fas fa-check me-2"></i>
+    {{ loading ? 'Finalizando...' : 'Finalizar e Concluir' }}
+  </button>
+</div>

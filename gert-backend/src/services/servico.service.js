@@ -3,25 +3,30 @@ const { Servico } = require('../models');
 class ServicoService {
   async getAllServicos(query = {}) {
     const { page = 1, limit = 10, search = '' } = query;
-    const offset = (page - 1) * limit;
+    
+    // Validar paginação
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
+    const offset = (pageNum - 1) * limitNum;
 
     const where = {};
-    if (search) {
-      where.nome = { [require('sequelize').Op.iLike]: `%${search}%` };
+    if (search && search !== 'undefined' && search !== 'null' && search.trim() !== '') {
+      // Usar LIKE ao invés de iLike para MySQL
+      where.nome = { [require('sequelize').Op.like]: `%${search.trim()}%` };
     }
 
     const { count, rows } = await Servico.findAndCountAll({
       where,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
+      limit: limitNum,
+      offset: offset,
       order: [['nome', 'ASC']]
     });
 
     return {
       servicos: rows,
       totalItems: count,
-      totalPages: Math.ceil(count / limit),
-      currentPage: parseInt(page)
+      totalPages: Math.ceil(count / limitNum),
+      currentPage: pageNum
     };
   }
 

@@ -233,7 +233,8 @@ INSERT INTO status_chamados (nome, descricao, cor) VALUES
 ('Em andamento', 'Serviço em execução', '#0000FF'),
 ('Aguardando peça', 'Serviço aguardando chegada de peça', '#800080'),
 ('Concluído', 'Serviço finalizado', '#008000'),
-('Cancelado', 'Chamado cancelado', '#808080');
+('Cancelado', 'Chamado cancelado', '#808080'),
+('Entregue', 'Dispositivo entregue ao cliente após conclusão do serviço', '#28a745');
 
 -- Inserção de dados iniciais para prioridades
 INSERT INTO prioridades (nome, descricao, cor) VALUES 
@@ -259,8 +260,8 @@ INSERT INTO categorias_pecas (nome, descricao) VALUES
 
 -- Criação de um usuário administrador inicial
 INSERT INTO usuarios (nome, email, senha, cargo, ativo) VALUES 
-('Administrador', 'admin@sistema.com', '$2a$10$JfGj1Gm/eIN6KsZy.vU4s.XTCi9tPQbJ.3eFhnUjC8GIlxAQ6K24O', 'Administrador', TRUE);
--- Senha: admin123 (hash BCrypt)
+('Administrador', 'admin@sistema.com', '$2a$10$XyB4jAoQ/y4bvOBE/qB53e4nOIJC.bhYjQBIM8ZwxXoCQW2hjTjiG', 'Administrador', TRUE);
+-- Senha: Admin@123 (hash BCrypt)
 
 -- Conceder privilégios ao usuário da aplicação
 GRANT ALL PRIVILEGES ON gert.* TO 'app_user'@'%';

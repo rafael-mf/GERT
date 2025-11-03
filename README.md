@@ -127,7 +127,7 @@ npm start
 
 ```
 📧 Email: admin@sistema.com
-🔑 Senha: admin123
+🔑 Senha: Admin@123
 👑 Nível: Administrador
 ```
 

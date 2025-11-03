@@ -1,0 +1,83 @@
+<!-- gert-frontend/src/app/shared/components/atribuir-tecnico-modal/atribuir-tecnico-modal.component.html -->
+<div class="modal-header bg-primary text-white">
+  <h5 class="modal-title">
+    <i class="fas fa-user-plus me-2"></i>
+    Atribuir Técnico ao Chamado {{ chamadoNumero }}
+  </h5>
+  <button type="button" class="btn-close btn-close-white" 
+          [disabled]="loading"
+          (click)="fechar()" 
+          aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+  <!-- Alerta informativo -->
+  <div class="alert alert-info d-flex align-items-start">
+    <i class="fas fa-info-circle me-2 mt-1"></i>
+    <div>
+      <p class="mb-0">Selecione o técnico responsável por este chamado.</p>
+      <p *ngIf="tecnicoAtualId && getTecnicoAtual()" class="mb-0 mt-2">
+        <strong>Técnico atual:</strong> {{ getTecnicoAtual() }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Seleção de Técnico -->
+  <div class="mb-3">
+    <label for="tecnico" class="form-label">
+      <i class="fas fa-user-cog me-1"></i>
+      Técnico <span class="text-danger">*</span>
+    </label>
+    <select 
+      id="tecnico"
+      [(ngModel)]="tecnicoSelecionadoId" 
+      class="form-control" 
+      [disabled]="loading"
+      required>
+      <option [ngValue]="null">-- Selecione um técnico --</option>
+      <option *ngFor="let tecnico of tecnicosList" [ngValue]="tecnico.id">
+        {{ tecnico.usuario?.nome }}
+      </option>
+    </select>
+    <!-- <div class="form-text">
+      <i class="fas fa-lightbulb me-1"></i>
+      O técnico selecionado será notificado sobre a atribuição.
+    </div> -->
+  </div>
+
+  <!-- Avisos de validação -->
+  <div *ngIf="!tecnicoSelecionadoId" class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    Selecione um técnico para atribuir ao chamado.
+  </div>
+</div>
+
+<div class="modal-footer">
+  <button type="button" 
+          class="btn btn-secondary" 
+          [disabled]="loading"
+          (click)="fechar()">
+    <i class="fas fa-times me-2"></i>
+    Cancelar
+  </button>
+  
+  <button type="button" 
+          *ngIf="tecnicoAtualId"
+          class="btn btn-warning" 
+          (click)="removerAtribuicao()" 
+          [disabled]="loading">
+    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+    <i *ngIf="!loading" class="fas fa-user-minus me-2"></i>
+    Remover Atribuição
+  </button>
+  
+  <button type="button" 
+          class="btn btn-primary" 
+          (click)="atribuirTecnico()" 
+          [disabled]="!tecnicoSelecionadoId || loading">
+    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+    <i *ngIf="!loading" class="fas fa-check me-2"></i>
+    {{ loading ? 'Atribuindo...' : 'Atribuir Técnico' }}
+  </button>
+</div>
+

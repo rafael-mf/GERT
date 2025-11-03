@@ -102,4 +102,17 @@ export class ListaTecnicoComponent implements OnInit {
       });
     }
   }
+
+  // === MÉTODO PARA PAGINAÇÃO PADRÃO ===
+  getPagesArray(): number[] {
+    const pages: number[] = [];
+    const start = Math.max(1, this.page - 2);
+    const end = Math.min(this.paginatedTecnicos.totalPages, this.page + 2);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
 }

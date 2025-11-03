@@ -11,11 +11,18 @@ class PecaService {
       limit = 10,
     } = queryParams;
 
-    const offset = (page - 1) * limit;
+    // Validar paginação
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
+    const offset = (pageNum - 1) * limitNum;
+    
     const where = {};
 
-    if (categoriaId) where.categoriaId = categoriaId;
-    if (estoqueBaixo === 'true') {
+    if (categoriaId && categoriaId !== 'undefined' && categoriaId !== 'null' && categoriaId !== '') {
+      where.categoriaId = parseInt(categoriaId, 10);
+    }
+    
+    if (estoqueBaixo === 'true' || estoqueBaixo === true) {
       where[Op.and] = [
         { estoqueAtual: { [Op.lte]: sequelize.col('estoqueMinimo') } },
         { ativo: true }
@@ -24,12 +31,13 @@ class PecaService {
       where.ativo = true;
     }
 
-    if (searchTerm) {
+    if (searchTerm && searchTerm !== 'undefined' && searchTerm !== 'null' && searchTerm.trim() !== '') {
+      const termo = searchTerm.trim();
       where[Op.or] = [
-        { nome: { [Op.like]: `%${searchTerm}%` } },
-        { codigo: { [Op.like]: `%${searchTerm}%` } },
-        { marca: { [Op.like]: `%${searchTerm}%` } },
-        { modelo: { [Op.like]: `%${searchTerm}%` } },
+        { nome: { [Op.like]: `%${termo}%` } },
+        { codigo: { [Op.like]: `%${termo}%` } },
+        { marca: { [Op.like]: `%${termo}%` } },
+        { modelo: { [Op.like]: `%${termo}%` } },
       ];
     }
 
@@ -42,16 +50,16 @@ class PecaService {
           attributes: ['id', 'nome']
         }
       ],
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit: limitNum,
+      offset: offset,
       order: [['nome', 'ASC']],
       distinct: true,
     });
 
     return {
       totalItems: count,
-      totalPages: Math.ceil(count / limit),
-      currentPage: parseInt(page, 10),
+      totalPages: Math.ceil(count / limitNum),
+      currentPage: pageNum,
       pecas: rows
     };
   }

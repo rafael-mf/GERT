@@ -1,1 +1,62 @@
 // Estilos específicos para o componente lista-chamados
+
+// Botão "Meus Chamados Ativos"
+.btn-primary, .btn-outline-primary {
+  transition: all 0.3s ease;
+  font-weight: 500;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+}
+
+.btn-primary {
+  .badge {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+  }
+}
+
+// Indicadores visuais nas linhas da tabela
+.table-danger {
+  background-color: #f8d7da !important;
+  border-left: 4px solid #dc3545 !important;
+}
+
+.table-warning {
+  background-color: #fff3cd !important;
+  border-left: 4px solid #ffc107 !important;
+}
+
+.chamado-urgente {
+  font-weight: 600;
+}
+
+// Badges personalizados
+.badge {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.65rem;
+  font-weight: 500;
+}
+
+// Animações suaves
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.badge-pulse {
+  animation: pulse 2s infinite;
+}

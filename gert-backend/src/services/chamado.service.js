@@ -28,21 +28,35 @@ class ChamadoService {
       page = 1,
       limit = 10,
     } = queryParams;
-    const offset = (page - 1) * limit;
+    
+    // Validar e sanitizar paginação
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
+    const offset = (pageNum - 1) * limitNum;
+    
     const where = {};
 
-    if (statusId) where.statusId = statusId;
-    if (prioridadeId) where.prioridadeId = prioridadeId;
-    if (tecnicoId) where.tecnicoId = tecnicoId;
-    if (clienteId) where.clienteId = clienteId;
+    // Validar e aplicar filtros apenas se tiverem valores válidos
+    if (statusId && statusId !== 'undefined' && statusId !== 'null' && statusId !== '') {
+      where.statusId = parseInt(statusId, 10);
+    }
+    if (prioridadeId && prioridadeId !== 'undefined' && prioridadeId !== 'null' && prioridadeId !== '') {
+      where.prioridadeId = parseInt(prioridadeId, 10);
+    }
+    if (tecnicoId && tecnicoId !== 'undefined' && tecnicoId !== 'null' && tecnicoId !== '') {
+      where.tecnicoId = parseInt(tecnicoId, 10);
+    }
+    if (clienteId && clienteId !== 'undefined' && clienteId !== 'null' && clienteId !== '') {
+      where.clienteId = parseInt(clienteId, 10);
+    }
 
-    if (searchTerm) {
+    if (searchTerm && searchTerm !== 'undefined' && searchTerm !== 'null' && searchTerm.trim() !== '') {
       where[Op.or] = [
-        { titulo: { [Op.like]: `%${searchTerm}%` } },
-        { descricao: { [Op.like]: `%${searchTerm}%` } },
-        { '$cliente.nome$': { [Op.like]: `%${searchTerm}%` } },
-        { '$dispositivo.modelo$': { [Op.like]: `%${searchTerm}%` } },
-        { '$dispositivo.marca$': { [Op.like]: `%${searchTerm}%` } },
+        { titulo: { [Op.like]: `%${searchTerm.trim()}%` } },
+        { descricao: { [Op.like]: `%${searchTerm.trim()}%` } },
+        { '$cliente.nome$': { [Op.like]: `%${searchTerm.trim()}%` } },
+        { '$dispositivo.modelo$': { [Op.like]: `%${searchTerm.trim()}%` } },
+        { '$dispositivo.marca$': { [Op.like]: `%${searchTerm.trim()}%` } },
       ];
     }
 
@@ -60,11 +74,11 @@ class ChamadoService {
         { model: Prioridade, as: 'prioridade', attributes: ['id', 'nome', 'cor'] },
         { model: StatusChamado, as: 'status', attributes: ['id', 'nome', 'cor'] },
       ],
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit: limitNum,
+      offset: offset,
       order: [['dataAbertura', 'DESC']],
     });
-    return { totalItems: count,totalPages: Math.ceil(count / limit), currentPage: parseInt(page, 10), chamados: rows };
+    return { totalItems: count,totalPages: Math.ceil(count / limitNum), currentPage: pageNum, chamados: rows };
   }
 
   async getChamadoById(id) {

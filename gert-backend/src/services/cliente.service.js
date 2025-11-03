@@ -4,25 +4,31 @@ const { Op } = require('sequelize');
 class ClienteService {
   async getAllClientes(queryParams) {
     const { searchTerm, page = 1, limit = 10 } = queryParams;
-    const offset = (page - 1) * limit;
+    
+    // Validar paginação
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 10));
+    const offset = (pageNum - 1) * limitNum;
+    
     const where = {};
 
-    if (searchTerm) {
+    if (searchTerm && searchTerm !== 'undefined' && searchTerm !== 'null' && searchTerm.trim() !== '') {
+      const termo = searchTerm.trim();
       where[Op.or] = [
-        { nome: { [Op.like]: `%${searchTerm}%` } },
-        { email: { [Op.like]: `%${searchTerm}%` } },
-        { cpfCnpj: { [Op.like]: `%${searchTerm}%` } },
-        { telefone: { [Op.like]: `%${searchTerm}%` } },
+        { nome: { [Op.like]: `%${termo}%` } },
+        { email: { [Op.like]: `%${termo}%` } },
+        { cpfCnpj: { [Op.like]: `%${termo}%` } },
+        { telefone: { [Op.like]: `%${termo}%` } },
       ];
     }
 
     const { count, rows } = await Cliente.findAndCountAll({
       where,
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit: limitNum,
+      offset: offset,
       order: [['nome', 'ASC']],
     });
-    return { totalItems: count, totalPages: Math.ceil(count / limit), currentPage: parseInt(page, 10), clientes: rows };
+    return { totalItems: count, totalPages: Math.ceil(count / limitNum), currentPage: pageNum, clientes: rows };
   }
 
   async getClienteById(id) {

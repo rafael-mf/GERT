@@ -1,0 +1,35 @@
+// gert-frontend/src/app/shared/components/diagnostico-modal/diagnostico-modal.component.scss
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #007bff;
+
+  .modal-title {
+    color: #007bff;
+    font-weight: 600;
+  }
+}
+
+.modal-body {
+  padding: 1.5rem;
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .alert-info {
+    background-color: #e7f3ff;
+    border-color: #b3d9ff;
+    color: #004085;
+
+    p {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  }
+}
+
+.modal-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
