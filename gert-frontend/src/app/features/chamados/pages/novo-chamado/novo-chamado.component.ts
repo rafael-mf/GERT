@@ -106,14 +106,34 @@ export class NovoChamadoComponent implements OnInit {
     }
 
     this.loading = true;
-    this.chamadoService.createChamado(this.chamadoForm.value).subscribe({
+    
+    // Preparar dados do formulário, convertendo strings vazias em null
+    const dadosChamado = { ...this.chamadoForm.value };
+    
+    // Se tecnicoId for string vazia, converter para null
+    if (dadosChamado.tecnicoId === '' || dadosChamado.tecnicoId === null) {
+      delete dadosChamado.tecnicoId; // Remove o campo se não for atribuído
+    } else {
+      dadosChamado.tecnicoId = Number(dadosChamado.tecnicoId);
+    }
+    
+    // Garantir que os outros IDs sejam números
+    dadosChamado.clienteId = Number(dadosChamado.clienteId);
+    dadosChamado.dispositivoId = Number(dadosChamado.dispositivoId);
+    dadosChamado.prioridadeId = Number(dadosChamado.prioridadeId);
+    
+    console.log('Dados do formulário:', dadosChamado);
+    
+    this.chamadoService.createChamado(dadosChamado).subscribe({
       next: () => {
         this.toastr.success('Chamado criado com sucesso!');
         this.router.navigate(['/chamados']);
       },
       error: (err) => {
-        this.toastr.error('Falha ao criar o chamado. Tente novamente.');
-        console.error(err);
+        // Mostra mensagem de erro específica do backend se disponível
+        const errorMessage = err?.error?.message || 'Falha ao criar o chamado. Tente novamente.';
+        this.toastr.error(errorMessage);
+        console.error('Erro ao criar chamado:', err);
         this.loading = false;
       }
     });

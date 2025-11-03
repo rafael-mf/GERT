@@ -134,6 +134,23 @@ class ChamadoService {
   }
 
   async createChamado(dadosChamado) {
+    // Validações de campos obrigatórios
+    if (!dadosChamado.titulo || dadosChamado.titulo.trim() === '') {
+      throw new Error('O campo "título" é obrigatório.');
+    }
+    if (!dadosChamado.descricao || dadosChamado.descricao.trim() === '') {
+      throw new Error('O campo "descrição" é obrigatório.');
+    }
+    if (!dadosChamado.clienteId) {
+      throw new Error('O campo "cliente" é obrigatório.');
+    }
+    if (!dadosChamado.dispositivoId) {
+      throw new Error('O campo "dispositivo" é obrigatório.');
+    }
+    if (!dadosChamado.prioridadeId) {
+      throw new Error('O campo "prioridade" é obrigatório.');
+    }
+
     if (!dadosChamado.statusId) {
         const statusAberto = await StatusChamado.findOne({ where: { nome: 'Aberto' } });
         if (statusAberto) {

@@ -36,6 +36,13 @@ class ChamadoController {
 
       res.status(201).json(novoChamado);
     } catch (error) {
+      // Se for erro de validação, retornar 400 com a mensagem
+      if (error.message && (
+        error.message.includes('obrigatório') ||
+        error.message.includes('não encontrado')
+      )) {
+        return res.status(400).json({ message: error.message });
+      }
       next(error);
     }
   }
