@@ -1,0 +1,66 @@
+================================================================
+🚨 MIGRAÇÃO EXPRESS - GERT PARA OUTRA MÁQUINA
+================================================================
+
+📦 ARQUIVOS CRIADOS:
+   ✅ backup-database.sql (50 KB) - BACKUP COMPLETO DO BANCO
+   ✅ MIGRAÇÃO-URGENTE.md - GUIA PASSO A PASSO DETALHADO
+   ✅ import-backup.js - SCRIPT DE IMPORTAÇÃO AUTOMÁTICO
+
+================================================================
+⚡ AÇÃO RÁPIDA - COPIE ESTES ARQUIVOS:
+================================================================
+
+1. backup-database.sql
+2. gert-backend/ (pasta completa)
+3. gert-frontend/ (pasta completa)
+4. MIGRAÇÃO-URGENTE.md (guia)
+
+================================================================
+🎯 NA OUTRA MÁQUINA - FAÇA NESSA ORDEM:
+================================================================
+
+INSTALAR (se não tiver):
+   1. MySQL 8.0
+   2. Node.js 18+
+   3. npm install -g @angular/cli
+
+IMPORTAR BANCO:
+   cd gert-backend
+   npm install
+   node import-backup.js
+
+CONFIGURAR:
+   Edite gert-backend/.env
+   Mude: MYSQL_URL=mysql://root:SUA_SENHA@localhost:3306/gert
+
+RODAR BACKEND:
+   npm start
+
+RODAR FRONTEND (outro terminal):
+   cd gert-frontend
+   npm install
+   ng serve
+
+ACESSAR:
+   http://localhost:4200
+   Login: admin@gert.com
+   Senha: Admin@123
+
+================================================================
+📊 O QUE FOI EXPORTADO:
+================================================================
+
+✅ 18 tabelas completas
+✅ Todos os usuários (Admin, Técnicos, Clientes)
+✅ Todos os chamados com histórico
+✅ 8 Status (incluindo "Entregue")
+✅ 4 Prioridades
+✅ Dispositivos, Serviços, Peças
+✅ Logs e atualizações
+
+================================================================
+
+🔥 URGENTE: Leia MIGRAÇÃO-URGENTE.md para detalhes completos!
+
+================================================================
