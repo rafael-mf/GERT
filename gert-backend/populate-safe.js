@@ -14,7 +14,7 @@ async function verificarEInserirDadosIniciais() {
     console.log('👤 Verificando usuário admin...');
     const adminExistente = await Usuario.findOne({ where: { email: 'admin@gert.com' } });
     if (!adminExistente) {
-      const hashedPassword = await bcrypt.hash('admin123', 10);
+      const hashedPassword = await bcrypt.hash('Admin@123', 10);
       await Usuario.create({
         nome: 'Administrador',
         email: 'admin@gert.com',
@@ -22,7 +22,7 @@ async function verificarEInserirDadosIniciais() {
         cargo: 'admin',
         ativo: true
       });
-      console.log('✅ Usuário admin criado');
+      console.log('✅ Usuário admin criado (senha: Admin@123)');
     } else {
       console.log('⚠️ Usuário admin já existe');
     }

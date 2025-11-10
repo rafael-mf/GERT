@@ -62,7 +62,7 @@ async function populateDatabase() {
     
     console.log('\n🎉 BANCO POPULADO COM SUCESSO!');
     console.log('📋 Dados disponíveis:');
-    console.log('   - Usuário admin: admin@gert.com / admin123');
+    console.log('   - Usuário admin: admin@gert.com / Admin@123');
     console.log('   - Categorias e status pré-cadastrados');
     console.log('   - Serviços padrão configurados');
     
